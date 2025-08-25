@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
+import { Button } from "@workspace/ui/components/button"
 
 import logo from "../logo.svg"
 
@@ -16,7 +17,11 @@ function App() {
           alt="logo"
         />
         <p>
-          Edit <code>src/routes/index.tsx</code> and save to reload.
+          Edit{" "}
+          <code className="rounded bg-gray-700 px-2 py-1">
+            src/routes/index.tsx
+          </code>{" "}
+          and save to reload.
         </p>
         <a
           className="text-[#61dafb] hover:underline"
@@ -34,6 +39,10 @@ function App() {
         >
           Learn TanStack
         </a>
+
+        <div className="flex flex-wrap items-center gap-2 md:flex-row">
+          <Button>Button</Button>
+        </div>
       </header>
     </div>
   )
