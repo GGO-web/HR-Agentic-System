@@ -1,5 +1,7 @@
 @import "@workspace/ui/globals.css";
 
+@source '../../../packages/ui';
+
 :root {
   --font-family: "Noto Sans", sans-serif;
 }
