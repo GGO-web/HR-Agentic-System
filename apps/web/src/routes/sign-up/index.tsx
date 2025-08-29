@@ -16,8 +16,6 @@ function SignUpPage() {
               card: "shadow-lg rounded-lg",
             },
           }}
-          routing="path"
-          path="/sign-up"
           signInUrl="/sign-in"
         />
       </div>
