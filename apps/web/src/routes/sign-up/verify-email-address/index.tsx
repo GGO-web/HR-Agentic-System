@@ -1,4 +1,5 @@
 import { useSignUp } from "@clerk/clerk-react"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -9,10 +10,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@workspace/ui/components/form"
 import { Input } from "@workspace/ui/components/input"
-import { Label } from "@workspace/ui/components/label"
 import { useState, useEffect } from "react"
+import { useForm } from "react-hook-form"
 import { toast } from "react-toastify"
+import { type z } from "zod"
+
+import { verificationFormSchema } from "./schema/verification.schema"
 
 export const Route = createFileRoute("/sign-up/verify-email-address/")({
   component: VerifyEmailPage,
@@ -20,10 +32,18 @@ export const Route = createFileRoute("/sign-up/verify-email-address/")({
 
 function VerifyEmailPage() {
   const { isLoaded, signUp, setActive } = useSignUp()
-  const [verificationCode, setVerificationCode] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [isCodeSent, setIsCodeSent] = useState(false)
   const navigate = useNavigate()
+
+  // Initialize React Hook Form
+  const form = useForm({
+    resolver: zodResolver(verificationFormSchema),
+    defaultValues: {
+      verificationCode: "",
+    },
+  })
+
+  const isSubmitting = form.formState.isSubmitting
 
   // Send verification code when component mounts
   useEffect(() => {
@@ -49,19 +69,12 @@ function VerifyEmailPage() {
     return <div>Loading...</div>
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-
-    if (!verificationCode) {
-      toast.error("Please enter the verification code")
-      return
-    }
-
+  async function onSubmit(data: z.infer<typeof verificationFormSchema>) {
     try {
-      setIsSubmitting(true)
       if (!signUp) return
+
       const completeSignUp = await signUp.attemptEmailAddressVerification({
-        code: verificationCode,
+        code: data.verificationCode,
       })
 
       if (completeSignUp.status === "complete") {
@@ -76,15 +89,12 @@ function VerifyEmailPage() {
     } catch (error) {
       toast.error("Failed to verify email. Please try again.")
       console.error(error)
-    } finally {
-      setIsSubmitting(false)
     }
   }
 
   async function handleResendCode() {
     try {
       if (signUp) {
-        setIsSubmitting(true)
         await signUp.prepareEmailAddressVerification({ strategy: "email_code" })
         setIsCodeSent(true)
         toast.info("Verification code has been resent to your email")
@@ -92,8 +102,6 @@ function VerifyEmailPage() {
     } catch (error) {
       toast.error("Failed to resend code. Please try again.")
       console.error(error)
-    } finally {
-      setIsSubmitting(false)
     }
   }
 
@@ -106,35 +114,47 @@ function VerifyEmailPage() {
             Enter the verification code sent to your email
           </CardDescription>
         </CardHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <CardContent>
-            <div className="grid w-full items-center gap-4">
-              <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="verificationCode">Verification Code</Label>
-                <Input
-                  id="verificationCode"
-                  placeholder="Enter code"
-                  value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value)}
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <CardContent>
+              <div className="grid w-full items-center gap-4">
+                <FormField
+                  control={form.control}
+                  name="verificationCode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Verification Code</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter code"
+                          {...field}
+                          autoComplete="one-time-code"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col gap-2">
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? "Verifying..." : "Verify Email"}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full"
-              onClick={handleResendCode}
-              disabled={isSubmitting}
-            >
-              Resend Code
-            </Button>
-          </CardFooter>
-        </form>
+            </CardContent>
+
+            <CardFooter className="flex flex-col gap-2">
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? "Verifying..." : "Verify Email"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={handleResendCode}
+                disabled={isSubmitting}
+              >
+                Resend Code
+              </Button>
+            </CardFooter>
+          </form>
+        </Form>
       </Card>
     </div>
   )

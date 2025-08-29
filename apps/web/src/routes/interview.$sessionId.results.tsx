@@ -1,3 +1,4 @@
+import { type Id } from "@convex/_generated/dataModel"
 import { createFileRoute } from "@tanstack/react-router"
 
 import { InterviewResults } from "@/components/interview/InterviewResults"
@@ -12,7 +13,7 @@ function InterviewResultsPage() {
 
   return (
     <ProtectedRoute requireAuth>
-      <InterviewResults sessionId={sessionId} />
+      <InterviewResults sessionId={sessionId as Id<"interviewSessions">} />
     </ProtectedRoute>
   )
 }
