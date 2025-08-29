@@ -1,6 +1,6 @@
 import { api } from "@convex/_generated/api"
 import { type Id } from "@convex/_generated/dataModel"
-import { Link } from "@tanstack/react-router"
+import { Link, useRouter } from "@tanstack/react-router"
 import { useQuery } from "convex/react"
 
 interface InterviewResultsProps {
@@ -10,6 +10,8 @@ interface InterviewResultsProps {
 export function InterviewResults({ sessionId }: InterviewResultsProps) {
   // Fetch interview session
   const session = useQuery(api.interviewSessions.getById, { id: sessionId })
+
+  const router = useRouter()
 
   // Fetch job description
   const jobDescription = useQuery(
@@ -59,7 +61,7 @@ export function InterviewResults({ sessionId }: InterviewResultsProps) {
         </div>
 
         <Link
-          to="/dashboard"
+          to={router.routesByPath["/dashboard"].fullPath}
           className="bg-primary text-primary-foreground rounded-md px-4 py-2 text-sm"
         >
           Back to Dashboard

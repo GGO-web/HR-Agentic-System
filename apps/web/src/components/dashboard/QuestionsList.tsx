@@ -8,7 +8,9 @@ interface QuestionsListProps {
 }
 
 export function QuestionsList({ questions }: QuestionsListProps) {
-  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editingId, setEditingId] = useState<Id<"interviewQuestions"> | null>(
+    null,
+  )
   const [editText, setEditText] = useState("")
 
   const updateQuestion = useMutation(api.interviewQuestions.update)

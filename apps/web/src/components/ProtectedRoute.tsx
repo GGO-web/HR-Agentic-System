@@ -1,4 +1,4 @@
-import { Navigate } from "@tanstack/react-router"
+import { Navigate, useRouter } from "@tanstack/react-router"
 import { type ReactNode } from "react"
 
 import { useAuth } from "../hooks/useAuth"
@@ -17,6 +17,7 @@ export function ProtectedRoute({
   requireCandidate = false,
 }: ProtectedRouteProps) {
   const { isSignedIn, isLoading, isHRManager, isCandidate } = useAuth()
+  const router = useRouter()
 
   // Show loading state
   if (isLoading) {
@@ -25,17 +26,17 @@ export function ProtectedRoute({
 
   // Check authentication
   if (requireAuth && !isSignedIn) {
-    return <Navigate to="/sign-in" />
+    return <Navigate to={router.routesByPath["/sign-in"].fullPath} />
   }
 
   // Check HR manager role
   if (requireHRManager && !isHRManager) {
-    return <Navigate to="/unauthorized" />
+    return <Navigate to={router.routesByPath["/unauthorized"].fullPath} />
   }
 
   // Check candidate role
   if (requireCandidate && !isCandidate) {
-    return <Navigate to="/unauthorized" />
+    return <Navigate to={router.routesByPath["/unauthorized"].fullPath} />
   }
 
   return <>{children}</>

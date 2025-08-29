@@ -1,11 +1,13 @@
 import { SignIn } from "@clerk/clerk-react"
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute, useRouter } from "@tanstack/react-router"
 
 export const Route = createFileRoute("/sign-in")({
   component: SignInPage,
 })
 
 function SignInPage() {
+  const router = useRouter()
+
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="w-full max-w-md">
@@ -16,9 +18,7 @@ function SignInPage() {
               card: "shadow-lg rounded-lg",
             },
           }}
-          routing="path"
-          path="/sign-in"
-          signUpUrl="/sign-up"
+          signUpUrl={router.routesByPath["/sign-up"].fullPath}
         />
       </div>
     </div>

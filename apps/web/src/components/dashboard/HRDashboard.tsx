@@ -1,16 +1,18 @@
+import { api } from "@convex/_generated/api"
+import { type Id } from "@convex/_generated/dataModel"
 import { useMutation, useQuery } from "convex/react"
 import { useState } from "react"
-
-import { api } from "../../../convex/_generated/api"
-import { useAuth } from "../../hooks/useAuth"
 
 import { JobDescriptionForm } from "./JobDescriptionForm"
 import { JobDescriptionList } from "./JobDescriptionList"
 import { QuestionsList } from "./QuestionsList"
 
+import { useAuth } from "@/hooks/useAuth"
+
 export function HRDashboard() {
   const { userData, companyData } = useAuth()
-  const [selectedJobId, setSelectedJobId] = useState<string | null>(null)
+  const [selectedJobId, setSelectedJobId] =
+    useState<Id<"jobDescriptions"> | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
 
   // Fetch job descriptions for the company
@@ -31,7 +33,7 @@ export function HRDashboard() {
   )
 
   // Handle job selection
-  const handleJobSelect = (jobId: string) => {
+  const handleJobSelect = (jobId: Id<"jobDescriptions">) => {
     setSelectedJobId(jobId)
   }
 
@@ -85,10 +87,7 @@ export function HRDashboard() {
               </div>
 
               {questions && questions.length > 0 ? (
-                <QuestionsList
-                  questions={questions}
-                  jobDescriptionId={selectedJobId}
-                />
+                <QuestionsList questions={questions} />
               ) : (
                 <p className="text-muted-foreground">
                   No questions yet. Click "Generate AI Questions" to create

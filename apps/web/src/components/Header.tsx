@@ -1,5 +1,5 @@
 import { SignOutButton, useAuth as useClerkAuth } from "@clerk/clerk-react"
-import { Link } from "@tanstack/react-router"
+import { Link, useRouter } from "@tanstack/react-router"
 import { Button } from "@workspace/ui/components/button"
 
 import { useAuth } from "@/hooks/useAuth"
@@ -7,16 +7,19 @@ import { useAuth } from "@/hooks/useAuth"
 export default function Header() {
   const { isSignedIn } = useAuth()
   const { signOut } = useClerkAuth()
+  const router = useRouter()
 
   return (
     <header className="flex justify-between gap-2 bg-white p-4 text-black shadow-sm">
       <nav className="flex flex-row items-center">
         <div className="px-2 font-bold">
-          <Link to="/">Home</Link>
+          <Link to={router.routesByPath["/"].fullPath}>Home</Link>
         </div>
         {isSignedIn && (
           <div className="px-2">
-            <Link to="/dashboard">Dashboard</Link>
+            <Link to={router.routesByPath["/dashboard"].fullPath}>
+              Dashboard
+            </Link>
           </div>
         )}
       </nav>
@@ -30,12 +33,12 @@ export default function Header() {
           </SignOutButton>
         ) : (
           <div className="flex gap-2">
-            <Link to="/sign-in">
+            <Link to={router.routesByPath["/sign-in"].fullPath}>
               <Button variant="outline" size="sm">
                 Sign In
               </Button>
             </Link>
-            <Link to="/sign-up">
+            <Link to={router.routesByPath["/sign-up"].fullPath}>
               <Button size="sm">Sign Up</Button>
             </Link>
           </div>

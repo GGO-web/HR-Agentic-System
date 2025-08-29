@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute, useRouter } from "@tanstack/react-router"
 import { Link } from "@tanstack/react-router"
 import { Button } from "@workspace/ui/components/button"
 
@@ -10,6 +10,7 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   const { isSignedIn } = useAuth()
+  const router = useRouter()
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -26,15 +27,15 @@ function HomePage() {
 
         <div className="flex flex-wrap gap-4">
           {isSignedIn ? (
-            <Link to="/dashboard">
+            <Link to={router.routesByPath["/dashboard"].fullPath}>
               <Button size="lg">Go to Dashboard</Button>
             </Link>
           ) : (
             <>
-              <Link to="/sign-up">
+              <Link to={router.routesByPath["/sign-up"].fullPath}>
                 <Button size="lg">Get Started</Button>
               </Link>
-              <Link to="/sign-in">
+              <Link to={router.routesByPath["/sign-in"].fullPath}>
                 <Button size="lg" variant="outline">
                   Sign In
                 </Button>

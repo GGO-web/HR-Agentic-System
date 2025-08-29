@@ -1,5 +1,5 @@
 import { api } from "@convex/_generated/api"
-import { Link } from "@tanstack/react-router"
+import { Link, useRouter } from "@tanstack/react-router"
 import { useQuery } from "convex/react"
 
 import type { Doc } from "@convex/_generated/dataModel"
@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth"
 
 export function CandidateDashboard() {
   const { userData } = useAuth()
+  const router = useRouter()
 
   // Fetch interview sessions for the candidate
   const interviewSessions = useQuery(
@@ -47,7 +48,9 @@ export function CandidateDashboard() {
                   <div>
                     {session.status === "scheduled" && (
                       <Link
-                        to={`/interview/$sessionId`}
+                        to={
+                          router.routesByPath["/interview/$sessionId"].fullPath
+                        }
                         params={{ sessionId: session._id }}
                         className="bg-primary text-primary-foreground rounded px-4 py-2 text-sm"
                       >
@@ -57,7 +60,9 @@ export function CandidateDashboard() {
 
                     {session.status === "in_progress" && (
                       <Link
-                        to={`/interview/$sessionId`}
+                        to={
+                          router.routesByPath["/interview/$sessionId"].fullPath
+                        }
                         params={{ sessionId: session._id }}
                         className="bg-primary text-primary-foreground rounded px-4 py-2 text-sm"
                       >
@@ -67,7 +72,10 @@ export function CandidateDashboard() {
 
                     {session.status === "completed" && (
                       <Link
-                        to={`/interview/$sessionId/results`}
+                        to={
+                          router.routesByPath["/interview/$sessionId/results"]
+                            .fullPath
+                        }
                         params={{ sessionId: session._id }}
                         className="bg-secondary text-secondary-foreground rounded px-4 py-2 text-sm"
                       >

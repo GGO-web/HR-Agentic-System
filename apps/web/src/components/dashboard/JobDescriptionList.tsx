@@ -1,9 +1,9 @@
-import { type Doc } from "@convex/_generated/dataModel"
+import { type Id, type Doc } from "@convex/_generated/dataModel"
 
 interface JobDescriptionListProps {
   jobDescriptions: Doc<"jobDescriptions">[]
-  selectedJobId: string | null
-  onSelect: (id: string) => void
+  selectedJobId: Id<"jobDescriptions"> | null
+  onSelect: (id: Id<"jobDescriptions">) => void
 }
 
 export function JobDescriptionList({

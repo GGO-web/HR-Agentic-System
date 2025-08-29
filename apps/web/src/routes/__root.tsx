@@ -18,7 +18,6 @@ export const Route = createRootRoute({
         plugins={[
           {
             name: "Tanstack Router",
-
             render: <TanStackRouterDevtoolsPanel />,
           },
         ]}

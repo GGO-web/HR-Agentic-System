@@ -1,6 +1,6 @@
 import { api } from "@convex/_generated/api"
 import { type Id } from "@convex/_generated/dataModel"
-import { useNavigate } from "@tanstack/react-router"
+import { useNavigate, useRouter } from "@tanstack/react-router"
 import { useQuery, useMutation } from "convex/react"
 import { useState, useEffect } from "react"
 
@@ -17,6 +17,8 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
   const [isRecording, setIsRecording] = useState(false)
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const router = useRouter()
 
   // Fetch interview session
   const session = useQuery(api.interviewSessions.getById, { id: sessionId })
@@ -83,7 +85,7 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
         setCurrentQuestionIndex(currentQuestionIndex + 1)
       } else {
         await completeSession({ id: sessionId })
-        await navigate({ to: "/dashboard" })
+        await navigate({ to: router.routesByPath["/dashboard"].fullPath })
       }
 
       // Reset audio blob
