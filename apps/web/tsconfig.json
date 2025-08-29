@@ -1,6 +1,6 @@
 {
   "extends": "../../packages/typescript-config/base.json",
-  "include": ["src/**/*", "vite.config.ts", "components.json"],
+  "include": ["src/**/*", "vite.config.ts", "components.json", "convex/**/*"],
   "compilerOptions": {
     "types": [
       "vite/client"
@@ -8,9 +8,11 @@
     "baseUrl": ".",
     "paths": {
       "@/*": [
-        "src/*",
-        "../../packages/ui/src/*"
+        "src/*"
       ],
+      "@convex/*": [
+        "./convex/*"
+      ]
     }
   }
 }

@@ -9,38 +9,155 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UnauthorizedRouteImport } from './routes/unauthorized'
+import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SignUpIndexRouteImport } from './routes/sign-up/index'
+import { Route as InterviewSessionIdRouteImport } from './routes/interview.$sessionId'
+import { Route as SignUpVerifyEmailAddressIndexRouteImport } from './routes/sign-up/verify-email-address/index'
+import { Route as InterviewSessionIdResultsRouteImport } from './routes/interview.$sessionId.results'
 
+const UnauthorizedRoute = UnauthorizedRouteImport.update({
+  id: '/unauthorized',
+  path: '/unauthorized',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignInRoute = SignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SignUpIndexRoute = SignUpIndexRouteImport.update({
+  id: '/sign-up/',
+  path: '/sign-up/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InterviewSessionIdRoute = InterviewSessionIdRouteImport.update({
+  id: '/interview/$sessionId',
+  path: '/interview/$sessionId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignUpVerifyEmailAddressIndexRoute =
+  SignUpVerifyEmailAddressIndexRouteImport.update({
+    id: '/sign-up/verify-email-address/',
+    path: '/sign-up/verify-email-address/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const InterviewSessionIdResultsRoute =
+  InterviewSessionIdResultsRouteImport.update({
+    id: '/results',
+    path: '/results',
+    getParentRoute: () => InterviewSessionIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/sign-in': typeof SignInRoute
+  '/unauthorized': typeof UnauthorizedRoute
+  '/interview/$sessionId': typeof InterviewSessionIdRouteWithChildren
+  '/sign-up': typeof SignUpIndexRoute
+  '/interview/$sessionId/results': typeof InterviewSessionIdResultsRoute
+  '/sign-up/verify-email-address': typeof SignUpVerifyEmailAddressIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/sign-in': typeof SignInRoute
+  '/unauthorized': typeof UnauthorizedRoute
+  '/interview/$sessionId': typeof InterviewSessionIdRouteWithChildren
+  '/sign-up': typeof SignUpIndexRoute
+  '/interview/$sessionId/results': typeof InterviewSessionIdResultsRoute
+  '/sign-up/verify-email-address': typeof SignUpVerifyEmailAddressIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
+  '/sign-in': typeof SignInRoute
+  '/unauthorized': typeof UnauthorizedRoute
+  '/interview/$sessionId': typeof InterviewSessionIdRouteWithChildren
+  '/sign-up/': typeof SignUpIndexRoute
+  '/interview/$sessionId/results': typeof InterviewSessionIdResultsRoute
+  '/sign-up/verify-email-address/': typeof SignUpVerifyEmailAddressIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/sign-in'
+    | '/unauthorized'
+    | '/interview/$sessionId'
+    | '/sign-up'
+    | '/interview/$sessionId/results'
+    | '/sign-up/verify-email-address'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/sign-in'
+    | '/unauthorized'
+    | '/interview/$sessionId'
+    | '/sign-up'
+    | '/interview/$sessionId/results'
+    | '/sign-up/verify-email-address'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/sign-in'
+    | '/unauthorized'
+    | '/interview/$sessionId'
+    | '/sign-up/'
+    | '/interview/$sessionId/results'
+    | '/sign-up/verify-email-address/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRoute
+  SignInRoute: typeof SignInRoute
+  UnauthorizedRoute: typeof UnauthorizedRoute
+  InterviewSessionIdRoute: typeof InterviewSessionIdRouteWithChildren
+  SignUpIndexRoute: typeof SignUpIndexRoute
+  SignUpVerifyEmailAddressIndexRoute: typeof SignUpVerifyEmailAddressIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/unauthorized': {
+      id: '/unauthorized'
+      path: '/unauthorized'
+      fullPath: '/unauthorized'
+      preLoaderRoute: typeof UnauthorizedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-in': {
+      id: '/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +165,56 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sign-up/': {
+      id: '/sign-up/'
+      path: '/sign-up'
+      fullPath: '/sign-up'
+      preLoaderRoute: typeof SignUpIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/interview/$sessionId': {
+      id: '/interview/$sessionId'
+      path: '/interview/$sessionId'
+      fullPath: '/interview/$sessionId'
+      preLoaderRoute: typeof InterviewSessionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-up/verify-email-address/': {
+      id: '/sign-up/verify-email-address/'
+      path: '/sign-up/verify-email-address'
+      fullPath: '/sign-up/verify-email-address'
+      preLoaderRoute: typeof SignUpVerifyEmailAddressIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/interview/$sessionId/results': {
+      id: '/interview/$sessionId/results'
+      path: '/results'
+      fullPath: '/interview/$sessionId/results'
+      preLoaderRoute: typeof InterviewSessionIdResultsRouteImport
+      parentRoute: typeof InterviewSessionIdRoute
+    }
   }
 }
 
+interface InterviewSessionIdRouteChildren {
+  InterviewSessionIdResultsRoute: typeof InterviewSessionIdResultsRoute
+}
+
+const InterviewSessionIdRouteChildren: InterviewSessionIdRouteChildren = {
+  InterviewSessionIdResultsRoute: InterviewSessionIdResultsRoute,
+}
+
+const InterviewSessionIdRouteWithChildren =
+  InterviewSessionIdRoute._addFileChildren(InterviewSessionIdRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRoute: DashboardRoute,
+  SignInRoute: SignInRoute,
+  UnauthorizedRoute: UnauthorizedRoute,
+  InterviewSessionIdRoute: InterviewSessionIdRouteWithChildren,
+  SignUpIndexRoute: SignUpIndexRoute,
+  SignUpVerifyEmailAddressIndexRoute: SignUpVerifyEmailAddressIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

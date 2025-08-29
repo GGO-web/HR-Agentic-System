@@ -6,6 +6,10 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
+    "dev:web": "turbo dev --filter=web",
+    "dev:api": "turbo dev --filter=api",
+    "dev:convex": "turbo convex --filter=web",
+    "dev:all": "turbo dev convex",
     "check-types": "turbo check-types",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",

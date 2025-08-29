@@ -1,8 +1,12 @@
 import { RouterProvider, createRouter } from "@tanstack/react-router"
 import { StrictMode } from "react"
 import ReactDOM from "react-dom/client"
+import { ToastContainer } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
 
 // Import the generated route tree
+import { ConvexProvider } from "./providers/ConvexProvider"
+
 import { routeTree } from "@/routeTree.gen"
 
 // Create a new router instance
@@ -28,7 +32,14 @@ if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement)
   root.render(
     <StrictMode>
-      <RouterProvider router={router} />
+      <ConvexProvider>
+        <RouterProvider router={router} />
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+        />
+      </ConvexProvider>
     </StrictMode>,
   )
 }
