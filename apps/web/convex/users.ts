@@ -1,16 +1,27 @@
-import { mutation, query } from "./_generated/server";
-import { v } from "convex/values";
+import { v } from "convex/values"
+
+import { mutation, query } from "./_generated/server"
 
 // Create a new user
 export const create = mutation({
   args: {
     name: v.string(),
     email: v.string(),
-    role: v.string(),
+    role: v.union(v.literal("hr_manager"), v.literal("candidate")),
     companyId: v.optional(v.id("companies")),
     clerkId: v.string(),
   },
   handler: async (ctx, args) => {
+    // Check if user already exists
+    const existingUser = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+      .first()
+
+    if (existingUser) {
+      throw new Error("User already exists")
+    }
+
     const userId = await ctx.db.insert("users", {
       name: args.name,
       email: args.email,
@@ -19,11 +30,12 @@ export const create = mutation({
       clerkId: args.clerkId,
       createdAt: Date.now(),
       updatedAt: Date.now(),
-    });
-    
-    return userId;
+      isActive: true,
+    })
+
+    return userId
   },
-});
+})
 
 // Get user by Clerk ID
 export const getByClerkId = query({
@@ -32,17 +44,17 @@ export const getByClerkId = query({
     return await ctx.db
       .query("users")
       .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
-      .first();
+      .first()
   },
-});
+})
 
 // Get user by ID
 export const getById = query({
   args: { id: v.id("users") },
   handler: async (ctx, args) => {
-    return await ctx.db.get(args.id);
+    return await ctx.db.get(args.id)
   },
-});
+})
 
 // Get users by company ID
 export const getByCompany = query({
@@ -51,9 +63,20 @@ export const getByCompany = query({
     return await ctx.db
       .query("users")
       .withIndex("by_company", (q) => q.eq("companyId", args.companyId))
-      .collect();
+      .collect()
   },
-});
+})
+
+// Get users by role
+export const getByRole = query({
+  args: { role: v.union(v.literal("hr_manager"), v.literal("candidate")) },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("users")
+      .withIndex("by_role", (q) => q.eq("role", args.role))
+      .collect()
+  },
+})
 
 // Update user
 export const update = mutation({
@@ -61,16 +84,72 @@ export const update = mutation({
     id: v.id("users"),
     name: v.optional(v.string()),
     email: v.optional(v.string()),
-    role: v.optional(v.string()),
+    role: v.optional(v.union(v.literal("hr_manager"), v.literal("candidate"))),
+    companyId: v.optional(v.id("companies")),
+    isActive: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const { id, ...updates } = args
+
+    // Only include fields that were provided
+    const fieldsToUpdate = { ...updates, updatedAt: Date.now() }
+
+    await ctx.db.patch(id, fieldsToUpdate)
+    return id
+  },
+})
+
+// Delete user (soft delete by setting isActive to false)
+export const deactivate = mutation({
+  args: { id: v.id("users") },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.id, {
+      isActive: false,
+      updatedAt: Date.now(),
+    })
+    return args.id
+  },
+})
+
+// Sync user from Clerk webhook
+export const syncFromClerk = mutation({
+  args: {
+    clerkId: v.string(),
+    name: v.string(),
+    email: v.string(),
+    role: v.union(v.literal("hr_manager"), v.literal("candidate")),
     companyId: v.optional(v.id("companies")),
   },
   handler: async (ctx, args) => {
-    const { id, ...updates } = args;
-    
-    // Only include fields that were provided
-    const fieldsToUpdate: any = { ...updates, updatedAt: Date.now() };
-    
-    await ctx.db.patch(id, fieldsToUpdate);
-    return id;
+    // Check if user exists
+    const existingUser = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+      .first()
+
+    if (existingUser) {
+      // Update existing user
+      await ctx.db.patch(existingUser._id, {
+        name: args.name,
+        email: args.email,
+        role: args.role,
+        companyId: args.companyId,
+        updatedAt: Date.now(),
+        isActive: true,
+      })
+      return existingUser._id
+    } else {
+      // Create new user
+      return await ctx.db.insert("users", {
+        name: args.name,
+        email: args.email,
+        role: args.role,
+        companyId: args.companyId,
+        clerkId: args.clerkId,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        isActive: true,
+      })
+    }
   },
-});
+})

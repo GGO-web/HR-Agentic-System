@@ -13,6 +13,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as clerkWebhook from "../clerkWebhook.js";
 import type * as companies from "../companies.js";
 import type * as interviewQuestions from "../interviewQuestions.js";
 import type * as interviewResponses from "../interviewResponses.js";
@@ -29,6 +30,7 @@ import type * as users from "../users.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  clerkWebhook: typeof clerkWebhook;
   companies: typeof companies;
   interviewQuestions: typeof interviewQuestions;
   interviewResponses: typeof interviewResponses;

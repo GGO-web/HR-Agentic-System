@@ -1,26 +1,11 @@
-import { SignUp } from "@clerk/clerk-react"
-import { createFileRoute, useRouter } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router"
+
+import { RoleSelectionSignUp } from "@/components/auth/RoleSelectionSignUp"
 
 export const Route = createFileRoute("/sign-up/")({
   component: SignUpPage,
 })
 
 function SignUpPage() {
-  const router = useRouter()
-
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="w-full max-w-md">
-        <SignUp
-          appearance={{
-            elements: {
-              rootBox: "mx-auto",
-              card: "shadow-lg rounded-lg",
-            },
-          }}
-          signInUrl={router.routesByPath["/sign-in"].fullPath}
-        />
-      </div>
-    </div>
-  )
+  return <RoleSelectionSignUp />
 }

@@ -14,6 +14,7 @@ interface AuthReturn {
   companyData: Doc<"companies"> | null | undefined
   isHRManager: boolean
   isCandidate: boolean
+  role: "hr_manager" | "candidate" | null
 }
 
 export function useAuth(): AuthReturn {
@@ -27,14 +28,18 @@ export function useAuth(): AuthReturn {
     isSignedIn && user?.id ? { clerkId: user.id } : "skip",
   )
 
-  // Check if user has a company (is HR manager)
+  // Get company data if user is HR manager
   const companyData = useQuery(
     api.companies.getByClerkId,
-    isSignedIn && user?.id ? { clerkId: user.id } : "skip",
+    isSignedIn && user?.id && userData?.role === "hr_manager"
+      ? { clerkId: user.id }
+      : "skip",
   )
 
-  const isHRManager = Boolean(companyData)
-  const isCandidate = Boolean(isSignedIn && !isHRManager)
+  // Determine role and permissions
+  const role = userData?.role || null
+  const isHRManager = role === "hr_manager" && Boolean(userData?.isActive)
+  const isCandidate = role === "candidate" && Boolean(userData?.isActive)
 
   return {
     isSignedIn,
@@ -44,5 +49,6 @@ export function useAuth(): AuthReturn {
     companyData,
     isHRManager,
     isCandidate,
+    role,
   }
 }

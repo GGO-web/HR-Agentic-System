@@ -136,4 +136,9 @@ export default [
     },
   },
   eslintConfigPrettier,
+  {
+    rules: {
+      "no-case-declarations": "off",
+    },
+  },
 ];

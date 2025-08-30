@@ -1,5 +1,5 @@
-import { defineSchema, defineTable } from "convex/server";
-import { v } from "convex/values";
+import { defineSchema, defineTable } from "convex/server"
+import { v } from "convex/values"
 
 export default defineSchema({
   // Companies table to store company information
@@ -15,13 +15,16 @@ export default defineSchema({
   users: defineTable({
     name: v.string(),
     email: v.string(),
-    role: v.string(), // "hr_manager" or "candidate"
+    role: v.union(v.literal("hr_manager"), v.literal("candidate")), // Strict role validation
     companyId: v.optional(v.id("companies")),
     createdAt: v.number(),
     updatedAt: v.number(),
     clerkId: v.string(), // Clerk user ID
-  }).index("by_clerk_id", ["clerkId"])
-    .index("by_company", ["companyId"]),
+    isActive: v.boolean(), // Track if user is active
+  })
+    .index("by_clerk_id", ["clerkId"])
+    .index("by_company", ["companyId"])
+    .index("by_role", ["role"]),
 
   // Job descriptions table
   jobDescriptions: defineTable({
@@ -53,7 +56,8 @@ export default defineSchema({
     completedAt: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
-  }).index("by_candidate", ["candidateId"])
+  })
+    .index("by_candidate", ["candidateId"])
     .index("by_job_description", ["jobDescriptionId"]),
 
   // Interview responses table
@@ -64,6 +68,7 @@ export default defineSchema({
     transcription: v.optional(v.string()),
     aiAnalysis: v.optional(v.string()),
     createdAt: v.number(),
-  }).index("by_interview_session", ["interviewSessionId"])
+  })
+    .index("by_interview_session", ["interviewSessionId"])
     .index("by_question", ["questionId"]),
-});
+})
