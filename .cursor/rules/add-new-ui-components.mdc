@@ -1,0 +1,5 @@
+---
+description: When adding new Shadcn components to packages/ui always use terminal command, do not try to add manually 
+globs:
+alwaysApply: true
+---
