@@ -1,0 +1,5 @@
+---
+description: Always use pnpm as package manager for each of javascript/typescript apps and packages in the project
+globs:
+alwaysApply: true
+---

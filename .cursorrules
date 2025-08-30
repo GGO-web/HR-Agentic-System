@@ -1,0 +1,157 @@
+# HR-Agentic-System Project Rules
+
+## Project Overview
+AI-powered HR interview platform built as a monorepo using Turborepo. The system enables HR managers to create job descriptions, generate AI-powered interview questions, and conduct audio-based interviews with candidates.
+
+## Architecture & Technology Stack
+
+### Monorepo Structure (Turborepo)
+- **packages/ui** → shadcn/ui components library for shared UI components across apps
+- **apps/api** → Python FastAPI application for AI services (Gemini API integration for question generation and future audio processing)
+- **apps/web** → Main React 19 web interface using Convex, Clerk, Tanstack Router, Tailwind 4
+
+### Core Technologies
+- **Frontend**: React 19, Tanstack Router, Tailwind 4, TypeScript
+- **Authentication**: Clerk with role-based access control
+- **Database**: Convex (real-time database with subscriptions)
+- **AI Services**: Google Gemini API via Python FastAPI
+- **Package Manager**: pnpm (not npm)
+- **UI Components**: shadcn/ui with custom design system
+- **Notifications**: react-toastify (preferred over browser alerts)
+- **Forms**: react-hook-form with zod validation
+
+## Core Features & User Roles
+
+### HR Manager Role
+- **Authentication**: Register/login via Clerk with HR manager role
+- **Company Management**: Create and manage company profiles
+- **Job Descriptions**: Upload and manage job descriptions via dashboard
+- **Question Management**: 
+  - AI generates 10 tailored questions from job descriptions
+  - Add, remove, rename questions for each job
+  - Preview and edit generated questions
+- **Interview Management**: Schedule and monitor candidate interviews
+- **Analytics**: View candidate responses and performance metrics
+- **Billing**: Stripe integration for subscription management (future)
+
+### Candidate Role
+- **Authentication**: Register/login via Clerk with candidate role
+- **Job Discovery**: Browse available job descriptions
+- **Interview Flow**: Take audio-based interviews with AI-generated questions
+- **Audio Responses**: Record responses to each question
+- **Progress Tracking**: View interview progress and completion status
+- **Results**: Access interview results and feedback
+
+## Application Features
+
+### Dynamic Question Generation
+- **AI Integration**: Python FastAPI service uses Gemini API to parse job descriptions
+- **Question Count**: Generates exactly 10 tailored interview questions per job
+- **Question Types**: Technical skills, behavioral, cultural fit, experience-based
+- **HR Control**: HR managers can modify, add, or remove questions before interviews
+
+### Interview Flow
+- **Sequential Questions**: AI agent presents 10 questions one at a time
+- **Audio Interface**: 
+  - Text-to-speech for question delivery
+  - Audio recording for candidate responses
+  - Question replay functionality
+  - Text reveal option for clarity
+- **Progress Tracking**: Visual progress bar and question counter
+- **Audio Storage**: Cloud storage integration (S3 bucket in future) for audio fragments (10 per question)
+
+### Data Management
+- **Convex Schema** (will be modified later for clearance):
+  - `companies` - Company profiles with Clerk organization IDs
+  - `users` - User profiles with roles (hr_manager/candidate)
+  - `jobDescriptions` - Job postings with descriptions
+  - `interviewQuestions` - AI-generated questions with ordering
+  - `interviewSessions` - Interview instances and status
+  - `interviewResponses` - Audio responses with metadata
+- **Cloud Storage**: Audio file management for interview responses using S3 bucket
+- **Real-time Updates**: Convex subscriptions for live data
+
+### User Experience
+- **Responsive Design**: Mobile-first approach with Tailwind CSS
+- **Clean Interface**: Minimal, intuitive controls for audio interactions
+- **Accessibility**: Clear feedback during recording, playback, and navigation
+- **Error Handling**: Graceful fallbacks for audio/network issues
+
+## Development Guidelines
+
+### Code Organization
+- **Frontend Components**: `apps/web/src/components/`
+- **Convex Functions**: `apps/web/convex/`
+- **API Routes**: `apps/api/app/routes/`
+- **Shared UI**: `packages/ui/src/components/`
+
+### Authentication & Authorization
+- **Clerk Integration**: Role-based access control
+- **Protected Routes**: `ProtectedRoute` component with role requirements
+- **Company Isolation**: HR managers only see their company's data
+- **Candidate Access**: Limited to interview-related features
+
+### State Management
+- **Convex Queries**: Real-time data subscriptions
+- **Local State**: React hooks for UI interactions
+- **Form State**: react-hook-form with zod schemas
+- **Audio State**: Browser MediaRecorder API integration
+
+### API Patterns
+- **Python FastAPI**: AI question generation and future audio processing
+- **Convex Mutations**: All data operations and real-time updates
+- **Error Handling**: Graceful fallbacks and user feedback
+- **Loading States**: Proper loading indicators throughout the app
+
+### Styling & UI
+- **Tailwind 4**: Utility-first CSS framework
+- **shadcn/ui**: Consistent component library
+- **Design System**: Custom color schemes and typography
+- **Responsive**: Mobile and desktop optimized layouts
+
+## Common Development Patterns
+
+### Role-Based Rendering
+```typescript
+const { isHRManager, isCandidate } = useAuth()
+return (
+  <ProtectedRoute requireAuth>
+    {isHRManager && <HRDashboard />}
+    {isCandidate && <CandidateDashboard />}
+  </ProtectedRoute>
+)
+```
+
+### Real-time Data
+```typescript
+// Convex queries for live data
+const questions = useQuery(api.interviewQuestions.getByJobDescription, { jobDescriptionId })
+const createResponse = useMutation(api.interviewResponses.create)
+```
+
+### Form Validation (always use react-hook-form for forms)
+```typescript
+// react-hook-form with zod schemas
+const form = useForm<JobDescriptionForm>({
+  resolver: zodResolver(jobDescriptionSchema)
+})
+```
+
+## File Structure Conventions
+- **Components**: PascalCase with descriptive names
+- **Hooks**: camelCase with 'use' prefix
+- **Types**: PascalCase interfaces and types
+- **Constants**: UPPER_SNAKE_CASE for configuration
+- **Routes**: kebab-case for file names, PascalCase for components
+
+## Performance Considerations
+- **Lazy Loading**: Route-based code splitting
+- **Audio Optimization**: Efficient audio compression and storage
+- **Real-time Updates**: Optimized Convex subscriptions
+- **Bundle Size**: Tree-shaking and dynamic imports
+
+## Security & Privacy
+- **Authentication**: Clerk handles all auth flows
+- **Data Isolation**: Company-level data separation
+- **Audio Privacy**: Secure cloud storage for interview recordings
+- **API Security**: Proper CORS and rate limiting
