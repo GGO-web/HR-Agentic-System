@@ -24,6 +24,7 @@
     "@tanstack/router-plugin": "catalog:",
     "@workspace/ui": "workspace:*",
     "convex": "^1.26.2",
+    "lucide-react": "^0.475.0",
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-toastify": "^11.0.5"

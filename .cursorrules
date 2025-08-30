@@ -108,6 +108,7 @@ AI-powered HR interview platform built as a monorepo using Turborepo. The system
 - **shadcn/ui**: Consistent component library
 - **Design System**: Custom color schemes and typography
 - **Responsive**: Mobile and desktop optimized layouts
+- **Icons**: Always use Lucide React icons from [https://lucide.dev/icons/](https://lucide.dev/icons/) - never use inline SVGs
 
 ## Common Development Patterns
 
@@ -135,6 +136,16 @@ const createResponse = useMutation(api.interviewResponses.create)
 const form = useForm<JobDescriptionForm>({
   resolver: zodResolver(jobDescriptionSchema)
 })
+```
+
+### Icon Usage (always use Lucide React icons)
+```typescript
+// Import icons from lucide-react
+import { FileText, Mic, GitBranch, User, Settings } from "lucide-react"
+
+// Use icons with consistent sizing and styling
+<FileText className="text-primary h-6 w-6" />
+<Mic className="text-muted-foreground h-4 w-4" />
 ```
 
 ## File Structure Conventions
