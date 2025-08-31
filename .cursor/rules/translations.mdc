@@ -1,0 +1,5 @@
+---
+description: This project uses react-i18next for internationalization. All hardcoded text must be extracted to translation files. Location `apps/web/src/i18n/locales/en.json`, Keys follow hierarchical structure `section.subsection.key`, Example `common.loading`, `header.hrManager`, `dashboard.hr.title`. First, add the translation key to `apps/web/src/i18n/locales/en.json`. Import and use the translation hook. 1. **Never use hardcoded text** - Always use translation keys 2. **Use meaningful key names** - Keys should be self-documenting. 3. **Group related keys** - Use hierarchical structure for organization. 4. **Reuse common keys** - Use `common.*` keys for repeated text. 5. **Test translations** - Ensure all keys are properly translated. 1. Create new locale file `apps/web/src/i18n/locales/[lang].json`. 2. Add language to resources in `apps/web/src/i18n/index.ts`. 3. Translate all keys in the new locale file.
+globs:
+alwaysApply: true
+---
