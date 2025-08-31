@@ -16,10 +16,6 @@
       "cache": false,
       "persistent": true
     },
-    "convex": {
-      "cache": false,
-      "persistent": true
-    },
     "lint": {
       "dependsOn": [
         "^lint"
