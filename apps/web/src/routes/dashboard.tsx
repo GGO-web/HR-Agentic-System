@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
+import { LoadingSpinner } from "@workspace/ui/components/shared/loading-spinner"
 
 import { RoleProtectedRoute } from "../components/auth/RoleProtectedRoute"
 import { CandidateDashboard } from "../components/dashboard/CandidateDashboard"
@@ -13,14 +14,7 @@ function DashboardPage() {
   const { isHRManager, isCandidate, isLoading } = useAuth()
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    )
+    return <LoadingSpinner fullScreen text="Loading..." />
   }
 
   return (

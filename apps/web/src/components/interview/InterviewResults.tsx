@@ -1,6 +1,7 @@
 import { api } from "@convex/_generated/api"
 import { type Id } from "@convex/_generated/dataModel"
 import { Link, useRouter } from "@tanstack/react-router"
+import { LoadingSpinner } from "@workspace/ui/components/shared/loading-spinner"
 import { useQuery } from "convex/react"
 
 interface InterviewResultsProps {
@@ -32,11 +33,7 @@ export function InterviewResults({ sessionId }: InterviewResultsProps) {
 
   // Loading state
   if (!session || !jobDescription || !questions || !responses) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        Loading...
-      </div>
-    )
+    return <LoadingSpinner fullScreen text="Loading results..." />
   }
 
   // Sort questions by order

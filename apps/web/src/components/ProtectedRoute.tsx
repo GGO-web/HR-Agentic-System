@@ -1,4 +1,5 @@
 import { Navigate, useRouter } from "@tanstack/react-router"
+import { LoadingSpinner } from "@workspace/ui/components/shared/loading-spinner"
 import { type ReactNode } from "react"
 
 import { useAuth } from "../hooks/useAuth"
@@ -21,7 +22,7 @@ export function ProtectedRoute({
 
   // Show loading state
   if (isLoading) {
-    return <div>Loading...</div>
+    return <LoadingSpinner fullScreen text="Loading..." />
   }
 
   // Check authentication

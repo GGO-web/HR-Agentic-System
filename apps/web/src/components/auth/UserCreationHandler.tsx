@@ -1,5 +1,6 @@
 import { useUser } from "@clerk/clerk-react"
 import { api } from "@convex/_generated/api"
+import { LoadingSpinner } from "@workspace/ui/components/shared/loading-spinner"
 import { useMutation } from "convex/react"
 import { useEffect, useState } from "react"
 
@@ -61,14 +62,7 @@ export function UserCreationHandler({ children }: UserCreationHandlerProps) {
 
   // Show loading state while creating user
   if (isCreating) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
-          <p className="text-muted-foreground">Setting up your account...</p>
-        </div>
-      </div>
-    )
+    return <LoadingSpinner fullScreen text="Setting up your account..." />
   }
 
   return <>{children}</>

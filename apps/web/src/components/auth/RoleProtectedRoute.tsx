@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card"
+import { LoadingSpinner } from "@workspace/ui/components/shared/loading-spinner"
 import { Building2, Shield, User } from "lucide-react"
 
 import type { ReactNode } from "react"
@@ -30,14 +31,7 @@ export function RoleProtectedRoute({
 
   // Show loading state
   if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    )
+    return <LoadingSpinner fullScreen text="Loading..." />
   }
 
   // Check if authentication is required

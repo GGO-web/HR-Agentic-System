@@ -1,6 +1,7 @@
 import { api } from "@convex/_generated/api"
 import { type Id } from "@convex/_generated/dataModel"
 import { useNavigate, useRouter } from "@tanstack/react-router"
+import { LoadingSpinner } from "@workspace/ui/components/shared/loading-spinner"
 import { useQuery, useMutation } from "convex/react"
 import { useState, useEffect } from "react"
 
@@ -99,11 +100,7 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
 
   // Loading state
   if (!session || !jobDescription || !questions) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        Loading...
-      </div>
-    )
+    return <LoadingSpinner fullScreen text="Loading interview..." />
   }
 
   // Calculate progress
