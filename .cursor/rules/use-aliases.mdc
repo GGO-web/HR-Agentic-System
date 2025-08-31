@@ -1,0 +1,5 @@
+---
+description: Try to use app aliases whenever possible if cannot, use relative path or prompt the user to create new one if folder is in the root level
+globs:
+alwaysApply: true
+---
