@@ -61,7 +61,7 @@ export function RoleProtectedRoute({
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="bg-destructive/10 mx-auto mb-4 rounded-full p-3">
-              <Shield className="text-destructive h-8 w-8" />
+              <Shield className="text-destructive size-8" />
             </div>
             <CardTitle className="text-xl">Access Denied</CardTitle>
             <CardDescription>
