@@ -3,6 +3,7 @@ import { Link, useRouter } from "@tanstack/react-router"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import { User, Building2, LogOut, LogIn, UserPlus } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { useAuth } from "@/hooks/useAuth"
 
@@ -10,6 +11,7 @@ export default function Header() {
   const { isSignedIn, isHRManager, role } = useAuth()
   const { signOut } = useClerkAuth()
   const router = useRouter()
+  const { t } = useTranslation()
 
   return (
     <header className="flex justify-between gap-2 p-4 shadow-sm">
@@ -18,12 +20,14 @@ export default function Header() {
           to={router.routesByPath["/"].fullPath}
           className="flex items-center gap-2 font-bold"
         >
-          <img src="/logo.png" alt="HR Agentic System" className="h-8 w-8" />
-          HR Agentic System
+          <img src="/logo.png" alt={t("header.logoAlt")} className="h-8 w-8" />
+          {t("header.logoAlt")}
         </Link>
 
         {isSignedIn && (
-          <Link to={router.routesByPath["/dashboard"].fullPath}>Dashboard</Link>
+          <Link to={router.routesByPath["/dashboard"].fullPath}>
+            {t("navigation.dashboard")}
+          </Link>
         )}
       </nav>
 
@@ -37,7 +41,9 @@ export default function Header() {
             )}
 
             <Badge variant="secondary" className="text-xs">
-              {role === "hr_manager" ? "HR Manager" : "Candidate"}
+              {role === "hr_manager"
+                ? t("header.hrManager")
+                : t("header.candidate")}
             </Badge>
           </div>
         )}
@@ -46,7 +52,7 @@ export default function Header() {
           <SignOutButton>
             <Button variant="outline" size="sm" onClick={() => signOut()}>
               <LogOut className="size-4" />
-              Sign Out
+              {t("navigation.signOut")}
             </Button>
           </SignOutButton>
         ) : (
@@ -54,13 +60,13 @@ export default function Header() {
             <Link to={router.routesByPath["/sign-in"].fullPath}>
               <Button variant="outline" size="sm">
                 <LogIn className="size-4" />
-                Sign In
+                {t("navigation.signIn")}
               </Button>
             </Link>
             <Link to={router.routesByPath["/sign-up"].fullPath}>
               <Button size="sm">
                 <UserPlus className="size-4" />
-                Sign Up
+                {t("navigation.signUp")}
               </Button>
             </Link>
           </div>

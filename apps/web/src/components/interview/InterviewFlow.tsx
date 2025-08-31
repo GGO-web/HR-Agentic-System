@@ -4,6 +4,7 @@ import { useNavigate, useRouter } from "@tanstack/react-router"
 import { LoadingSpinner } from "@workspace/ui/components/shared/loading-spinner"
 import { useQuery, useMutation } from "convex/react"
 import { useState, useEffect } from "react"
+import { useTranslation } from "react-i18next"
 
 import { AudioRecorder } from "./AudioRecorder"
 import { QuestionDisplay } from "./QuestionDisplay"
@@ -18,6 +19,7 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
   const [isRecording, setIsRecording] = useState(false)
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const { t } = useTranslation()
 
   const router = useRouter()
 
@@ -100,7 +102,7 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
 
   // Loading state
   if (!session || !jobDescription || !questions) {
-    return <LoadingSpinner fullScreen text="Loading interview..." />
+    return <LoadingSpinner fullScreen text={t("interview.flow.loading")} />
   }
 
   // Calculate progress
@@ -109,7 +111,9 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
   return (
     <div className="container mx-auto flex min-h-screen flex-col p-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">{jobDescription.title} Interview</h1>
+        <h1 className="text-3xl font-bold">
+          {jobDescription.title} {t("interview.flow.interview")}
+        </h1>
         <div className="bg-muted mt-4 h-2 w-full rounded-full">
           <div
             className="bg-primary h-2 rounded-full transition-all"
@@ -118,9 +122,12 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
         </div>
         <div className="text-muted-foreground mt-2 flex justify-between text-sm">
           <span>
-            Question {currentQuestionIndex + 1} of {sortedQuestions.length}
+            {t("interview.flow.question")} {currentQuestionIndex + 1}{" "}
+            {t("interview.flow.of")} {sortedQuestions.length}
           </span>
-          <span>{Math.round(progress)}% Complete</span>
+          <span>
+            {Math.round(progress)}% {t("interview.flow.complete")}
+          </span>
         </div>
       </div>
 
@@ -142,7 +149,9 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
             ) : (
               <div className="flex flex-col items-center">
                 <div className="bg-muted mb-4 rounded-lg p-4">
-                  <p className="text-center">Recording complete!</p>
+                  <p className="text-center">
+                    {t("interview.flow.recordingComplete")}
+                  </p>
                   <audio
                     className="mt-2 w-full"
                     controls
@@ -156,14 +165,16 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
                     className="border-input bg-background rounded-md border px-4 py-2"
                     disabled={isSubmitting}
                   >
-                    Record Again
+                    {t("interview.flow.recordAgain")}
                   </button>
                   <button
                     onClick={handleSubmitResponse}
                     className="bg-primary text-primary-foreground rounded-md px-4 py-2"
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? "Submitting..." : "Submit Answer"}
+                    {isSubmitting
+                      ? t("interview.flow.submitting")
+                      : t("interview.flow.submitAnswer")}
                   </button>
                 </div>
               </div>

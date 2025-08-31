@@ -2,6 +2,7 @@ import { api } from "@convex/_generated/api"
 import { type Id } from "@convex/_generated/dataModel"
 import { useMutation } from "convex/react"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 interface JobDescriptionFormProps {
   companyId?: Id<"companies">
@@ -17,6 +18,7 @@ export function JobDescriptionForm({
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const { t } = useTranslation()
 
   const createJobDescription = useMutation(api.jobDescriptions.create)
 
@@ -48,12 +50,14 @@ export function JobDescriptionForm({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="bg-background w-full max-w-lg rounded-lg p-6 shadow-lg">
-        <h2 className="mb-4 text-xl font-semibold">Add New Job Description</h2>
+        <h2 className="mb-4 text-xl font-semibold">
+          {t("jobDescription.form.title")}
+        </h2>
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label htmlFor="title" className="mb-1 block text-sm font-medium">
-              Job Title
+              {t("jobDescription.form.jobTitle")}
             </label>
             <input
               id="title"
@@ -70,7 +74,7 @@ export function JobDescriptionForm({
               htmlFor="description"
               className="mb-1 block text-sm font-medium"
             >
-              Job Description
+              {t("jobDescription.form.jobDescription")}
             </label>
             <textarea
               id="description"
@@ -80,8 +84,7 @@ export function JobDescriptionForm({
               required
             />
             <p className="text-muted-foreground mt-1 text-xs">
-              Provide a detailed job description. This will be used to generate
-              interview questions.
+              {t("jobDescription.form.descriptionHint")}
             </p>
           </div>
 
@@ -92,14 +95,14 @@ export function JobDescriptionForm({
               className="border-input bg-background rounded-md border px-4 py-2 text-sm"
               disabled={isSubmitting}
             >
-              Cancel
+              {t("common.cancel")}
             </button>
             <button
               type="submit"
               className="bg-primary text-primary-foreground rounded-md px-4 py-2 text-sm"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Saving..." : "Save"}
+              {isSubmitting ? t("common.loading") : t("common.save")}
             </button>
           </div>
         </form>

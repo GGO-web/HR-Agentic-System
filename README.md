@@ -1,6 +1,6 @@
 # HR-Agentic-System
 
-An AI-powered HR interview platform built with React 19, Tanstack Router, Tailwind 4, Clerk, and Convex DB.
+An AI-powered HR interview platform built with React 19, Tanstack Router, Tailwind 4, Clerk, Convex DB, and react-i18next for internationalization.
 
 ## Features
 
@@ -9,6 +9,7 @@ An AI-powered HR interview platform built with React 19, Tanstack Router, Tailwi
 - **Interview Flow**: Sequential questions with audio responses
 - **Data Management**: Store and manage job descriptions, questions, and interview responses
 - **Responsive Design**: Clean, minimal interface for desktop and mobile
+- **Internationalization**: Multi-language support with react-i18next (currently English)
 
 ## Project Structure
 
@@ -19,6 +20,32 @@ The project is organized as a monorepo using Turborepo:
 - `packages/ui`: Shared UI components
 - `packages/eslint-config`: Shared ESLint configuration
 - `packages/typescript-config`: Shared TypeScript configuration
+
+## Internationalization (i18n)
+
+The application uses react-i18next for internationalization with the following structure:
+
+- `apps/web/src/i18n/`: Translation configuration and setup
+- `apps/web/src/i18n/locales/en.json`: English translation keys
+- All hardcoded text has been extracted to translation files
+- Translation keys follow a hierarchical structure (e.g., `common.loading`, `header.hrManager`)
+
+### Adding New Text
+
+When adding new text to the application:
+1. Add the translation key to `apps/web/src/i18n/locales/en.json`
+2. Use the `useTranslation` hook in your component
+3. Replace hardcoded text with `t('translation.key')`
+
+Example:
+```typescript
+import { useTranslation } from 'react-i18next'
+
+function MyComponent() {
+  const { t } = useTranslation()
+  return <h1>{t('common.loading')}</h1>
+}
+```
 
 ## Getting Started
 

@@ -1,6 +1,7 @@
 import { api } from "@convex/_generated/api"
 import { Link, useRouter } from "@tanstack/react-router"
 import { useQuery } from "convex/react"
+import { useTranslation } from "react-i18next"
 
 import type { Doc } from "@convex/_generated/dataModel"
 
@@ -9,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth"
 export function CandidateDashboard() {
   const { userData } = useAuth()
   const router = useRouter()
+  const { t } = useTranslation()
 
   // Fetch interview sessions for the candidate
   const interviewSessions = useQuery(
@@ -18,10 +20,14 @@ export function CandidateDashboard() {
 
   return (
     <div className="container mx-auto p-6">
-      <h1 className="mb-6 text-3xl font-bold">Candidate Dashboard</h1>
+      <h1 className="mb-6 text-3xl font-bold">
+        {t("dashboard.candidate.title")}
+      </h1>
 
       <div className="border-border bg-card rounded-lg border p-6 shadow-sm">
-        <h2 className="mb-4 text-xl font-semibold">Your Interviews</h2>
+        <h2 className="mb-4 text-xl font-semibold">
+          {t("dashboard.candidate.yourInterviews")}
+        </h2>
 
         {interviewSessions && interviewSessions.length > 0 ? (
           <div className="space-y-4">
@@ -32,14 +38,16 @@ export function CandidateDashboard() {
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-medium">Interview Session</h3>
+                    <h3 className="font-medium">
+                      {t("dashboard.candidate.interviewSession")}
+                    </h3>
                     <p className="text-muted-foreground text-sm">
-                      Status:{" "}
+                      {t("dashboard.candidate.status")}:{" "}
                       <span className="capitalize">{session.status}</span>
                     </p>
                     {session.scheduledAt && (
                       <p className="text-muted-foreground text-sm">
-                        Scheduled for:{" "}
+                        {t("dashboard.candidate.scheduledFor")}:{" "}
                         {new Date(session.scheduledAt).toLocaleString()}
                       </p>
                     )}
@@ -54,7 +62,7 @@ export function CandidateDashboard() {
                         params={{ sessionId: session._id }}
                         className="bg-primary text-primary-foreground rounded px-4 py-2 text-sm"
                       >
-                        Start Interview
+                        {t("dashboard.candidate.startInterview")}
                       </Link>
                     )}
 
@@ -66,7 +74,7 @@ export function CandidateDashboard() {
                         params={{ sessionId: session._id }}
                         className="bg-primary text-primary-foreground rounded px-4 py-2 text-sm"
                       >
-                        Continue Interview
+                        {t("dashboard.candidate.continueInterview")}
                       </Link>
                     )}
 
@@ -79,7 +87,7 @@ export function CandidateDashboard() {
                         params={{ sessionId: session._id }}
                         className="bg-secondary text-secondary-foreground rounded px-4 py-2 text-sm"
                       >
-                        View Results
+                        {t("dashboard.candidate.viewResults")}
                       </Link>
                     )}
                   </div>
@@ -90,10 +98,10 @@ export function CandidateDashboard() {
         ) : (
           <div className="bg-muted rounded-md p-6 text-center">
             <p className="text-muted-foreground text-lg">
-              No interviews scheduled yet.
+              {t("dashboard.candidate.noInterviews")}
             </p>
             <p className="text-muted-foreground mt-2">
-              Your interviews will appear here once they are scheduled by HR.
+              {t("dashboard.candidate.noInterviewsDescription")}
             </p>
           </div>
         )}

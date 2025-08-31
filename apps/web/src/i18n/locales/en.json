@@ -1,0 +1,170 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "add": "Add",
+    "continue": "Continue",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "close": "Close",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Information"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signOut": "Sign Out",
+    "home": "Home"
+  },
+  "header": {
+    "logoAlt": "HR Agentic System",
+    "hrManager": "HR Manager",
+    "candidate": "Candidate"
+  },
+  "home": {
+    "title": "AI-Powered HR Interview Platform",
+    "subtitle": "Streamline your hiring process with our intelligent interview system. Generate tailored questions, conduct interviews, and analyze responses with AI.",
+    "getStarted": "Get Started",
+    "goToDashboard": "Go to Dashboard",
+    "keyFeatures": "Key Features",
+    "aiQuestionGeneration": {
+      "title": "AI Question Generation",
+      "description": "Upload job descriptions and let our AI generate tailored interview questions automatically."
+    },
+    "audioInterviewFlow": {
+      "title": "Audio Interview Flow",
+      "description": "Conduct interviews with audio responses, text-to-speech questions, and a seamless user experience."
+    },
+    "roleBasedAccess": {
+      "title": "Role-Based Access",
+      "description": "Separate interfaces for HR managers and candidates with appropriate permissions and features."
+    }
+  },
+  "auth": {
+    "roleSelection": {
+      "title": "Choose Your Role",
+      "joinTitle": "Join HR Agentic System",
+      "joinSubtitle": "Choose your role to get started with AI-powered interviews",
+      "hrManager": {
+        "title": "HR Manager",
+        "description": "Create job descriptions, manage interviews, and review candidate responses",
+        "features": [
+          "Create and manage job descriptions",
+          "Generate AI-powered interview questions",
+          "Schedule and monitor interviews",
+          "Review candidate responses and analytics",
+          "Manage company profile and settings"
+        ]
+      },
+      "candidate": {
+        "title": "Candidate",
+        "description": "Take audio-based interviews and track your progress",
+        "features": [
+          "Browse available job opportunities",
+          "Take audio-based interviews",
+          "Track interview progress",
+          "Review your responses and feedback",
+          "Access interview results"
+        ]
+      },
+      "continueAs": "Continue as",
+      "alreadyHaveAccount": "Already have an account?",
+      "signIn": "Sign in"
+    },
+    "registration": {
+      "completeRegistration": "Complete Your Registration",
+      "hrManagerSetup": "Set up your HR manager account to start creating job descriptions and managing interviews.",
+      "candidateSetup": "Create your candidate account to start taking interviews."
+    },
+    "userCreation": {
+      "settingUpAccount": "Setting up your account..."
+    }
+  },
+  "dashboard": {
+    "hr": {
+      "title": "HR Dashboard",
+      "jobDescriptions": {
+        "title": "Job Descriptions",
+        "addNew": "Add New",
+        "noJobDescriptions": "No job descriptions yet."
+      },
+      "interviewQuestions": {
+        "title": "Interview Questions",
+        "generateAIQuestions": "Generate AI Questions",
+        "noQuestions": "No questions yet. Click \"Generate AI Questions\" to create questions based on the job description.",
+        "selectJobDescription": "Select a job description to view or generate questions.",
+        "aiGenerated": "AI Generated"
+      }
+    },
+    "candidate": {
+      "title": "Candidate Dashboard",
+      "yourInterviews": "Your Interviews",
+      "interviewSession": "Interview Session",
+      "status": "Status",
+      "scheduledFor": "Scheduled for",
+      "startInterview": "Start Interview",
+      "continueInterview": "Continue Interview",
+      "viewResults": "View Results",
+      "noInterviews": "No interviews scheduled yet.",
+      "noInterviewsDescription": "Your interviews will appear here once they are scheduled by HR."
+    }
+  },
+  "jobDescription": {
+    "form": {
+      "title": "Add New Job Description",
+      "jobTitle": "Job Title",
+      "jobDescription": "Job Description",
+      "descriptionHint": "Provide a detailed job description. This will be used to generate interview questions."
+    }
+  },
+  "interview": {
+    "flow": {
+      "loading": "Loading interview...",
+      "interview": "Interview",
+      "question": "Question",
+      "of": "of",
+      "complete": "Complete",
+      "recordingComplete": "Recording complete!",
+      "recordAgain": "Record Again",
+      "submitAnswer": "Submit Answer",
+      "submitting": "Submitting..."
+    },
+    "questionDisplay": {
+      "question": "Question",
+      "playQuestion": "Play Question",
+      "speaking": "Speaking...",
+      "showText": "Show Text",
+      "hideText": "Hide Text",
+      "clickToReveal": "Click \"Show Text\" to reveal the question or \"Play Question\" to hear it."
+    },
+    "audioRecorder": {
+      "microphoneAccessDenied": "Microphone access denied",
+      "enableMicrophone": "Please enable microphone access in your browser settings to continue.",
+      "ready": "Ready",
+      "startRecording": "Start Recording",
+      "stopRecording": "Stop Recording",
+      "stopRecordingHint": "Click \"Stop Recording\" when you've finished your answer."
+    }
+  },
+  "protectedRoute": {
+    "accessDenied": "Access Denied",
+    "noPermission": "You don't have permission to access this page.",
+    "currentRole": "Current role",
+    "requiredRoles": "Required roles",
+    "none": "None",
+    "hrDashboard": "HR Dashboard",
+    "candidateDashboard": "Candidate Dashboard"
+  }
+}

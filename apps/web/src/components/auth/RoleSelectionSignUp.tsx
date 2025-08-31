@@ -12,6 +12,7 @@ import {
 import { cn } from "@workspace/ui/lib/utils"
 import { User, Building2, CheckCircle } from "lucide-react"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 type Role = "hr_manager" | "candidate"
 
@@ -23,40 +24,40 @@ interface RoleOption {
   features: string[]
 }
 
-const roleOptions: RoleOption[] = [
-  {
-    id: "hr_manager",
-    title: "HR Manager",
-    description:
-      "Create job descriptions, manage interviews, and review candidate responses",
-    icon: <Building2 className="size-6" />,
-    features: [
-      "Create and manage job descriptions",
-      "Generate AI-powered interview questions",
-      "Schedule and monitor interviews",
-      "Review candidate responses and analytics",
-      "Manage company profile and settings",
-    ],
-  },
-  {
-    id: "candidate",
-    title: "Candidate",
-    description: "Take audio-based interviews and track your progress",
-    icon: <User className="size-6" />,
-    features: [
-      "Browse available job opportunities",
-      "Take audio-based interviews",
-      "Track interview progress",
-      "Review your responses and feedback",
-      "Access interview results",
-    ],
-  },
-]
-
 export function RoleSelectionSignUp() {
   const router = useRouter()
   const [selectedRole, setSelectedRole] = useState<Role | null>(null)
   const [showSignUp, setShowSignUp] = useState(false)
+  const { t } = useTranslation()
+
+  const roleOptions: RoleOption[] = [
+    {
+      id: "hr_manager",
+      title: t("auth.roleSelection.hrManager.title"),
+      description: t("auth.roleSelection.hrManager.description"),
+      icon: <Building2 className="size-6" />,
+      features: [
+        t("auth.roleSelection.hrManager.features.0"),
+        t("auth.roleSelection.hrManager.features.1"),
+        t("auth.roleSelection.hrManager.features.2"),
+        t("auth.roleSelection.hrManager.features.3"),
+        t("auth.roleSelection.hrManager.features.4"),
+      ],
+    },
+    {
+      id: "candidate",
+      title: t("auth.roleSelection.candidate.title"),
+      description: t("auth.roleSelection.candidate.description"),
+      icon: <User className="size-6" />,
+      features: [
+        t("auth.roleSelection.candidate.features.0"),
+        t("auth.roleSelection.candidate.features.1"),
+        t("auth.roleSelection.candidate.features.2"),
+        t("auth.roleSelection.candidate.features.3"),
+        t("auth.roleSelection.candidate.features.4"),
+      ],
+    },
+  ]
 
   const handleRoleSelect = (role: Role) => {
     setSelectedRole(role)
@@ -76,13 +77,17 @@ export function RoleSelectionSignUp() {
         <div className="w-full max-w-md">
           <div className="mb-6 text-center">
             <Badge variant="secondary" className="mb-2">
-              {selectedRole === "hr_manager" ? "HR Manager" : "Candidate"}
+              {selectedRole === "hr_manager"
+                ? t("auth.roleSelection.hrManager.title")
+                : t("auth.roleSelection.candidate.title")}
             </Badge>
-            <h2 className="text-2xl font-bold">Complete Your Registration</h2>
+            <h2 className="text-2xl font-bold">
+              {t("auth.registration.completeRegistration")}
+            </h2>
             <p className="text-muted-foreground">
               {selectedRole === "hr_manager"
-                ? "Set up your HR manager account to start creating job descriptions and managing interviews."
-                : "Create your candidate account to start taking interviews."}
+                ? t("auth.registration.hrManagerSetup")
+                : t("auth.registration.candidateSetup")}
             </p>
           </div>
 
@@ -106,9 +111,11 @@ export function RoleSelectionSignUp() {
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-4xl">
         <div className="mb-8 text-center">
-          <h1 className="mb-2 text-3xl font-bold">Join HR Agentic System</h1>
+          <h1 className="mb-2 text-3xl font-bold">
+            {t("auth.roleSelection.joinTitle")}
+          </h1>
           <p className="text-muted-foreground text-lg">
-            Choose your role to get started with AI-powered interviews
+            {t("auth.roleSelection.joinSubtitle")}
           </p>
         </div>
 
@@ -161,24 +168,24 @@ export function RoleSelectionSignUp() {
             disabled={!selectedRole}
             className="px-8"
           >
-            Continue as{" "}
+            {t("auth.roleSelection.continueAs")}{" "}
             {selectedRole === "hr_manager"
-              ? "HR Manager"
+              ? t("auth.roleSelection.hrManager.title")
               : selectedRole === "candidate"
-                ? "Candidate"
+                ? t("auth.roleSelection.candidate.title")
                 : "..."}
           </Button>
         </div>
 
         <div className="mt-6 text-center">
           <p className="text-muted-foreground text-sm">
-            Already have an account?{" "}
+            {t("auth.roleSelection.alreadyHaveAccount")}{" "}
             <Button
               variant="link"
               className="h-auto p-0 font-normal"
               onClick={() => router.navigate({ to: "/sign-in" })}
             >
-              Sign in
+              {t("auth.roleSelection.signIn")}
             </Button>
           </p>
         </div>

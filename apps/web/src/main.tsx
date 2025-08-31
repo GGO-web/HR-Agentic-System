@@ -4,6 +4,9 @@ import ReactDOM from "react-dom/client"
 import { ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 
+// Import i18n configuration
+import "./i18n"
+
 // Import the generated route tree
 import { ConvexProvider } from "./providers/ConvexProvider"
 

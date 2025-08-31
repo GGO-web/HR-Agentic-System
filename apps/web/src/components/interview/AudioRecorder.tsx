@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react"
+import { useTranslation } from "react-i18next"
 
 interface AudioRecorderProps {
   isRecording: boolean
@@ -20,6 +21,7 @@ export function AudioRecorder({
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
   const timerRef = useRef<number | null>(null)
+  const { t } = useTranslation()
 
   // Start recording function
   const startRecording = useCallback(async () => {
@@ -127,10 +129,10 @@ export function AudioRecorder({
   if (recordingPermission === false) {
     return (
       <div className="bg-destructive/10 text-destructive rounded-lg p-6 text-center">
-        <p className="text-lg font-medium">Microphone access denied</p>
-        <p className="mt-2">
-          Please enable microphone access in your browser settings to continue.
+        <p className="text-lg font-medium">
+          {t("interview.audioRecorder.microphoneAccessDenied")}
         </p>
+        <p className="mt-2">{t("interview.audioRecorder.enableMicrophone")}</p>
       </div>
     )
   }
@@ -147,7 +149,7 @@ export function AudioRecorder({
           </div>
         ) : (
           <div className="text-muted-foreground text-center">
-            <span>Ready</span>
+            <span>{t("interview.audioRecorder.ready")}</span>
           </div>
         )}
       </div>
@@ -161,13 +163,14 @@ export function AudioRecorder({
         }`}
         disabled={recordingPermission === null}
       >
-        {isRecording ? "Stop Recording" : "Start Recording"}
+        {isRecording
+          ? t("interview.audioRecorder.stopRecording")
+          : t("interview.audioRecorder.startRecording")}
       </button>
 
       {isRecording && (
         <p className="text-muted-foreground mt-4 text-sm">
-          Click &quot;Stop Recording&quot; when you&apos;ve finished your
-          answer.
+          {t("interview.audioRecorder.stopRecordingHint")}
         </p>
       )}
     </div>

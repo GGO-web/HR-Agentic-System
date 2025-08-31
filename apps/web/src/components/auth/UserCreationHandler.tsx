@@ -3,6 +3,7 @@ import { api } from "@convex/_generated/api"
 import { LoadingSpinner } from "@workspace/ui/components/shared/loading-spinner"
 import { useMutation } from "convex/react"
 import { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { useAuth } from "@/hooks/useAuth"
 
@@ -14,6 +15,7 @@ export function UserCreationHandler({ children }: UserCreationHandlerProps) {
   const { user } = useUser()
   const { userData, isLoading } = useAuth()
   const [isCreating, setIsCreating] = useState(false)
+  const { t } = useTranslation()
 
   const createUser = useMutation(api.users.create)
 
@@ -62,7 +64,12 @@ export function UserCreationHandler({ children }: UserCreationHandlerProps) {
 
   // Show loading state while creating user
   if (isCreating) {
-    return <LoadingSpinner fullScreen text="Setting up your account..." />
+    return (
+      <LoadingSpinner
+        fullScreen
+        text={t("auth.userCreation.settingUpAccount")}
+      />
+    )
   }
 
   return <>{children}</>

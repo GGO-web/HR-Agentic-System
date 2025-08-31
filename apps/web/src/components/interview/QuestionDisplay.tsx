@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 interface QuestionDisplayProps {
   question: string
@@ -11,6 +12,7 @@ export function QuestionDisplay({
 }: QuestionDisplayProps) {
   const [isTextVisible, setIsTextVisible] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
+  const { t } = useTranslation()
 
   // Function to speak the question using text-to-speech
   const speakQuestion = () => {
@@ -32,20 +34,26 @@ export function QuestionDisplay({
   return (
     <div className="border-border bg-card rounded-lg border p-6 shadow-md">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Question {questionNumber}</h2>
+        <h2 className="text-xl font-semibold">
+          {t("interview.questionDisplay.question")} {questionNumber}
+        </h2>
         <div className="flex gap-2">
           <button
             onClick={speakQuestion}
             className="bg-secondary text-secondary-foreground flex items-center rounded-md px-3 py-1 text-sm"
             disabled={isPlaying}
           >
-            {isPlaying ? "Speaking..." : "Play Question"}
+            {isPlaying
+              ? t("interview.questionDisplay.speaking")
+              : t("interview.questionDisplay.playQuestion")}
           </button>
           <button
             onClick={() => setIsTextVisible(!isTextVisible)}
             className="bg-muted rounded-md px-3 py-1 text-sm"
           >
-            {isTextVisible ? "Hide Text" : "Show Text"}
+            {isTextVisible
+              ? t("interview.questionDisplay.hideText")
+              : t("interview.questionDisplay.showText")}
           </button>
         </div>
       </div>
@@ -59,8 +67,7 @@ export function QuestionDisplay({
       {!isTextVisible && (
         <div className="bg-muted flex h-20 items-center justify-center rounded-md">
           <p className="text-muted-foreground">
-            Click "Show Text" to reveal the question or "Play Question" to hear
-            it.
+            {t("interview.questionDisplay.clickToReveal")}
           </p>
         </div>
       )}

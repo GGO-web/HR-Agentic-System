@@ -2,6 +2,7 @@ import { api } from "@convex/_generated/api"
 import { type Id, type Doc } from "@convex/_generated/dataModel"
 import { useMutation } from "convex/react"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 interface QuestionsListProps {
   questions: Doc<"interviewQuestions">[]
@@ -12,6 +13,7 @@ export function QuestionsList({ questions }: QuestionsListProps) {
     null,
   )
   const [editText, setEditText] = useState("")
+  const { t } = useTranslation()
 
   const updateQuestion = useMutation(api.interviewQuestions.update)
   const deleteQuestion = useMutation(api.interviewQuestions.remove)
@@ -33,7 +35,7 @@ export function QuestionsList({ questions }: QuestionsListProps) {
 
   // Delete a question
   const handleDelete = async (id: Id<"interviewQuestions">) => {
-    if (confirm("Are you sure you want to delete this question?")) {
+    if (confirm(t("common.confirm"))) {
       await deleteQuestion({ id })
     }
   }
@@ -61,13 +63,13 @@ export function QuestionsList({ questions }: QuestionsListProps) {
                   onClick={() => setEditingId(null)}
                   className="bg-muted rounded px-3 py-1 text-sm"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </button>
                 <button
                   onClick={() => handleSave(question._id)}
                   className="bg-primary text-primary-foreground rounded px-3 py-1 text-sm"
                 >
-                  Save
+                  {t("common.save")}
                 </button>
               </div>
             </div>
@@ -80,19 +82,19 @@ export function QuestionsList({ questions }: QuestionsListProps) {
                     onClick={() => handleEdit(question)}
                     className="bg-muted rounded px-2 py-1 text-xs"
                   >
-                    Edit
+                    {t("common.edit")}
                   </button>
                   <button
                     onClick={() => handleDelete(question._id)}
                     className="bg-destructive text-destructive-foreground rounded px-2 py-1 text-xs"
                   >
-                    Delete
+                    {t("common.delete")}
                   </button>
                 </div>
               </div>
               {question.isAIGenerated && (
                 <span className="bg-secondary/20 mt-2 inline-block rounded-full px-2 py-0.5 text-xs">
-                  AI Generated
+                  {t("dashboard.hr.interviewQuestions.aiGenerated")}
                 </span>
               )}
             </>

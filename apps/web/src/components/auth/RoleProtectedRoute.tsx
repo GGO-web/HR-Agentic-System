@@ -9,6 +9,7 @@ import {
 } from "@workspace/ui/components/card"
 import { LoadingSpinner } from "@workspace/ui/components/shared/loading-spinner"
 import { Building2, Shield, User } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import type { ReactNode } from "react"
 
@@ -28,10 +29,11 @@ export function RoleProtectedRoute({
   fallback,
 }: RoleProtectedRouteProps) {
   const { isSignedIn, isLoading, isHRManager, isCandidate, role } = useAuth()
+  const { t } = useTranslation()
 
   // Show loading state
   if (isLoading) {
-    return <LoadingSpinner fullScreen text="Loading..." />
+    return <LoadingSpinner fullScreen text={t("common.loading")} />
   }
 
   // Check if authentication is required
@@ -63,15 +65,22 @@ export function RoleProtectedRoute({
             <div className="bg-destructive/10 mx-auto mb-4 rounded-full p-3">
               <Shield className="text-destructive size-8" />
             </div>
-            <CardTitle className="text-xl">Access Denied</CardTitle>
+            <CardTitle className="text-xl">
+              {t("protectedRoute.accessDenied")}
+            </CardTitle>
             <CardDescription>
-              You don't have permission to access this page.
+              {t("protectedRoute.noPermission")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 text-center">
             <div className="text-muted-foreground text-sm">
-              <p>Current role: {role || "None"}</p>
-              <p>Required roles: {allowedRoles.join(", ")}</p>
+              <p>
+                {t("protectedRoute.currentRole")}:{" "}
+                {role || t("protectedRoute.none")}
+              </p>
+              <p>
+                {t("protectedRoute.requiredRoles")}: {allowedRoles.join(", ")}
+              </p>
             </div>
 
             <div className="flex justify-center gap-2">
@@ -79,7 +88,7 @@ export function RoleProtectedRoute({
                 <Button variant="outline" size="sm" asChild>
                   <a href="/dashboard">
                     <Building2 className="mr-2 h-4 w-4" />
-                    HR Dashboard
+                    {t("protectedRoute.hrDashboard")}
                   </a>
                 </Button>
               )}
@@ -87,7 +96,7 @@ export function RoleProtectedRoute({
                 <Button variant="outline" size="sm" asChild>
                   <a href="/dashboard">
                     <User className="mr-2 h-4 w-4" />
-                    Candidate Dashboard
+                    {t("protectedRoute.candidateDashboard")}
                   </a>
                 </Button>
               )}
