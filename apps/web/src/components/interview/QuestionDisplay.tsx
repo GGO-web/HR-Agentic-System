@@ -1,3 +1,4 @@
+import { Button } from "@workspace/ui/components/button"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -38,23 +39,16 @@ export function QuestionDisplay({
           {t("interview.questionDisplay.question")} {questionNumber}
         </h2>
         <div className="flex gap-2">
-          <button
-            onClick={speakQuestion}
-            className="bg-secondary text-secondary-foreground flex items-center rounded-md px-3 py-1 text-sm"
-            disabled={isPlaying}
-          >
+          <Button onClick={speakQuestion} disabled={isPlaying}>
             {isPlaying
               ? t("interview.questionDisplay.speaking")
               : t("interview.questionDisplay.playQuestion")}
-          </button>
-          <button
-            onClick={() => setIsTextVisible(!isTextVisible)}
-            className="bg-muted rounded-md px-3 py-1 text-sm"
-          >
+          </Button>
+          <Button onClick={() => setIsTextVisible(!isTextVisible)}>
             {isTextVisible
               ? t("interview.questionDisplay.hideText")
               : t("interview.questionDisplay.showText")}
-          </button>
+          </Button>
         </div>
       </div>
 

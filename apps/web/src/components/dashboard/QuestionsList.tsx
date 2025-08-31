@@ -1,5 +1,6 @@
 import { api } from "@convex/_generated/api"
 import { type Id, type Doc } from "@convex/_generated/dataModel"
+import { Button } from "@workspace/ui/components/button"
 import { useMutation } from "convex/react"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -59,18 +60,18 @@ export function QuestionsList({ questions }: QuestionsListProps) {
                 rows={3}
               />
               <div className="flex justify-end gap-2">
-                <button
+                <Button
                   onClick={() => setEditingId(null)}
                   className="bg-muted rounded px-3 py-1 text-sm"
                 >
                   {t("common.cancel")}
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => handleSave(question._id)}
                   className="bg-primary text-primary-foreground rounded px-3 py-1 text-sm"
                 >
                   {t("common.save")}
-                </button>
+                </Button>
               </div>
             </div>
           ) : (
@@ -78,18 +79,18 @@ export function QuestionsList({ questions }: QuestionsListProps) {
               <div className="flex items-start justify-between">
                 <p className="text-lg">{question.question}</p>
                 <div className="flex gap-2">
-                  <button
+                  <Button
                     onClick={() => handleEdit(question)}
                     className="bg-muted rounded px-2 py-1 text-xs"
                   >
                     {t("common.edit")}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={() => handleDelete(question._id)}
                     className="bg-destructive text-destructive-foreground rounded px-2 py-1 text-xs"
                   >
                     {t("common.delete")}
-                  </button>
+                  </Button>
                 </div>
               </div>
               {question.isAIGenerated && (

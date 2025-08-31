@@ -1,5 +1,6 @@
 import { api } from "@convex/_generated/api"
 import { type Id } from "@convex/_generated/dataModel"
+import { Button } from "@workspace/ui/components/button"
 import { useMutation } from "convex/react"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -89,21 +90,21 @@ export function JobDescriptionForm({
           </div>
 
           <div className="flex justify-end gap-2">
-            <button
+            <Button
+              variant="ghost"
               type="button"
               onClick={onClose}
-              className="border-input bg-background rounded-md border px-4 py-2 text-sm"
               disabled={isSubmitting}
             >
               {t("common.cancel")}
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               className="bg-primary text-primary-foreground rounded-md px-4 py-2 text-sm"
               disabled={isSubmitting}
             >
               {isSubmitting ? t("common.loading") : t("common.save")}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

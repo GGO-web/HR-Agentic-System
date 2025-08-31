@@ -1,5 +1,6 @@
 import { api } from "@convex/_generated/api"
 import { type Id } from "@convex/_generated/dataModel"
+import { Button } from "@workspace/ui/components/button"
 import { useMutation, useQuery } from "convex/react"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -57,12 +58,12 @@ export function HRDashboard() {
             <h2 className="text-xl font-semibold">
               {t("dashboard.hr.jobDescriptions.title")}
             </h2>
-            <button
+            <Button
               onClick={() => setIsFormOpen(true)}
               className="bg-primary text-primary-foreground rounded px-3 py-1 text-sm"
             >
               {t("dashboard.hr.jobDescriptions.addNew")}
-            </button>
+            </Button>
           </div>
 
           {jobDescriptions && jobDescriptions.length > 0 ? (
@@ -86,12 +87,12 @@ export function HRDashboard() {
                 <h2 className="text-xl font-semibold">
                   {t("dashboard.hr.interviewQuestions.title")}
                 </h2>
-                <button
+                <Button
                   onClick={handleGenerateQuestions}
                   className="bg-primary text-primary-foreground rounded px-3 py-1 text-sm"
                 >
                   {t("dashboard.hr.interviewQuestions.generateAIQuestions")}
-                </button>
+                </Button>
               </div>
 
               {questions && questions.length > 0 ? (

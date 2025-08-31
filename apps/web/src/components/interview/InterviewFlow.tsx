@@ -1,6 +1,7 @@
 import { api } from "@convex/_generated/api"
 import { type Id } from "@convex/_generated/dataModel"
 import { useNavigate, useRouter } from "@tanstack/react-router"
+import { Button } from "@workspace/ui/components/button"
 import { LoadingSpinner } from "@workspace/ui/components/shared/loading-spinner"
 import { useQuery, useMutation } from "convex/react"
 import { useState, useEffect } from "react"
@@ -160,14 +161,14 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
                 </div>
 
                 <div className="flex gap-4">
-                  <button
+                  <Button
                     onClick={() => setAudioBlob(null)}
                     className="border-input bg-background rounded-md border px-4 py-2"
                     disabled={isSubmitting}
                   >
                     {t("interview.flow.recordAgain")}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={handleSubmitResponse}
                     className="bg-primary text-primary-foreground rounded-md px-4 py-2"
                     disabled={isSubmitting}
@@ -175,7 +176,7 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
                     {isSubmitting
                       ? t("interview.flow.submitting")
                       : t("interview.flow.submitAnswer")}
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}

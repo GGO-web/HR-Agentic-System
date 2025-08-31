@@ -1,3 +1,4 @@
+import { Button } from "@workspace/ui/components/button"
 import { useState, useEffect, useRef, useCallback } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -154,7 +155,7 @@ export function AudioRecorder({
         )}
       </div>
 
-      <button
+      <Button
         onClick={isRecording ? onStopRecording : onStartRecording}
         className={`rounded-md px-6 py-3 text-lg font-medium ${
           isRecording
@@ -166,7 +167,7 @@ export function AudioRecorder({
         {isRecording
           ? t("interview.audioRecorder.stopRecording")
           : t("interview.audioRecorder.startRecording")}
-      </button>
+      </Button>
 
       {isRecording && (
         <p className="text-muted-foreground mt-4 text-sm">
