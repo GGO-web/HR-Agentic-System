@@ -1,9 +1,18 @@
 import { api } from "@convex/_generated/api"
 import { type Id } from "@convex/_generated/dataModel"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@workspace/ui/components/button"
+import { Input } from "@workspace/ui/components/input"
+import { Label } from "@workspace/ui/components/label"
 import { useMutation } from "convex/react"
-import { useState } from "react"
+import { type FieldErrors, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
+import { toast } from "react-toastify"
+
+import {
+  jobDescriptionSchema,
+  type JobDescriptionFormData,
+} from "../../schema/jobDescription"
 
 interface JobDescriptionFormProps {
   companyId?: Id<"companies">
@@ -16,36 +25,53 @@ export function JobDescriptionForm({
   userId,
   onClose,
 }: JobDescriptionFormProps) {
-  const [title, setTitle] = useState("")
-  const [description, setDescription] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const { t } = useTranslation()
-
   const createJobDescription = useMutation(api.jobDescriptions.create)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<JobDescriptionFormData>({
+    resolver: zodResolver(jobDescriptionSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+    },
+  })
 
+  const onSubmit = async (data: JobDescriptionFormData) => {
     if (!companyId || !userId) {
+      toast.error(
+        `Missing required data. 
+        - Company ID: ${companyId} 
+        - User ID: ${userId}`,
+      )
       return
     }
 
-    setIsSubmitting(true)
-
     try {
       await createJobDescription({
-        title,
-        description,
+        title: data.title,
+        description: data.description,
         companyId,
         createdBy: userId,
       })
 
+      toast.success("Job description created successfully!")
+      reset()
       onClose()
-    } catch (error) {
-      console.error("Failed to create job description:", error)
-    } finally {
-      setIsSubmitting(false)
+    } catch {
+      toast.error("Failed to create job description. Please try again.")
     }
+  }
+
+  const onInvalid = (errors: FieldErrors<JobDescriptionFormData>) => {
+    const errorMessages = Object.values(errors)
+      .map((error) => error.message)
+      .join(", ")
+    toast.error(errorMessages)
   }
 
   return (
@@ -55,34 +81,34 @@ export function JobDescriptionForm({
           {t("jobDescription.form.title")}
         </h2>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit, onInvalid)}>
           <div className="mb-4">
-            <label htmlFor="title" className="mb-1 block text-sm font-medium">
+            <Label htmlFor="title" className="mb-1 block text-sm font-medium">
               {t("jobDescription.form.jobTitle")}
-            </label>
-            <input
+            </Label>
+            <Input
               id="title"
               type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="border-input bg-background w-full rounded-md border px-3 py-2"
-              required
+              {...register("title")}
+              className={errors.title ? "border-red-500" : ""}
+              placeholder="Enter job title"
             />
           </div>
 
           <div className="mb-6">
-            <label
+            <Label
               htmlFor="description"
               className="mb-1 block text-sm font-medium"
             >
               {t("jobDescription.form.jobDescription")}
-            </label>
+            </Label>
             <textarea
               id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="border-input bg-background h-40 w-full rounded-md border px-3 py-2"
-              required
+              {...register("description")}
+              className={`border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring h-40 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 ${
+                errors.description ? "border-red-500" : ""
+              }`}
+              placeholder="Enter detailed job description..."
             />
             <p className="text-muted-foreground mt-1 text-xs">
               {t("jobDescription.form.descriptionHint")}

@@ -30,9 +30,9 @@ export function useAuth(): AuthReturn {
 
   // Get company data if user is HR manager
   const companyData = useQuery(
-    api.companies.getByClerkId,
-    isSignedIn && user?.id && userData?.role === "hr_manager"
-      ? { clerkId: user.id }
+    api.companies.getById,
+    isSignedIn && userData?.companyId && userData?.role === "hr_manager"
+      ? { id: userData.companyId }
       : "skip",
   )
 

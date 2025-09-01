@@ -5,7 +5,6 @@ import { cn } from "@workspace/ui/lib/utils";
 
 function Label({
   className,
-
   ...props
 }: React.ComponentProps<typeof LabelPrimitive.Root>) {
   return (
