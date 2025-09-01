@@ -1,5 +1,5 @@
 ---
-description: When adding new Shadcn components to packages/ui always use terminal command, do not try to add manually 
+description: When adding new Shadcn components to packages/ui always use terminal command, do not try to add file from scratch 
 globs:
 alwaysApply: true
 ---
