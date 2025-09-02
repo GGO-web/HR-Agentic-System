@@ -9,29 +9,13 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as UnauthorizedRouteImport } from './routes/unauthorized'
-import { Route as SignInRouteImport } from './routes/sign-in'
-import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SignUpIndexRouteImport } from './routes/sign-up/index'
-import { Route as InterviewSessionIdRouteImport } from './routes/interview.$sessionId'
-import { Route as InterviewSessionIdResultsRouteImport } from './routes/interview.$sessionId.results'
+import { Route as SignInIndexRouteImport } from './routes/sign-in/index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as InterviewSessionIdIndexRouteImport } from './routes/interview/$sessionId/index'
+import { Route as InterviewSessionIdResultsRouteImport } from './routes/interview/$sessionId/results'
 
-const UnauthorizedRoute = UnauthorizedRouteImport.update({
-  id: '/unauthorized',
-  path: '/unauthorized',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SignInRoute = SignInRouteImport.update({
-  id: '/sign-in',
-  path: '/sign-in',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -42,45 +26,52 @@ const SignUpIndexRoute = SignUpIndexRouteImport.update({
   path: '/sign-up/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const InterviewSessionIdRoute = InterviewSessionIdRouteImport.update({
-  id: '/interview/$sessionId',
-  path: '/interview/$sessionId',
+const SignInIndexRoute = SignInIndexRouteImport.update({
+  id: '/sign-in/',
+  path: '/sign-in/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/dashboard/',
+  path: '/dashboard/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InterviewSessionIdIndexRoute = InterviewSessionIdIndexRouteImport.update({
+  id: '/interview/$sessionId/',
+  path: '/interview/$sessionId/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InterviewSessionIdResultsRoute =
   InterviewSessionIdResultsRouteImport.update({
-    id: '/results',
-    path: '/results',
-    getParentRoute: () => InterviewSessionIdRoute,
+    id: '/interview/$sessionId/results',
+    path: '/interview/$sessionId/results',
+    getParentRoute: () => rootRouteImport,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
-  '/sign-in': typeof SignInRoute
-  '/unauthorized': typeof UnauthorizedRoute
-  '/interview/$sessionId': typeof InterviewSessionIdRouteWithChildren
+  '/dashboard': typeof DashboardIndexRoute
+  '/sign-in': typeof SignInIndexRoute
   '/sign-up': typeof SignUpIndexRoute
   '/interview/$sessionId/results': typeof InterviewSessionIdResultsRoute
+  '/interview/$sessionId': typeof InterviewSessionIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
-  '/sign-in': typeof SignInRoute
-  '/unauthorized': typeof UnauthorizedRoute
-  '/interview/$sessionId': typeof InterviewSessionIdRouteWithChildren
+  '/dashboard': typeof DashboardIndexRoute
+  '/sign-in': typeof SignInIndexRoute
   '/sign-up': typeof SignUpIndexRoute
   '/interview/$sessionId/results': typeof InterviewSessionIdResultsRoute
+  '/interview/$sessionId': typeof InterviewSessionIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
-  '/sign-in': typeof SignInRoute
-  '/unauthorized': typeof UnauthorizedRoute
-  '/interview/$sessionId': typeof InterviewSessionIdRouteWithChildren
+  '/dashboard/': typeof DashboardIndexRoute
+  '/sign-in/': typeof SignInIndexRoute
   '/sign-up/': typeof SignUpIndexRoute
   '/interview/$sessionId/results': typeof InterviewSessionIdResultsRoute
+  '/interview/$sessionId/': typeof InterviewSessionIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -88,62 +79,38 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/sign-in'
-    | '/unauthorized'
-    | '/interview/$sessionId'
     | '/sign-up'
     | '/interview/$sessionId/results'
+    | '/interview/$sessionId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/dashboard'
     | '/sign-in'
-    | '/unauthorized'
-    | '/interview/$sessionId'
     | '/sign-up'
     | '/interview/$sessionId/results'
+    | '/interview/$sessionId'
   id:
     | '__root__'
     | '/'
-    | '/dashboard'
-    | '/sign-in'
-    | '/unauthorized'
-    | '/interview/$sessionId'
+    | '/dashboard/'
+    | '/sign-in/'
     | '/sign-up/'
     | '/interview/$sessionId/results'
+    | '/interview/$sessionId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  DashboardRoute: typeof DashboardRoute
-  SignInRoute: typeof SignInRoute
-  UnauthorizedRoute: typeof UnauthorizedRoute
-  InterviewSessionIdRoute: typeof InterviewSessionIdRouteWithChildren
+  DashboardIndexRoute: typeof DashboardIndexRoute
+  SignInIndexRoute: typeof SignInIndexRoute
   SignUpIndexRoute: typeof SignUpIndexRoute
+  InterviewSessionIdResultsRoute: typeof InterviewSessionIdResultsRoute
+  InterviewSessionIdIndexRoute: typeof InterviewSessionIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/unauthorized': {
-      id: '/unauthorized'
-      path: '/unauthorized'
-      fullPath: '/unauthorized'
-      preLoaderRoute: typeof UnauthorizedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sign-in': {
-      id: '/sign-in'
-      path: '/sign-in'
-      fullPath: '/sign-in'
-      preLoaderRoute: typeof SignInRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -158,41 +125,44 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignUpIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/interview/$sessionId': {
-      id: '/interview/$sessionId'
+    '/sign-in/': {
+      id: '/sign-in/'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof SignInIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/interview/$sessionId/': {
+      id: '/interview/$sessionId/'
       path: '/interview/$sessionId'
       fullPath: '/interview/$sessionId'
-      preLoaderRoute: typeof InterviewSessionIdRouteImport
+      preLoaderRoute: typeof InterviewSessionIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/interview/$sessionId/results': {
       id: '/interview/$sessionId/results'
-      path: '/results'
+      path: '/interview/$sessionId/results'
       fullPath: '/interview/$sessionId/results'
       preLoaderRoute: typeof InterviewSessionIdResultsRouteImport
-      parentRoute: typeof InterviewSessionIdRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface InterviewSessionIdRouteChildren {
-  InterviewSessionIdResultsRoute: typeof InterviewSessionIdResultsRoute
-}
-
-const InterviewSessionIdRouteChildren: InterviewSessionIdRouteChildren = {
-  InterviewSessionIdResultsRoute: InterviewSessionIdResultsRoute,
-}
-
-const InterviewSessionIdRouteWithChildren =
-  InterviewSessionIdRoute._addFileChildren(InterviewSessionIdRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  DashboardRoute: DashboardRoute,
-  SignInRoute: SignInRoute,
-  UnauthorizedRoute: UnauthorizedRoute,
-  InterviewSessionIdRoute: InterviewSessionIdRouteWithChildren,
+  DashboardIndexRoute: DashboardIndexRoute,
+  SignInIndexRoute: SignInIndexRoute,
   SignUpIndexRoute: SignUpIndexRoute,
+  InterviewSessionIdResultsRoute: InterviewSessionIdResultsRoute,
+  InterviewSessionIdIndexRoute: InterviewSessionIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

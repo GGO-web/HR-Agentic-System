@@ -30,7 +30,8 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-i18next": "^15.7.3",
-    "react-toastify": "^11.0.5"
+    "react-toastify": "^11.0.5",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@hookform/resolvers": "^5.2.1",

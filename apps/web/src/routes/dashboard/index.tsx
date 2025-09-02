@@ -1,12 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { LoadingSpinner } from "@workspace/ui/components/shared/loading-spinner"
 
-import { RoleProtectedRoute } from "../components/auth/RoleProtectedRoute"
-import { CandidateDashboard } from "../components/dashboard/CandidateDashboard"
-import { HRDashboard } from "../components/dashboard/HRDashboard"
-import { useAuth } from "../hooks/useAuth"
+import { CandidateDashboard } from "../../components/dashboard/CandidateDashboard"
+import { HRDashboard } from "../../components/dashboard/HRDashboard"
+import { useAuth } from "../../hooks/useAuth"
+import { RoleProtectedRoute } from "../sign-up/-components/RoleProtectedRoute"
 
-export const Route = createFileRoute("/dashboard")({
+export const Route = createFileRoute("/dashboard/")({
   component: DashboardPage,
 })
 

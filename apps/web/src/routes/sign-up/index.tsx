@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 
-import { RoleSelectionSignUp } from "@/components/auth/RoleSelectionSignUp"
+import { RoleSelectionSignUp } from "@/routes/sign-up/-components/RoleSelectionSignUp"
 
 export const Route = createFileRoute("/sign-up/")({
   component: SignUpPage,

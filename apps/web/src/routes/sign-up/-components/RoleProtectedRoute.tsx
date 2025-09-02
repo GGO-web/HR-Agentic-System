@@ -17,7 +17,7 @@ import { useAuth } from "@/hooks/useAuth"
 
 interface RoleProtectedRouteProps {
   children: ReactNode
-  allowedRoles?: ("hr_manager" | "candidate")[]
+  allowedRoles: ("hr_manager" | "candidate")[]
   requireAuth?: boolean
   fallback?: ReactNode
 }
@@ -32,24 +32,19 @@ export function RoleProtectedRoute({
   const { t } = useTranslation()
 
   // Show loading state
-  if (isLoading) {
+  if (isLoading || !role) {
     return <LoadingSpinner fullScreen text={t("common.loading")} />
-  }
-
-  // Check if authentication is required
-  if (requireAuth && !isSignedIn) {
-    return <Navigate to="/sign-in" />
-  }
-
-  // If no specific roles are required, show the content
-  if (!allowedRoles || allowedRoles.length === 0) {
-    return <>{children}</>
   }
 
   // Check if user has the required role
   const hasRequiredRole = allowedRoles.includes(
     role as "hr_manager" | "candidate",
   )
+
+  // Check if authentication is required
+  if (requireAuth && !isSignedIn) {
+    return <Navigate to="/sign-in" />
+  }
 
   if (!hasRequiredRole) {
     // Show custom fallback if provided

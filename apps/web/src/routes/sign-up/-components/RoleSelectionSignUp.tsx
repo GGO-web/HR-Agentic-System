@@ -14,6 +14,8 @@ import { User, Building2, CheckCircle } from "lucide-react"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { signupStore } from "../-store/signup"
+
 type Role = "hr_manager" | "candidate"
 
 interface RoleOption {
@@ -26,7 +28,9 @@ interface RoleOption {
 
 export function RoleSelectionSignUp() {
   const router = useRouter()
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null)
+  const selectedRole = signupStore((state) => state.selectedRole)
+  const setSelectedRole = signupStore((state) => state.setSelectedRole)
+
   const [showSignUp, setShowSignUp] = useState(false)
   const { t } = useTranslation()
 
@@ -65,8 +69,6 @@ export function RoleSelectionSignUp() {
 
   const handleContinue = () => {
     if (selectedRole) {
-      // Store the selected role in localStorage for the UserCreationHandler
-      localStorage.setItem("selectedRole", selectedRole)
       setShowSignUp(true)
     }
   }
@@ -99,8 +101,7 @@ export function RoleSelectionSignUp() {
               },
             }}
             signInUrl={router.routesByPath["/sign-in"].fullPath}
-            afterSignUpUrl="/dashboard"
-            redirectUrl="/dashboard"
+            forceRedirectUrl="/dashboard"
           />
         </div>
       </div>
