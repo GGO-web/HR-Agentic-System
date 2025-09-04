@@ -46,7 +46,7 @@ export function UserCreationHandler({ children }: UserCreationHandlerProps) {
     }
 
     void handleUserCreation()
-  }, [user, userData, isLoading, isCreating, createUser, clerkUserData])
+  }, [user, userData, isLoading, isCreating, createUser])
 
   return <>{children}</>
 }
