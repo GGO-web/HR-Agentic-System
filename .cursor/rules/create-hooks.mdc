@@ -1,0 +1,5 @@
+---
+description: When using convex useQuery or useMutation always create separate file and integrate tanstack query and @convex-dev/react-query adapter
+globs:
+alwaysApply: true
+---
