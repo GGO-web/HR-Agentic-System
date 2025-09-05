@@ -1,6 +1,8 @@
 import { defineSchema, defineTable } from "convex/server"
 import { v } from "convex/values"
 
+import { UserRole } from "@/types/userRole"
+
 export default defineSchema({
   // Companies table to store company information
   companies: defineTable({
@@ -15,7 +17,10 @@ export default defineSchema({
   users: defineTable({
     name: v.string(),
     email: v.string(),
-    role: v.union(v.literal("hr_manager"), v.literal("candidate")), // Strict role validation
+    role: v.union(
+      v.literal(UserRole.HR_MANAGER),
+      v.literal(UserRole.CANDIDATE),
+    ), // Strict role validation
     companyId: v.optional(v.id("companies")),
     createdAt: v.number(),
     updatedAt: v.number(),

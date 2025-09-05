@@ -6,6 +6,8 @@ import { HRDashboard } from "../../components/dashboard/HRDashboard"
 import { useAuth } from "../../hooks/useAuth"
 import { RoleProtectedRoute } from "../sign-up/-components/RoleProtectedRoute"
 
+import { UserRole } from "@/types/userRole"
+
 export const Route = createFileRoute("/dashboard/")({
   component: DashboardPage,
 })
@@ -18,7 +20,10 @@ function DashboardPage() {
   }
 
   return (
-    <RoleProtectedRoute requireAuth allowedRoles={["hr_manager", "candidate"]}>
+    <RoleProtectedRoute
+      requireAuth
+      allowedRoles={[UserRole.HR_MANAGER, UserRole.CANDIDATE]}
+    >
       {isHRManager && <HRDashboard />}
       {isCandidate && <CandidateDashboard />}
     </RoleProtectedRoute>

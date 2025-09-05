@@ -41,9 +41,7 @@ export default function Header() {
             )}
 
             <Badge variant="secondary" className="text-xs">
-              {role === "hr_manager"
-                ? t("header.hrManager")
-                : t("header.candidate")}
+              {isHRManager ? t("header.hrManager") : t("header.candidate")}
             </Badge>
           </div>
         )}

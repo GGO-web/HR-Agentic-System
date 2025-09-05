@@ -14,10 +14,11 @@ import { useTranslation } from "react-i18next"
 import type { ReactNode } from "react"
 
 import { useAuth } from "@/hooks/useAuth"
+import { type UserRole } from "@/types/userRole"
 
 interface RoleProtectedRouteProps {
   children: ReactNode
-  allowedRoles: ("hr_manager" | "candidate")[]
+  allowedRoles: UserRole[]
   requireAuth?: boolean
   fallback?: ReactNode
 }
@@ -37,9 +38,7 @@ export function RoleProtectedRoute({
   }
 
   // Check if user has the required role
-  const hasRequiredRole = allowedRoles.includes(
-    role as "hr_manager" | "candidate",
-  )
+  const hasRequiredRole = allowedRoles.includes(role)
 
   // Check if authentication is required
   if (requireAuth && !isSignedIn) {

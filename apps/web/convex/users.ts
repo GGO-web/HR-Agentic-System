@@ -2,12 +2,17 @@ import { v } from "convex/values"
 
 import { mutation, query } from "./_generated/server"
 
+import { UserRole } from "@/types/userRole"
+
 // Create a new user
 export const create = mutation({
   args: {
     name: v.string(),
     email: v.string(),
-    role: v.union(v.literal("hr_manager"), v.literal("candidate")),
+    role: v.union(
+      v.literal(UserRole.HR_MANAGER),
+      v.literal(UserRole.CANDIDATE),
+    ),
     companyId: v.optional(v.id("companies")),
     clerkId: v.string(),
   },
@@ -69,7 +74,12 @@ export const getByCompany = query({
 
 // Get users by role
 export const getByRole = query({
-  args: { role: v.union(v.literal("hr_manager"), v.literal("candidate")) },
+  args: {
+    role: v.union(
+      v.literal(UserRole.HR_MANAGER),
+      v.literal(UserRole.CANDIDATE),
+    ),
+  },
   handler: async (ctx, args) => {
     return await ctx.db
       .query("users")
@@ -84,7 +94,9 @@ export const update = mutation({
     id: v.id("users"),
     name: v.optional(v.string()),
     email: v.optional(v.string()),
-    role: v.optional(v.union(v.literal("hr_manager"), v.literal("candidate"))),
+    role: v.optional(
+      v.union(v.literal(UserRole.HR_MANAGER), v.literal(UserRole.CANDIDATE)),
+    ),
     companyId: v.optional(v.id("companies")),
     isActive: v.optional(v.boolean()),
   },
@@ -117,7 +129,10 @@ export const syncFromClerk = mutation({
     clerkId: v.string(),
     name: v.string(),
     email: v.string(),
-    role: v.union(v.literal("hr_manager"), v.literal("candidate")),
+    role: v.union(
+      v.literal(UserRole.HR_MANAGER),
+      v.literal(UserRole.CANDIDATE),
+    ),
     companyId: v.optional(v.id("companies")),
   },
   handler: async (ctx, args) => {

@@ -16,10 +16,10 @@ import { useTranslation } from "react-i18next"
 
 import { signupStore } from "../-store/signup"
 
-type Role = "hr_manager" | "candidate"
+import { UserRole } from "@/types/userRole"
 
 interface RoleOption {
-  id: Role
+  id: UserRole
   title: string
   description: string
   icon: React.ReactNode
@@ -36,7 +36,7 @@ export function RoleSelectionSignUp() {
 
   const roleOptions: RoleOption[] = [
     {
-      id: "hr_manager",
+      id: UserRole.HR_MANAGER,
       title: t("auth.roleSelection.hrManager.title"),
       description: t("auth.roleSelection.hrManager.description"),
       icon: <Building2 className="size-6" />,
@@ -49,7 +49,7 @@ export function RoleSelectionSignUp() {
       ],
     },
     {
-      id: "candidate",
+      id: UserRole.CANDIDATE,
       title: t("auth.roleSelection.candidate.title"),
       description: t("auth.roleSelection.candidate.description"),
       icon: <User className="size-6" />,
@@ -63,7 +63,7 @@ export function RoleSelectionSignUp() {
     },
   ]
 
-  const handleRoleSelect = (role: Role) => {
+  const handleRoleSelect = (role: UserRole) => {
     setSelectedRole(role)
   }
 
@@ -79,7 +79,7 @@ export function RoleSelectionSignUp() {
         <div className="w-full max-w-md">
           <div className="mb-6 text-center">
             <Badge variant="secondary" className="mb-2">
-              {selectedRole === "hr_manager"
+              {selectedRole === UserRole.HR_MANAGER
                 ? t("auth.roleSelection.hrManager.title")
                 : t("auth.roleSelection.candidate.title")}
             </Badge>
@@ -87,7 +87,7 @@ export function RoleSelectionSignUp() {
               {t("auth.registration.completeRegistration")}
             </h2>
             <p className="text-muted-foreground">
-              {selectedRole === "hr_manager"
+              {selectedRole === UserRole.HR_MANAGER
                 ? t("auth.registration.hrManagerSetup")
                 : t("auth.registration.candidateSetup")}
             </p>
@@ -170,9 +170,9 @@ export function RoleSelectionSignUp() {
             className="px-8"
           >
             {t("auth.roleSelection.continueAs")}{" "}
-            {selectedRole === "hr_manager"
+            {selectedRole === UserRole.HR_MANAGER
               ? t("auth.roleSelection.hrManager.title")
-              : selectedRole === "candidate"
+              : selectedRole === UserRole.CANDIDATE
                 ? t("auth.roleSelection.candidate.title")
                 : "..."}
           </Button>
