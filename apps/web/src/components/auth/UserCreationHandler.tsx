@@ -1,7 +1,7 @@
 import { useUser } from "@clerk/clerk-react"
-import { api } from "@convex/_generated/api"
-import { useMutation, useQuery } from "convex/react"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
+
+import { useCreateUserMutation } from "./_hooks/useCreateUserMutation"
 
 import { useAuth } from "@/hooks/useAuth"
 import { signupStore } from "@/routes/sign-up/-store/signup"
@@ -13,8 +13,8 @@ interface UserCreationHandlerProps {
 export function UserCreationHandler({ children }: UserCreationHandlerProps) {
   const { user } = useUser()
   const { userData, isLoading } = useAuth()
-  const [isCreating, setIsCreating] = useState(false)
-  const createUser = useMutation(api.users.create)
+  const { mutateAsync: createUser, isPending: isCreating } =
+    useCreateUserMutation()
 
   useEffect(() => {
     const handleUserCreation = async () => {
@@ -30,7 +30,6 @@ export function UserCreationHandler({ children }: UserCreationHandlerProps) {
       }
 
       try {
-        setIsCreating(true)
         await createUser({
           name: user.username || "",
           email: user.emailAddresses[0]?.emailAddress || "",
@@ -40,7 +39,6 @@ export function UserCreationHandler({ children }: UserCreationHandlerProps) {
       } catch (error) {
         console.error("Failed to create user:", error)
       } finally {
-        setIsCreating(false)
         setSelectedRole(undefined)
       }
     }

@@ -89,7 +89,11 @@
       "candidateSetup": "Create your candidate account to start taking interviews."
     },
     "userCreation": {
-      "settingUpAccount": "Setting up your account..."
+      "settingUpAccount": "Setting up your account...",
+      "actions": {
+        "success": "User created successfully",
+        "error": "Failed to create user"
+      }
     }
   },
   "dashboard": {
