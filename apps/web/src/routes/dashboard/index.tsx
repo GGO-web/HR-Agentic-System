@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { LoadingSpinner } from "@workspace/ui/components/shared/loading-spinner"
 
-import { CandidateDashboard } from "../../components/dashboard/CandidateDashboard"
-import { HRDashboard } from "../../components/dashboard/HRDashboard"
 import { useAuth } from "../../hooks/useAuth"
 import { RoleProtectedRoute } from "../sign-up/-components/RoleProtectedRoute"
+
+import { CandidateDashboard } from "./_components/CandidateDashboard/CandidateDashboard"
+import { HRDashboard } from "./_components/HRDashboard/HRDashboard"
 
 import { UserRole } from "@/types/userRole"
 

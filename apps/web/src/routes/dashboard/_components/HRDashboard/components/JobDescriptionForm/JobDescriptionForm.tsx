@@ -12,7 +12,7 @@ import { toast } from "react-toastify"
 import {
   jobDescriptionSchema,
   type JobDescriptionFormData,
-} from "../../schema/jobDescription"
+} from "@/schema/jobDescription"
 
 interface JobDescriptionFormProps {
   companyId?: Id<"companies">

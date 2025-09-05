@@ -5,9 +5,10 @@ import { useMutation, useQuery } from "convex/react"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { JobDescriptionForm } from "./JobDescriptionForm"
-import { JobDescriptionList } from "./JobDescriptionList"
-import { QuestionsList } from "./QuestionsList"
+import { QuestionsList } from "../QuestionsList/QuestionsList"
+
+import { JobDescriptionForm } from "./components/JobDescriptionForm/JobDescriptionForm"
+import { JobDescriptionList } from "./components/JobDescriptionList/JobDescriptionList"
 
 import { useAuth } from "@/hooks/useAuth"
 
