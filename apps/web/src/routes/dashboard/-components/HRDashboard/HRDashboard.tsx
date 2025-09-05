@@ -1,7 +1,5 @@
-import { api } from "@convex/_generated/api"
 import { type Id } from "@convex/_generated/dataModel"
 import { Button } from "@workspace/ui/components/button"
-import { useMutation, useQuery } from "convex/react"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -9,6 +7,9 @@ import { QuestionsList } from "../QuestionsList/QuestionsList"
 
 import { JobDescriptionForm } from "./components/JobDescriptionForm/JobDescriptionForm"
 import { JobDescriptionList } from "./components/JobDescriptionList/JobDescriptionList"
+import { useGenerateInverviewQuestionsMutation } from "./hooks/useGenerateInverviewQuestionsMutation"
+import { useInterviewQuestionsQuery } from "./hooks/useInterviewQuestionsQuery"
+import { useJobDescriptionsQuery } from "./hooks/useJobDescriptionsQuery"
 
 import { useAuth } from "@/hooks/useAuth"
 
@@ -20,21 +21,14 @@ export function HRDashboard() {
   const { t } = useTranslation()
 
   // Fetch job descriptions for the company
-  const jobDescriptions = useQuery(
-    api.jobDescriptions.getByCompany,
-    companyData ? { companyId: companyData._id } : "skip",
-  )
+  const { data: jobDescriptions } = useJobDescriptionsQuery(companyData ?? null)
 
   // Fetch questions for the selected job
-  const questions = useQuery(
-    api.interviewQuestions.getByJobDescription,
-    selectedJobId ? { jobDescriptionId: selectedJobId } : "skip",
-  )
+  const { data: questions } = useInterviewQuestionsQuery(selectedJobId ?? null)
 
   // Generate AI questions mutation
-  const generateQuestions = useMutation(
-    api.interviewQuestions.generateAIQuestions,
-  )
+  const { mutateAsync: generateQuestions } =
+    useGenerateInverviewQuestionsMutation()
 
   // Handle job selection
   const handleJobSelect = (jobId: Id<"jobDescriptions">) => {

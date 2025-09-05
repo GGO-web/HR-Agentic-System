@@ -4,8 +4,8 @@ import { LoadingSpinner } from "@workspace/ui/components/shared/loading-spinner"
 import { useAuth } from "../../hooks/useAuth"
 import { RoleProtectedRoute } from "../sign-up/-components/RoleProtectedRoute"
 
-import { CandidateDashboard } from "./_components/CandidateDashboard/CandidateDashboard"
-import { HRDashboard } from "./_components/HRDashboard/HRDashboard"
+import { CandidateDashboard } from "./-components/CandidateDashboard/CandidateDashboard"
+import { HRDashboard } from "./-components/HRDashboard/HRDashboard"
 
 import { UserRole } from "@/types/userRole"
 
