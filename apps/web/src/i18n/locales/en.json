@@ -123,6 +123,18 @@
       "viewResults": "View Results",
       "noInterviews": "No interviews scheduled yet.",
       "noInterviewsDescription": "Your interviews will appear here once they are scheduled by HR."
+    },
+    "questionsList": {
+      "actions": {
+        "update": {
+          "success": "Question updated successfully",
+          "error": "Failed to update question"
+        },
+        "delete": {
+          "success": "Question deleted successfully",
+          "error": "Failed to delete question"
+        }
+      }
     }
   },
   "jobDescription": {

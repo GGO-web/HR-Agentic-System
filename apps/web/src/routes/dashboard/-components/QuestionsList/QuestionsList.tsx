@@ -1,9 +1,10 @@
-import { api } from "@convex/_generated/api"
 import { type Id, type Doc } from "@convex/_generated/dataModel"
 import { Button } from "@workspace/ui/components/button"
-import { useMutation } from "convex/react"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
+
+import { useDeleteQuestionMutation } from "./hooks/useDeleteQuestionMutation"
+import { useUpdateQuestionMutation } from "./hooks/useUpdateQuestionMutation"
 
 interface QuestionsListProps {
   questions: Doc<"interviewQuestions">[]
@@ -16,8 +17,10 @@ export function QuestionsList({ questions }: QuestionsListProps) {
   const [editText, setEditText] = useState("")
   const { t } = useTranslation()
 
-  const updateQuestion = useMutation(api.interviewQuestions.update)
-  const deleteQuestion = useMutation(api.interviewQuestions.remove)
+  const { mutateAsync: updateQuestion, isPending: isUpdating } =
+    useUpdateQuestionMutation()
+  const { mutateAsync: deleteQuestion, isPending: isDeleting } =
+    useDeleteQuestionMutation()
 
   // Start editing a question
   const handleEdit = (question: Doc<"interviewQuestions">) => {
@@ -82,17 +85,20 @@ export function QuestionsList({ questions }: QuestionsListProps) {
                   <Button
                     onClick={() => handleEdit(question)}
                     className="bg-muted rounded px-2 py-1 text-xs"
+                    disabled={isUpdating}
                   >
                     {t("common.edit")}
                   </Button>
                   <Button
                     onClick={() => handleDelete(question._id)}
                     className="bg-destructive text-destructive-foreground rounded px-2 py-1 text-xs"
+                    disabled={isDeleting}
                   >
                     {t("common.delete")}
                   </Button>
                 </div>
               </div>
+
               {question.isAIGenerated && (
                 <span className="bg-secondary/20 mt-2 inline-block rounded-full px-2 py-0.5 text-xs">
                   {t("dashboard.hr.interviewQuestions.aiGenerated")}
