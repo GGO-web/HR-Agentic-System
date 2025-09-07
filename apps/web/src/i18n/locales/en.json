@@ -145,6 +145,41 @@
       "descriptionHint": "Provide a detailed job description. This will be used to generate interview questions."
     }
   },
+  "company": {
+    "profile": {
+      "title": "Company Profile",
+      "noProfile": "No Company Profile",
+      "noProfileDescription": "Create your company profile to get started with job postings.",
+      "createProfile": "Create Company Profile",
+      "editProfile": "Edit Profile",
+      "updateProfile": "Update Profile",
+      "companyInformation": "Company Information",
+      "companyName": "Company Name",
+      "description": "Company Description",
+      "about": "About",
+      "saving": "Saving...",
+      "createProfileButton": "Create Profile",
+      "updateProfileButton": "Update Profile"
+    },
+    "form": {
+      "title": "Company Profile",
+      "createTitle": "Create Company Profile",
+      "editTitle": "Edit Company Profile",
+      "companyName": "Company Name",
+      "companyNamePlaceholder": "Enter company name",
+      "description": "Company Description",
+      "descriptionPlaceholder": "Brief description of your company...",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving...",
+      "create": "Create Profile",
+      "update": "Update Profile",
+      "createSuccess": "Company profile created successfully!",
+      "updateSuccess": "Company profile updated successfully!",
+      "saveError": "Failed to save company profile. Please try again.",
+      "userNotFound": "User not found. Please try again."
+    }
+  },
   "interview": {
     "flow": {
       "loading": "Loading interview...",

@@ -8,6 +8,7 @@ export default defineSchema({
   companies: defineTable({
     name: v.string(),
     description: v.optional(v.string()),
+    isActive: v.boolean(),
     createdAt: v.number(),
     updatedAt: v.number(),
     clerkId: v.string(), // Clerk organization ID

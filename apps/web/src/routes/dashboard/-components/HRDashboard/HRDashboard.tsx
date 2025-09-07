@@ -5,6 +5,8 @@ import { useTranslation } from "react-i18next"
 
 import { QuestionsList } from "../QuestionsList/QuestionsList"
 
+import { CompanyProfile } from "./components/CompanyProfile/CompanyProfile"
+import { CompanyProfileForm } from "./components/CompanyProfile/components/CompanyProfileForm/CompanyProfileForm"
 import { JobDescriptionForm } from "./components/JobDescriptionForm/JobDescriptionForm"
 import { JobDescriptionList } from "./components/JobDescriptionList/JobDescriptionList"
 import { useGenerateInverviewQuestionsMutation } from "./hooks/useGenerateInverviewQuestionsMutation"
@@ -18,6 +20,8 @@ export function HRDashboard() {
   const [selectedJobId, setSelectedJobId] =
     useState<Id<"jobDescriptions"> | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
+  const [isCompanyProfileFormOpen, setIsCompanyProfileFormOpen] =
+    useState(false)
   const { t } = useTranslation()
 
   // Fetch job descriptions for the company
@@ -45,6 +49,15 @@ export function HRDashboard() {
   return (
     <div className="container mx-auto p-6">
       <h1 className="mb-6 text-3xl font-bold">{t("dashboard.hr.title")}</h1>
+
+      {/* Company Profile Section */}
+      <div className="mb-8">
+        <CompanyProfile
+          companyId={companyData?._id}
+          companyData={companyData}
+          onEdit={() => setIsCompanyProfileFormOpen(true)}
+        />
+      </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {/* Left sidebar - Job descriptions */}
@@ -114,6 +127,15 @@ export function HRDashboard() {
           companyId={companyData?._id}
           userId={userData?._id}
           onClose={() => setIsFormOpen(false)}
+        />
+      )}
+
+      {/* Company profile form modal */}
+      {isCompanyProfileFormOpen && (
+        <CompanyProfileForm
+          companyId={companyData?._id}
+          companyData={companyData}
+          onClose={() => setIsCompanyProfileFormOpen(false)}
         />
       )}
     </div>
