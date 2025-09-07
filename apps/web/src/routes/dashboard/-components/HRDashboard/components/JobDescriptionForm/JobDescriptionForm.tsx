@@ -31,7 +31,7 @@ export function JobDescriptionForm({
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isValid },
     reset,
   } = useForm<JobDescriptionFormData>({
     resolver: zodResolver(jobDescriptionSchema),
@@ -127,7 +127,7 @@ export function JobDescriptionForm({
             <Button
               type="submit"
               className="bg-primary text-primary-foreground rounded-md px-4 py-2 text-sm"
-              disabled={isSubmitting}
+              disabled={isSubmitting || !isValid}
             >
               {isSubmitting ? t("common.loading") : t("common.save")}
             </Button>
