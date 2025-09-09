@@ -9,8 +9,10 @@ router = APIRouter(
 )
 
 
-@router.post("/generate", response_model=QuestionResponse)
+@router.post("/generate")
 async def generate_questions(job_description: JobDescription):
+    print(
+        f"title='{job_description.title}' description='{job_description.description}'")
     """
     Generate interview questions based on job description.
     """
@@ -19,6 +21,10 @@ async def generate_questions(job_description: JobDescription):
             job_title=job_description.title,
             job_description=job_description.description
         )
-        return {"questions": questions}
+        # Convert Question objects to strings for Convex
+        question_strings = [q.question for q in questions]
+
+        return {"questions": question_strings}
     except Exception as e:
+        print(f"Error generating questions: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))

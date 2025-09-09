@@ -38,7 +38,7 @@ async def generate_interview_questions(job_title: str, job_description: str) -> 
         """
 
         # Call Gemini API asynchronously
-        model = 'gemini-2.5-flash-lite'
+        model = 'gemini-2.0-flash-001'
 
         # Since the Google Gemini API doesn't have native async support,
         # we'll run it in a thread pool to make it non-blocking
@@ -46,10 +46,8 @@ async def generate_interview_questions(job_title: str, job_description: str) -> 
             client.models.generate_content,
             model=model,
             contents=prompt,
-            generation_config={
-                "temperature": 0.7,
-                "max_output_tokens": 1500,
-            }
+            temperature=0.7,
+            max_output_tokens=1500
         )
 
         # Process the response
@@ -63,9 +61,9 @@ async def generate_interview_questions(job_title: str, job_description: str) -> 
                 continue
 
             # Clean up the line (remove numbers, etc.)
-            clean_line = line
+            clean_line = line.strip()
             # Remove leading numbers like "1. ", "2. ", etc.
-            if clean_line[0].isdigit() and ". " in clean_line[:5]:
+            if clean_line and clean_line[0].isdigit() and ". " in clean_line[:5]:
                 clean_line = clean_line[clean_line.find(". ") + 2:]
 
             # Create Question object
