@@ -41,8 +41,18 @@ export function HRDashboard() {
 
   // Handle AI question generation
   const handleGenerateQuestions = async () => {
-    if (selectedJobId) {
-      await generateQuestions({ jobDescriptionId: selectedJobId })
+    if (selectedJobId && jobDescriptions) {
+      const selectedJob = jobDescriptions.find(
+        (job) => job._id === selectedJobId,
+      )
+
+      if (selectedJob) {
+        await generateQuestions({
+          jobDescriptionId: selectedJobId,
+          title: selectedJob.title,
+          description: selectedJob.description,
+        })
+      }
     }
   }
 
@@ -95,11 +105,10 @@ export function HRDashboard() {
                 <h2 className="text-xl font-semibold">
                   {t("dashboard.hr.interviewQuestions.title")}
                 </h2>
-                <Button
-                  onClick={handleGenerateQuestions}
-                  className="bg-primary text-primary-foreground rounded px-3 py-1 text-sm"
-                >
-                  {t("dashboard.hr.interviewQuestions.generateAIQuestions")}
+                <Button onClick={handleGenerateQuestions} variant="default">
+                  {t(
+                    "dashboard.hr.interviewQuestions.generateAIQuestions.button",
+                  )}
                 </Button>
               </div>
 

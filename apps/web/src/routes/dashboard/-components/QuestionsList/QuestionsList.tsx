@@ -39,9 +39,7 @@ export function QuestionsList({ questions }: QuestionsListProps) {
 
   // Delete a question
   const handleDelete = async (id: Id<"interviewQuestions">) => {
-    if (confirm(t("common.confirm"))) {
-      await deleteQuestion({ id })
-    }
+    await deleteQuestion({ id })
   }
 
   // Sort questions by order
@@ -63,16 +61,10 @@ export function QuestionsList({ questions }: QuestionsListProps) {
                 rows={3}
               />
               <div className="flex justify-end gap-2">
-                <Button
-                  onClick={() => setEditingId(null)}
-                  className="bg-muted rounded px-3 py-1 text-sm"
-                >
+                <Button onClick={() => setEditingId(null)} variant="outline">
                   {t("common.cancel")}
                 </Button>
-                <Button
-                  onClick={() => handleSave(question._id)}
-                  className="bg-primary text-primary-foreground rounded px-3 py-1 text-sm"
-                >
+                <Button onClick={() => handleSave(question._id)}>
                   {t("common.save")}
                 </Button>
               </div>
@@ -83,15 +75,14 @@ export function QuestionsList({ questions }: QuestionsListProps) {
                 <p className="text-lg">{question.question}</p>
                 <div className="flex gap-2">
                   <Button
+                    variant="outline"
                     onClick={() => handleEdit(question)}
-                    className="bg-muted rounded px-2 py-1 text-xs"
                     disabled={isUpdating}
                   >
                     {t("common.edit")}
                   </Button>
                   <Button
                     onClick={() => handleDelete(question._id)}
-                    className="bg-destructive text-destructive-foreground rounded px-2 py-1 text-xs"
                     disabled={isDeleting}
                   >
                     {t("common.delete")}

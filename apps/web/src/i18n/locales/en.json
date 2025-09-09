@@ -106,7 +106,12 @@
       },
       "interviewQuestions": {
         "title": "Interview Questions",
-        "generateAIQuestions": "Generate AI Questions",
+        "generateAIQuestions": {
+          "title": "Generate AI Questions",
+          "success": "AI questions generated successfully",
+          "error": "Failed to generate AI questions",
+          "button": "Generate AI Questions"
+        },
         "noQuestions": "No questions yet. Click \"Generate AI Questions\" to create questions based on the job description.",
         "selectJobDescription": "Select a job description to view or generate questions.",
         "aiGenerated": "AI Generated"
