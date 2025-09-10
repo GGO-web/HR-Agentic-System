@@ -31,7 +31,7 @@ export function HRDashboard() {
   const { data: questions } = useInterviewQuestionsQuery(selectedJobId ?? null)
 
   // Generate AI questions mutation
-  const { mutateAsync: generateQuestions } =
+  const { mutateAsync: generateQuestions, isPending: isGeneratingQuestions } =
     useGenerateInverviewQuestionsMutation()
 
   // Handle job selection
@@ -113,7 +113,11 @@ export function HRDashboard() {
                 <h2 className="text-xl font-semibold">
                   {t("dashboard.hr.interviewQuestions.title")}
                 </h2>
-                <Button onClick={handleGenerateQuestions} variant="default">
+                <Button
+                  onClick={handleGenerateQuestions}
+                  variant="default"
+                  loading={isGeneratingQuestions}
+                >
                   {t(
                     "dashboard.hr.interviewQuestions.generateAIQuestions.button",
                   )}

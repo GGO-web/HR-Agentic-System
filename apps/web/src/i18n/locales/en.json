@@ -124,7 +124,6 @@
       "interviewQuestions": {
         "title": "Interview Questions",
         "generateAIQuestions": {
-          "title": "Generate AI Questions",
           "success": "AI questions generated successfully",
           "error": "Failed to generate AI questions",
           "button": "Generate AI Questions"
