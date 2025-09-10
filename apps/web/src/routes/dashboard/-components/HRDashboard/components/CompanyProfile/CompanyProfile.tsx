@@ -39,8 +39,16 @@ export function CompanyProfile({ companyData, onEdit }: CompanyProfileProps) {
     <Card className="p-6">
       <div className="mb-6 flex items-start justify-between">
         <div className="flex items-center gap-4">
-          <div className="bg-muted flex h-16 w-16 items-center justify-center rounded-lg">
-            <Building2 className="text-muted-foreground h-8 w-8" />
+          <div className="bg-muted flex h-16 w-16 items-center justify-center overflow-hidden rounded-lg">
+            {companyData.logoUrl ? (
+              <img
+                src={companyData.logoUrl}
+                alt={`${companyData.name} logo`}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <Building2 className="text-muted-foreground h-8 w-8" />
+            )}
           </div>
           <div>
             <h2 className="text-2xl font-bold">{companyData.name}</h2>

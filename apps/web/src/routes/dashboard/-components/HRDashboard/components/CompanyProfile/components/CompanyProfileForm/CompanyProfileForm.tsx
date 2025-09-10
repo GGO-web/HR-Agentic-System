@@ -6,12 +6,15 @@ import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
 import { useMutation } from "convex/react"
 import { Building2 } from "lucide-react"
+import { useState } from "react"
 import { type FieldErrors, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { toast } from "react-toastify"
 
+import { ImageUploader } from "@/components/upload-button/UploadButton"
 import { useAuth } from "@/hooks/useAuth"
 import { companySchema, type CompanyFormData } from "@/schema/company"
+import { uploadImageToS3 } from "@/services/s3Service"
 
 interface CompanyProfileFormProps {
   companyId?: Id<"companies">
@@ -31,6 +34,9 @@ export function CompanyProfileForm({
   const updateUser = useMutation(api.users.update)
 
   const isEditing = Boolean(companyId && companyData)
+  const [logoUrl, setLogoUrl] = useState<string | null>(
+    companyData?.logoUrl || null,
+  )
 
   const {
     register,
@@ -44,12 +50,27 @@ export function CompanyProfileForm({
     },
   })
 
+  const handleUploadImage = async (file: File) => {
+    if (!companyId) return
+    try {
+      const result = await uploadImageToS3(file, companyId)
+      console.log(result)
+      if (result.success && result.url) {
+        setLogoUrl(result.url)
+      }
+    } catch (error) {
+      console.error(error)
+      toast.error(t("company.form.uploadError"))
+    }
+  }
+
   const onSubmit = async (data: CompanyFormData) => {
     try {
       if (isEditing && companyId) {
         await updateCompany({
           id: companyId,
           ...data,
+          logoUrl: logoUrl || undefined,
         })
         toast.success(t("company.form.updateSuccess"))
         onClose()
@@ -63,6 +84,7 @@ export function CompanyProfileForm({
         const newCompanyId = await createCompany({
           name: data.name,
           description: data.description,
+          logoUrl: logoUrl || undefined,
           clerkId: user.id,
         })
 
@@ -103,6 +125,17 @@ export function CompanyProfileForm({
           onSubmit={handleSubmit(onSubmit, onInvalid)}
           className="space-y-6"
         >
+          {/* Logo Upload */}
+          {isEditing && companyId && (
+            <div className="space-y-4">
+              <h3 className="flex items-center gap-2 text-lg font-medium">
+                <Building2 className="h-5 w-5" />
+                {t("company.profile.companyLogo")}
+              </h3>
+              <ImageUploader onUpload={handleUploadImage} />
+            </div>
+          )}
+
           {/* Basic Information */}
           <div className="space-y-4">
             <h3 className="flex items-center gap-2 text-lg font-medium">
