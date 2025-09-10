@@ -1,7 +1,7 @@
 import { type Id, type Doc } from "@convex/_generated/dataModel"
 import { Button } from "@workspace/ui/components/button"
 import { Edit2 } from "lucide-react"
-import { type MouseEvent, useState } from "react"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { DeleteJobDescriptionButton } from "../DeleteJobDescriptionButton/DeleteJobDescriptionButton"

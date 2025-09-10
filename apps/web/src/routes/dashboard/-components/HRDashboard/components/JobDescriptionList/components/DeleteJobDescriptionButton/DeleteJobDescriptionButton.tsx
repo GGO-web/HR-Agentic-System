@@ -27,7 +27,7 @@ export function DeleteJobDescriptionButton({
 }: DeleteJobDescriptionButtonProps) {
   const { t } = useTranslation()
   const { mutateAsync: deleteJobDescription, isPending: isDeleting } =
-    useDeleteJobDescriptionMutation()
+    useDeleteJobDescriptionMutation(job._id)
 
   const handleDelete = async () => {
     await deleteJobDescription({ id: job._id })
@@ -64,7 +64,7 @@ export function DeleteJobDescriptionButton({
             disabled={isDeleting}
             className="bg-red-600 hover:bg-red-700"
           >
-            {isDeleting ? "Deleting..." : t("common.delete")}
+            {isDeleting ? t("common.deleting") : t("common.delete")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
