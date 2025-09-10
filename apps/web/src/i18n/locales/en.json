@@ -102,7 +102,23 @@
       "jobDescriptions": {
         "title": "Job Descriptions",
         "addNew": "Add New",
-        "noJobDescriptions": "No job descriptions yet."
+        "noJobDescriptions": "No job descriptions yet.",
+        "actions": {
+          "rename": "Rename job description",
+          "edit": {
+            "title": "Edit Job Description",
+            "save": "Save",
+            "cancel": "Cancel",
+            "saving": "Saving...",
+            "savingError": "Failed to save job description",
+            "savingSuccess": "Job description updated successfully",
+            "success": "Job description updated successfully",
+            "error": "Failed to update job description"
+          },
+          "delete": "Delete job description",
+          "deleteConfirm": "Delete Job Description",
+          "deleteDescription": "Are you sure you want to delete this job description? This action cannot be undone and will also delete all associated interview questions and responses."
+        }
       },
       "interviewQuestions": {
         "title": "Interview Questions",

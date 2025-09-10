@@ -39,6 +39,13 @@ export function HRDashboard() {
     setSelectedJobId(jobId)
   }
 
+  // Handle job deletion
+  const handleJobDeleted = (deletedJobId: Id<"jobDescriptions">) => {
+    if (selectedJobId === deletedJobId) {
+      setSelectedJobId(null)
+    }
+  }
+
   // Handle AI question generation
   const handleGenerateQuestions = async () => {
     if (selectedJobId && jobDescriptions) {
@@ -89,6 +96,7 @@ export function HRDashboard() {
               jobDescriptions={jobDescriptions}
               selectedJobId={selectedJobId}
               onSelect={handleJobSelect}
+              onJobDeleted={handleJobDeleted}
             />
           ) : (
             <p className="text-muted-foreground">

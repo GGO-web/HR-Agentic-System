@@ -1,6 +1,7 @@
 import { v } from "convex/values"
 
 import { internal } from "./_generated/api"
+import { type Doc } from "./_generated/dataModel"
 import { action, mutation, query } from "./_generated/server"
 import { questionsService } from "./services/questions/questions.service"
 
@@ -106,5 +107,25 @@ export const actionGenerateAndSaveAIQuestions = action({
     )
 
     return questionIds
+  },
+})
+
+export const deleteByJobDescription = mutation({
+  args: { jobDescriptionId: v.id("jobDescriptions") },
+  handler: async (ctx, args) => {
+    const questions = await ctx.db
+      .query("interviewQuestions")
+      .withIndex("by_job_description", (q) =>
+        q.eq("jobDescriptionId", args.jobDescriptionId),
+      )
+      .collect()
+
+    await Promise.all(
+      questions.map((question: Doc<"interviewQuestions">) =>
+        ctx.runMutation(internal.interviewQuestions.remove, {
+          id: question._id,
+        }),
+      ),
+    )
   },
 })
