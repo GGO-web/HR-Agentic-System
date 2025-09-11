@@ -83,11 +83,12 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
 
   const handleRemoveImage = async () => {
     try {
-      setPreview(null)
-      form.resetField("image")
       if (onRemove) {
         await onRemove()
       }
+      setPreview(null)
+      form.resetField("image")
+
       toast.success(t("uploadButton.removeImage.success"))
     } catch (error) {
       console.error(error)
