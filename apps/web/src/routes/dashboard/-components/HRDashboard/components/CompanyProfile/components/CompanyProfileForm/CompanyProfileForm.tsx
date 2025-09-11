@@ -14,7 +14,7 @@ import { toast } from "react-toastify"
 import { ImageUploader } from "@/components/upload-button/UploadButton"
 import { useAuth } from "@/hooks/useAuth"
 import { companySchema, type CompanyFormData } from "@/schema/company"
-import { uploadImageToS3 } from "@/services/s3Service"
+import { uploadImageToS3, deleteLogoFromS3 } from "@/services/s3Service"
 
 interface CompanyProfileFormProps {
   companyId?: Id<"companies">
@@ -54,14 +54,43 @@ export function CompanyProfileForm({
     if (!companyId) return
     try {
       const result = await uploadImageToS3(file, companyId)
-      console.log(result)
+
       if (result.success && result.url) {
         setLogoUrl(result.url)
       }
+
+      await updateCompany({
+        id: companyId,
+        logoUrl: result.url || undefined,
+      })
     } catch (error) {
       console.error(error)
       toast.error(t("company.form.uploadError"))
     }
+  }
+
+  const handleRemoveLogo = async () => {
+    // Determine which logo URL to delete (current state or original company data)
+    const logoToDelete = logoUrl || companyData?.logoUrl
+
+    // If there's a logo URL, delete it from S3
+    if (logoToDelete) {
+      const result = await deleteLogoFromS3(logoToDelete)
+
+      if (!result.success) {
+        throw new Error(`Failed to delete logo from S3: ${result.error}`)
+      }
+
+      if (companyId) {
+        await updateCompany({
+          id: companyId,
+          logoUrl: "",
+        })
+      }
+    }
+
+    // Clear the logo URL from state
+    setLogoUrl(null)
   }
 
   const onSubmit = async (data: CompanyFormData) => {
@@ -135,6 +164,7 @@ export function CompanyProfileForm({
               <ImageUploader
                 defaultPreview={companyData?.logoUrl}
                 onUpload={handleUploadImage}
+                onRemove={handleRemoveLogo}
               />
             </div>
           )}

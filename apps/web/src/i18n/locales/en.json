@@ -26,7 +26,11 @@
     "uploadImageSuccess": "Image uploaded successfully",
     "clickHereOrDragImage": "<b>Click here</b> or <b>drag</b> an image to upload it",
     "dropImage": "<b>Drop the image!</b>",
-    "warning": "Image must be less than 5MB and of type png, jpg, jpeg, or webp"
+    "warning": "Image must be less than 5MB and of type png, jpg, jpeg, or webp",
+    "removeImage": {
+      "success": "Image removed successfully",
+      "error": "Failed to remove image. Please try again."
+    }
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -205,7 +209,10 @@
       "createSuccess": "Company profile created successfully!",
       "updateSuccess": "Company profile updated successfully!",
       "saveError": "Failed to save company profile. Please try again.",
-      "userNotFound": "User not found. Please try again."
+      "userNotFound": "User not found. Please try again.",
+      "uploadError": "Failed to upload image. Please try again.",
+      "removeLogoSuccess": "Company logo removed successfully!",
+      "removeLogoError": "Failed to remove logo. Please try again."
     }
   },
   "interview": {

@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
+import { Button } from "@workspace/ui/components/button"
 import {
   Form,
   FormControl,
@@ -8,7 +9,7 @@ import {
   FormMessage,
 } from "@workspace/ui/components/form"
 import { Input } from "@workspace/ui/components/input"
-import { ImagePlus } from "lucide-react"
+import { ImagePlus, X } from "lucide-react"
 import React from "react"
 import { useDropzone } from "react-dropzone"
 import { useForm } from "react-hook-form"
@@ -22,11 +23,13 @@ import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from "@/constants/s3"
 interface ImageUploaderProps {
   defaultPreview?: string | ArrayBuffer | null
   onUpload: (file: File) => void
+  onRemove?: () => void | Promise<void>
 }
 
 export const ImageUploader: React.FC<ImageUploaderProps> = ({
   defaultPreview,
   onUpload,
+  onRemove,
 }) => {
   const { t } = useTranslation()
 
@@ -60,7 +63,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
         form.resetField("image")
       }
     },
-    [form],
+    [form, onUpload],
   )
 
   const { getRootProps, getInputProps, isDragActive, fileRejections } =
@@ -76,6 +79,20 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     toast.success(
       `${t("uploadButton.uploadImageSuccess")} ${values.image.name}`,
     )
+  }
+
+  const handleRemoveImage = async () => {
+    try {
+      setPreview(null)
+      form.resetField("image")
+      if (onRemove) {
+        await onRemove()
+      }
+      toast.success(t("uploadButton.removeImage.success"))
+    } catch (error) {
+      console.error(error)
+      toast.error(t("uploadButton.removeImage.error"))
+    }
   }
 
   return (
@@ -102,7 +119,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
               <FormControl>
                 <div
                   {...getRootProps()}
-                  className="border-foreground mx-auto flex cursor-pointer flex-col items-center justify-center gap-y-2 rounded-lg border border-dashed p-4 shadow-lg"
+                  className="border-foreground group relative mx-auto flex cursor-pointer flex-col items-center justify-center gap-y-2 rounded-lg border border-dashed p-4 shadow-lg"
                 >
                   {preview && (
                     <img
@@ -111,6 +128,20 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
                       className="w-30 rounded-lg"
                     />
                   )}
+                  {onRemove && (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      className="absolute top-2 right-2 flex items-center justify-center rounded-full bg-red-500 p-2 hover:bg-red-600"
+                      onClick={async (e) => {
+                        e.stopPropagation()
+                        await handleRemoveImage()
+                      }}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  )}
+
                   <ImagePlus
                     className={`size-20 ${preview ? "hidden" : "block"}`}
                   />
