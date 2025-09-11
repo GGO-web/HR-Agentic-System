@@ -57,12 +57,12 @@ export function CompanyProfileForm({
 
       if (result.success && result.url) {
         setLogoUrl(result.url)
-      }
 
-      await updateCompany({
-        id: companyId,
-        logoUrl: result.url || undefined,
-      })
+        await updateCompany({
+          id: companyId,
+          logoUrl: result.url || undefined,
+        })
+      }
     } catch (error) {
       console.error(error)
       toast.error(t("company.form.uploadError"))
