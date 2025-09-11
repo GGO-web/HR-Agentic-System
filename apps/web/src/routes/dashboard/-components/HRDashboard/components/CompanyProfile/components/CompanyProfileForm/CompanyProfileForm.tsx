@@ -6,12 +6,15 @@ import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
 import { useMutation } from "convex/react"
 import { Building2 } from "lucide-react"
+import { useState } from "react"
 import { type FieldErrors, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { toast } from "react-toastify"
 
+import { ImageUploader } from "@/components/upload-button/UploadButton"
 import { useAuth } from "@/hooks/useAuth"
 import { companySchema, type CompanyFormData } from "@/schema/company"
+import { uploadImageToS3, deleteLogoFromS3 } from "@/services/s3Service"
 
 interface CompanyProfileFormProps {
   companyId?: Id<"companies">
@@ -31,6 +34,10 @@ export function CompanyProfileForm({
   const updateUser = useMutation(api.users.update)
 
   const isEditing = Boolean(companyId && companyData)
+  const [logoUrl, setLogoUrl] = useState<string | null>(
+    companyData?.logoUrl || null,
+  )
+  const [imageFile, setImageFile] = useState<File | null>(null)
 
   const {
     register,
@@ -44,12 +51,59 @@ export function CompanyProfileForm({
     },
   })
 
+  const handleUploadImage = async (file: File, companyIdParam = companyId) => {
+    setImageFile(file)
+
+    if (!companyIdParam) return
+    try {
+      const result = await uploadImageToS3(file, companyIdParam)
+
+      if (result.success && result.url) {
+        setLogoUrl(result.url)
+
+        await updateCompany({
+          id: companyIdParam,
+          logoUrl: result.url || undefined,
+        })
+      }
+    } catch (error) {
+      console.error(error)
+      toast.error(t("company.form.uploadError"))
+    } finally {
+      setImageFile(null)
+    }
+  }
+
+  const handleRemoveLogo = async () => {
+    if (!companyId) return
+    // Determine which logo URL to delete (current state or original company data)
+    const logoToDelete = logoUrl || companyData?.logoUrl
+
+    // If there's a logo URL, delete it from S3
+    if (logoToDelete) {
+      const result = await deleteLogoFromS3(logoToDelete)
+
+      if (!result.success) {
+        throw new Error(`Failed to delete logo from S3: ${result.error}`)
+      }
+
+      await updateCompany({
+        id: companyId,
+        logoUrl: "",
+      })
+    }
+
+    // Clear the logo URL from state
+    setLogoUrl(null)
+  }
+
   const onSubmit = async (data: CompanyFormData) => {
     try {
       if (isEditing && companyId) {
         await updateCompany({
           id: companyId,
           ...data,
+          logoUrl: logoUrl || undefined,
         })
         toast.success(t("company.form.updateSuccess"))
         onClose()
@@ -63,8 +117,13 @@ export function CompanyProfileForm({
         const newCompanyId = await createCompany({
           name: data.name,
           description: data.description,
+          logoUrl: logoUrl || undefined,
           clerkId: user.id,
         })
+
+        if (imageFile) {
+          await handleUploadImage(imageFile, newCompanyId)
+        }
 
         // Update user with company reference
         await updateUser({
@@ -103,6 +162,19 @@ export function CompanyProfileForm({
           onSubmit={handleSubmit(onSubmit, onInvalid)}
           className="space-y-6"
         >
+          {/* Logo Upload */}
+          <div className="space-y-4">
+            <h3 className="flex items-center gap-2 text-lg font-medium">
+              <Building2 className="h-5 w-5" />
+              {t("company.profile.companyLogo")}
+            </h3>
+            <ImageUploader
+              defaultPreview={companyData?.logoUrl}
+              onUpload={handleUploadImage}
+              onRemove={handleRemoveLogo}
+            />
+          </div>
+
           {/* Basic Information */}
           <div className="space-y-4">
             <h3 className="flex items-center gap-2 text-lg font-medium">

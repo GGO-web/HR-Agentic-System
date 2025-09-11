@@ -8,6 +8,7 @@ export default defineSchema({
   companies: defineTable({
     name: v.string(),
     description: v.optional(v.string()),
+    logoUrl: v.optional(v.string()), // URL to the company logo stored in S3
     isActive: v.boolean(),
     createdAt: v.number(),
     updatedAt: v.number(),
