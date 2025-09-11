@@ -122,24 +122,27 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
                   className="border-foreground group relative mx-auto flex cursor-pointer flex-col items-center justify-center gap-y-2 rounded-lg border border-dashed p-4 shadow-lg"
                 >
                   {preview && (
-                    <img
-                      src={preview as string}
-                      alt="Uploaded image"
-                      className="w-30 rounded-lg"
-                    />
-                  )}
-                  {onRemove && (
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      className="absolute top-2 right-2 flex items-center justify-center rounded-full bg-red-500 p-2 hover:bg-red-600"
-                      onClick={async (e) => {
-                        e.stopPropagation()
-                        await handleRemoveImage()
-                      }}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
+                    <>
+                      <img
+                        src={preview as string}
+                        alt="Uploaded image"
+                        className="w-30 rounded-lg"
+                      />
+
+                      {onRemove && (
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          className="absolute top-2 right-2 flex items-center justify-center rounded-full bg-red-500 p-2 hover:bg-red-600"
+                          onClick={async (e) => {
+                            e.stopPropagation()
+                            await handleRemoveImage()
+                          }}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      )}
+                    </>
                   )}
 
                   <ImagePlus
