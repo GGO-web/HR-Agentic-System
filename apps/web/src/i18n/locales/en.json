@@ -24,8 +24,8 @@
   },
   "uploadButton": {
     "uploadImageSuccess": "Image uploaded successfully",
-    "clickHereOrDragImage": "Click here or drag an image to upload it",
-    "dropImage": "Drop the image!",
+    "clickHereOrDragImage": "<b>Click here</b> or <b>drag</b> an image to upload it",
+    "dropImage": "<b>Drop the image!</b>",
     "warning": "Image must be less than 5MB and of type png, jpg, jpeg, or webp"
   },
   "navigation": {

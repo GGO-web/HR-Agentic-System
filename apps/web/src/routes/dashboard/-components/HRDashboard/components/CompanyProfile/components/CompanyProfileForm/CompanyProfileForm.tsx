@@ -132,7 +132,10 @@ export function CompanyProfileForm({
                 <Building2 className="h-5 w-5" />
                 {t("company.profile.companyLogo")}
               </h3>
-              <ImageUploader onUpload={handleUploadImage} />
+              <ImageUploader
+                defaultPreview={companyData?.logoUrl}
+                onUpload={handleUploadImage}
+              />
             </div>
           )}
 

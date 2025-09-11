@@ -12,7 +12,7 @@ import { ImagePlus } from "lucide-react"
 import React from "react"
 import { useDropzone } from "react-dropzone"
 import { useForm } from "react-hook-form"
-import { useTranslation } from "react-i18next"
+import { Trans, useTranslation } from "react-i18next"
 import { toast } from "react-toastify"
 
 import { uploadImageSchema, type UploadImageSchema } from "./schema/upload"
@@ -20,13 +20,19 @@ import { uploadImageSchema, type UploadImageSchema } from "./schema/upload"
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from "@/constants/s3"
 
 interface ImageUploaderProps {
+  defaultPreview?: string | ArrayBuffer | null
   onUpload: (file: File) => void
 }
 
-export const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload }) => {
+export const ImageUploader: React.FC<ImageUploaderProps> = ({
+  defaultPreview,
+  onUpload,
+}) => {
   const { t } = useTranslation()
 
-  const [preview, setPreview] = React.useState<string | ArrayBuffer | null>("")
+  const [preview, setPreview] = React.useState<string | ArrayBuffer | null>(
+    defaultPreview ?? null,
+  )
 
   const form = useForm<UploadImageSchema>({
     resolver: zodResolver(uploadImageSchema),
@@ -96,24 +102,30 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ onUpload }) => {
               <FormControl>
                 <div
                   {...getRootProps()}
-                  className="border-foreground shadow-foreground mx-auto flex cursor-pointer flex-col items-center justify-center gap-y-2 rounded-lg border p-8 shadow-sm"
+                  className="border-foreground mx-auto flex cursor-pointer flex-col items-center justify-center gap-y-2 rounded-lg border border-dashed p-4 shadow-lg"
                 >
                   {preview && (
                     <img
                       src={preview as string}
                       alt="Uploaded image"
-                      className="max-h-[400px] rounded-lg"
+                      className="w-30 rounded-lg"
                     />
                   )}
                   <ImagePlus
                     className={`size-20 ${preview ? "hidden" : "block"}`}
                   />
                   <Input {...getInputProps()} type="file" />
-                  {isDragActive ? (
-                    <p>{t("uploadButton.dropImage")}</p>
-                  ) : (
-                    <p>{t("uploadButton.clickHereOrDragImage")}</p>
-                  )}
+
+                  <p className="m-0 text-sm">
+                    <Trans
+                      i18nKey={
+                        isDragActive
+                          ? "uploadButton.dropImage"
+                          : "uploadButton.clickHereOrDragImage"
+                      }
+                      components={{ b: <b /> }}
+                    />
+                  </p>
                 </div>
               </FormControl>
               <FormMessage>
