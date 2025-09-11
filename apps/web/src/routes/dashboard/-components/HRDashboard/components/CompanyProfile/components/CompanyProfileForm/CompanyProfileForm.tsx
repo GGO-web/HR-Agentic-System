@@ -37,6 +37,7 @@ export function CompanyProfileForm({
   const [logoUrl, setLogoUrl] = useState<string | null>(
     companyData?.logoUrl || null,
   )
+  const [imageFile, setImageFile] = useState<File | null>(null)
 
   const {
     register,
@@ -50,26 +51,31 @@ export function CompanyProfileForm({
     },
   })
 
-  const handleUploadImage = async (file: File) => {
-    if (!companyId) return
+  const handleUploadImage = async (file: File, companyIdParam = companyId) => {
+    setImageFile(file)
+
+    if (!companyIdParam) return
     try {
-      const result = await uploadImageToS3(file, companyId)
+      const result = await uploadImageToS3(file, companyIdParam)
 
       if (result.success && result.url) {
         setLogoUrl(result.url)
 
         await updateCompany({
-          id: companyId,
+          id: companyIdParam,
           logoUrl: result.url || undefined,
         })
       }
     } catch (error) {
       console.error(error)
       toast.error(t("company.form.uploadError"))
+    } finally {
+      setImageFile(null)
     }
   }
 
   const handleRemoveLogo = async () => {
+    if (!companyId) return
     // Determine which logo URL to delete (current state or original company data)
     const logoToDelete = logoUrl || companyData?.logoUrl
 
@@ -81,12 +87,10 @@ export function CompanyProfileForm({
         throw new Error(`Failed to delete logo from S3: ${result.error}`)
       }
 
-      if (companyId) {
-        await updateCompany({
-          id: companyId,
-          logoUrl: "",
-        })
-      }
+      await updateCompany({
+        id: companyId,
+        logoUrl: "",
+      })
     }
 
     // Clear the logo URL from state
@@ -116,6 +120,10 @@ export function CompanyProfileForm({
           logoUrl: logoUrl || undefined,
           clerkId: user.id,
         })
+
+        if (imageFile) {
+          await handleUploadImage(imageFile, newCompanyId)
+        }
 
         // Update user with company reference
         await updateUser({
@@ -155,19 +163,17 @@ export function CompanyProfileForm({
           className="space-y-6"
         >
           {/* Logo Upload */}
-          {isEditing && companyId && (
-            <div className="space-y-4">
-              <h3 className="flex items-center gap-2 text-lg font-medium">
-                <Building2 className="h-5 w-5" />
-                {t("company.profile.companyLogo")}
-              </h3>
-              <ImageUploader
-                defaultPreview={companyData?.logoUrl}
-                onUpload={handleUploadImage}
-                onRemove={handleRemoveLogo}
-              />
-            </div>
-          )}
+          <div className="space-y-4">
+            <h3 className="flex items-center gap-2 text-lg font-medium">
+              <Building2 className="h-5 w-5" />
+              {t("company.profile.companyLogo")}
+            </h3>
+            <ImageUploader
+              defaultPreview={companyData?.logoUrl}
+              onUpload={handleUploadImage}
+              onRemove={handleRemoveLogo}
+            />
+          </div>
 
           {/* Basic Information */}
           <div className="space-y-4">
