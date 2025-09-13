@@ -36,36 +36,38 @@ export function CompanyProfile({ companyData, onEdit }: CompanyProfileProps) {
   }
 
   return (
-    <Card className="p-6">
-      <div className="mb-6 flex items-start justify-between">
-        <div className="flex items-center gap-4">
-          <div className="bg-muted flex h-16 w-16 items-center justify-center rounded-lg">
+    <Card className="flex flex-col items-start justify-between gap-3 p-6 md:flex-row">
+      <div className="flex flex-col gap-4 md:flex-row">
+        <div className="bg-muted flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-lg">
+          {companyData.logoUrl ? (
+            <img
+              src={companyData.logoUrl}
+              alt={`${companyData.name} logo`}
+              className="h-full w-full object-cover"
+            />
+          ) : (
             <Building2 className="text-muted-foreground h-8 w-8" />
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold">{companyData.name}</h2>
-          </div>
+          )}
         </div>
-        <Button
-          variant="outline"
-          onClick={onEdit}
-          className="flex items-center gap-2"
-        >
-          <Edit className="h-4 w-4" />
-          {t("company.profile.editProfile")}
-        </Button>
-      </div>
 
-      {companyData.description && (
-        <div className="mb-6">
-          <h3 className="mb-2 text-lg font-semibold">
-            {t("company.profile.about")}
-          </h3>
-          <p className="text-muted-foreground leading-relaxed">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-2xl font-bold">{companyData.name}</h2>
+
+          <p className="text-muted-foreground m-0 leading-relaxed">
             {companyData.description}
           </p>
         </div>
-      )}
+      </div>
+
+      <Button
+        variant="outline"
+        onClick={onEdit}
+        className="flex items-center gap-2"
+        type="button"
+      >
+        <Edit className="h-4 w-4" />
+        {t("company.profile.editProfile")}
+      </Button>
     </Card>
   )
 }

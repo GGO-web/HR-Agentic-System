@@ -6,12 +6,15 @@ import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
 import { useMutation } from "convex/react"
 import { Building2 } from "lucide-react"
-import { type FieldErrors, useForm } from "react-hook-form"
+import { useState } from "react"
+import { type FieldErrors, FormProvider, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { toast } from "react-toastify"
 
+import { UploadButtton } from "@/components/upload-button/UploadButton"
 import { useAuth } from "@/hooks/useAuth"
 import { companySchema, type CompanyFormData } from "@/schema/company"
+import { uploadImageToS3, deleteLogoFromS3 } from "@/services/s3Service"
 
 interface CompanyProfileFormProps {
   companyId?: Id<"companies">
@@ -31,18 +34,74 @@ export function CompanyProfileForm({
   const updateUser = useMutation(api.users.update)
 
   const isEditing = Boolean(companyId && companyData)
+  const [logoUrl, setLogoUrl] = useState<string | null>(
+    companyData?.logoUrl || null,
+  )
+  const [imageFile, setImageFile] = useState<File | null>(null)
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting, isValid },
-  } = useForm<CompanyFormData>({
+  const methods = useForm<CompanyFormData>({
     resolver: zodResolver(companySchema),
+    mode: "onChange",
     defaultValues: {
       name: (companyData?.name as string) || "",
       description: (companyData?.description as string) || "",
     },
   })
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting, isValid },
+  } = methods
+
+  const handleUploadImage = async (file: File, companyIdParam = companyId) => {
+    setImageFile(file)
+
+    if (!companyIdParam) return
+    try {
+      const result = await uploadImageToS3(file, companyIdParam)
+
+      if (result.success && result.url) {
+        setLogoUrl(result.url)
+
+        await updateCompany({
+          id: companyIdParam,
+          logoUrl: result.url || undefined,
+        })
+      }
+    } catch (error) {
+      console.error(error)
+      toast.error(t("company.form.uploadError"))
+    } finally {
+      setImageFile(null)
+    }
+  }
+
+  const handleRemoveLogo = async () => {
+    if (!companyId) {
+      setImageFile(null)
+      setLogoUrl(null)
+      return
+    }
+    // Determine which logo URL to delete (current state or original company data)
+    const logoToDelete = logoUrl || companyData?.logoUrl
+
+    // If there's a logo URL, delete it from S3
+    if (logoToDelete) {
+      const result = await deleteLogoFromS3(logoToDelete)
+
+      if (!result.success) {
+        throw new Error(`Failed to delete logo from S3: ${result.error}`)
+      }
+
+      await updateCompany({
+        id: companyId,
+        logoUrl: "",
+      })
+    }
+
+    // Clear the logo URL from state
+    setLogoUrl(null)
+  }
 
   const onSubmit = async (data: CompanyFormData) => {
     try {
@@ -50,6 +109,7 @@ export function CompanyProfileForm({
         await updateCompany({
           id: companyId,
           ...data,
+          logoUrl: logoUrl || undefined,
         })
         toast.success(t("company.form.updateSuccess"))
         onClose()
@@ -63,8 +123,13 @@ export function CompanyProfileForm({
         const newCompanyId = await createCompany({
           name: data.name,
           description: data.description,
+          logoUrl: logoUrl || undefined,
           clerkId: user.id,
         })
+
+        if (imageFile) {
+          await handleUploadImage(imageFile, newCompanyId)
+        }
 
         // Update user with company reference
         await updateUser({
@@ -99,76 +164,94 @@ export function CompanyProfileForm({
           </h2>
         </div>
 
-        <form
-          onSubmit={handleSubmit(onSubmit, onInvalid)}
-          className="space-y-6"
-        >
-          {/* Basic Information */}
-          <div className="space-y-4">
-            <h3 className="flex items-center gap-2 text-lg font-medium">
-              <Building2 className="h-5 w-5" />
-              {t("company.profile.companyInformation")}
-            </h3>
-
-            <div>
-              <Label htmlFor="name" className="mb-1 block text-sm font-medium">
-                {t("company.form.companyName")} *
-              </Label>
-              <Input
-                id="name"
-                type="text"
-                {...register("name")}
-                className={errors.name ? "border-red-500" : ""}
-                placeholder={t("company.form.companyNamePlaceholder")}
+        <FormProvider {...methods}>
+          <form
+            onSubmit={handleSubmit(onSubmit, onInvalid)}
+            className="space-y-6"
+          >
+            {/* Logo Upload */}
+            <div className="space-y-4">
+              <h3 className="flex items-center gap-2 text-lg font-medium">
+                <Building2 className="h-5 w-5" />
+                {t("company.profile.companyLogo")}
+              </h3>
+              <UploadButtton
+                defaultPreview={companyData?.logoUrl}
+                onUpload={handleUploadImage}
+                onRemove={handleRemoveLogo}
               />
-              {errors.name && (
-                <p className="mt-1 text-xs text-red-500">
-                  {errors.name.message}
-                </p>
-              )}
             </div>
 
-            <div>
-              <Label
-                htmlFor="description"
-                className="mb-1 block text-sm font-medium"
+            {/* Basic Information */}
+            <div className="space-y-4">
+              <h3 className="flex items-center gap-2 text-lg font-medium">
+                <Building2 className="h-5 w-5" />
+                {t("company.profile.companyInformation")}
+              </h3>
+
+              <div>
+                <Label
+                  htmlFor="name"
+                  className="mb-1 block text-sm font-medium"
+                >
+                  {t("company.form.companyName")} *
+                </Label>
+                <Input
+                  id="name"
+                  type="text"
+                  {...register("name")}
+                  className={errors.name ? "border-red-500" : ""}
+                  placeholder={t("company.form.companyNamePlaceholder")}
+                />
+                {errors.name && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors.name.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <Label
+                  htmlFor="description"
+                  className="mb-1 block text-sm font-medium"
+                >
+                  {t("company.form.description")}
+                </Label>
+                <textarea
+                  id="description"
+                  {...register("description")}
+                  className={`border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring h-32 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 ${
+                    errors.description ? "border-red-500" : ""
+                  }`}
+                  placeholder={t("company.form.descriptionPlaceholder")}
+                />
+              </div>
+            </div>
+
+            {/* Form Actions */}
+            <div className="flex justify-end gap-3 border-t pt-6">
+              <Button
+                variant="ghost"
+                type="button"
+                onClick={onClose}
+                disabled={isSubmitting}
               >
-                {t("company.form.description")}
-              </Label>
-              <textarea
-                id="description"
-                {...register("description")}
-                className={`border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring h-32 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 ${
-                  errors.description ? "border-red-500" : ""
-                }`}
-                placeholder={t("company.form.descriptionPlaceholder")}
-              />
+                {t("company.form.cancel")}
+              </Button>
+              <Button
+                type="submit"
+                className="bg-primary text-primary-foreground rounded-md px-6 py-2"
+                disabled={isSubmitting || !isValid}
+              >
+                {isSubmitting
+                  ? t("company.form.saving")
+                  : isEditing
+                    ? t("company.form.update")
+                    : t("company.form.create")}
+              </Button>
             </div>
-          </div>
-
-          {/* Form Actions */}
-          <div className="flex justify-end gap-3 border-t pt-6">
-            <Button
-              variant="ghost"
-              type="button"
-              onClick={onClose}
-              disabled={isSubmitting}
-            >
-              {t("company.form.cancel")}
-            </Button>
-            <Button
-              type="submit"
-              className="bg-primary text-primary-foreground rounded-md px-6 py-2"
-              disabled={isSubmitting || !isValid}
-            >
-              {isSubmitting
-                ? t("company.form.saving")
-                : isEditing
-                  ? t("company.form.update")
-                  : t("company.form.create")}
-            </Button>
-          </div>
-        </form>
+          </form>
+        </FormProvider>
       </div>
     </div>
   )
