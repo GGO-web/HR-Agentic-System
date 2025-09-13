@@ -63,6 +63,7 @@ export function CompanyProfile({ companyData, onEdit }: CompanyProfileProps) {
         variant="outline"
         onClick={onEdit}
         className="flex items-center gap-2"
+        type="button"
       >
         <Edit className="h-4 w-4" />
         {t("company.profile.editProfile")}
