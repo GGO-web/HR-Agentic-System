@@ -41,6 +41,7 @@ export function CompanyProfileForm({
 
   const methods = useForm<CompanyFormData>({
     resolver: zodResolver(companySchema),
+    mode: "onChange",
     defaultValues: {
       name: (companyData?.name as string) || "",
       description: (companyData?.description as string) || "",
@@ -76,7 +77,11 @@ export function CompanyProfileForm({
   }
 
   const handleRemoveLogo = async () => {
-    if (!companyId) return
+    if (!companyId) {
+      setImageFile(null)
+      setLogoUrl(null)
+      return
+    }
     // Determine which logo URL to delete (current state or original company data)
     const logoToDelete = logoUrl || companyData?.logoUrl
 
