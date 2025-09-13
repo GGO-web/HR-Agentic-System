@@ -1,7 +1,5 @@
-import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@workspace/ui/components/button"
 import {
-  Form,
   FormControl,
   FormField,
   FormItem,
@@ -12,21 +10,19 @@ import { Input } from "@workspace/ui/components/input"
 import { ImagePlus, X } from "lucide-react"
 import React from "react"
 import { useDropzone } from "react-dropzone"
-import { useForm } from "react-hook-form"
+import { useFormContext } from "react-hook-form"
 import { Trans, useTranslation } from "react-i18next"
 import { toast } from "react-toastify"
 
-import { uploadImageSchema, type UploadImageSchema } from "./schema/upload"
-
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from "@/constants/s3"
 
-interface ImageUploaderProps {
+interface UploadButtonProps {
   defaultPreview?: string | ArrayBuffer | null
   onUpload: (file: File) => void
   onRemove?: () => void | Promise<void>
 }
 
-export const ImageUploader: React.FC<ImageUploaderProps> = ({
+export const UploadButtton: React.FC<UploadButtonProps> = ({
   defaultPreview,
   onUpload,
   onRemove,
@@ -37,13 +33,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     defaultPreview ?? null,
   )
 
-  const form = useForm<UploadImageSchema>({
-    resolver: zodResolver(uploadImageSchema),
-    mode: "onBlur",
-    defaultValues: {
-      image: new File([""], "filename"),
-    },
-  })
+  const form = useFormContext()
 
   const onDrop = React.useCallback(
     (acceptedFiles: File[]) => {
@@ -74,20 +64,12 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       accept: Object.fromEntries(ALLOWED_IMAGE_TYPES.map((type) => [type, []])),
     })
 
-  const onSubmit = (values: UploadImageSchema) => {
-    onUpload(values.image)
-    toast.success(
-      `${t("uploadButton.uploadImageSuccess")} ${values.image.name}`,
-    )
-  }
-
   const handleRemoveImage = async () => {
     try {
       if (onRemove) {
         await onRemove()
       }
       setPreview(null)
-      form.resetField("image")
 
       toast.success(t("uploadButton.removeImage.success"))
     } catch (error) {
@@ -97,81 +79,75 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="image"
-          render={() => (
-            <FormItem className="mx-auto md:w-1/2">
-              <FormLabel
-                className={`${
-                  fileRejections.length !== 0 && "text-destructive"
-                }`}
-              >
-                <span
-                  className={
-                    form.formState.errors.image || fileRejections.length !== 0
-                      ? "text-destructive"
-                      : "text-muted-foreground"
-                  }
-                ></span>
-              </FormLabel>
-              <FormControl>
-                <div
-                  {...getRootProps()}
-                  className="border-foreground group relative mx-auto flex cursor-pointer flex-col items-center justify-center gap-y-2 rounded-lg border border-dashed p-4 shadow-lg"
-                >
-                  {preview && (
-                    <>
-                      <img
-                        src={preview as string}
-                        alt="Uploaded image"
-                        className="w-30 rounded-lg"
-                      />
+    <FormField
+      control={form.control}
+      name="image"
+      render={() => (
+        <FormItem className="mx-auto md:w-1/2">
+          <FormLabel
+            className={`${fileRejections.length !== 0 && "text-destructive"}`}
+          >
+            <span
+              className={
+                form.formState.errors.image || fileRejections.length !== 0
+                  ? "text-destructive"
+                  : "text-muted-foreground"
+              }
+            ></span>
+          </FormLabel>
 
-                      {onRemove && (
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          className="absolute top-2 right-2 flex items-center justify-center rounded-full bg-red-500 p-2 hover:bg-red-600"
-                          onClick={async (e) => {
-                            e.stopPropagation()
-                            await handleRemoveImage()
-                          }}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      )}
-                    </>
-                  )}
-
-                  <ImagePlus
-                    className={`size-20 ${preview ? "hidden" : "block"}`}
+          <FormControl>
+            <div
+              {...getRootProps()}
+              className="border-foreground group relative mx-auto flex cursor-pointer flex-col items-center justify-center gap-y-2 rounded-lg border border-dashed p-4 shadow-lg"
+            >
+              {preview && (
+                <>
+                  <img
+                    src={preview as string}
+                    alt="Uploaded image"
+                    className="w-30 rounded-lg"
                   />
-                  <Input {...getInputProps()} type="file" />
 
-                  <p className="m-0 text-sm">
-                    <Trans
-                      i18nKey={
-                        isDragActive
-                          ? "uploadButton.dropImage"
-                          : "uploadButton.clickHereOrDragImage"
-                      }
-                      components={{ b: <b /> }}
-                    />
-                  </p>
-                </div>
-              </FormControl>
-              <FormMessage>
-                {fileRejections.length !== 0 && (
-                  <p>{t("uploadButton.warning")}</p>
-                )}
-              </FormMessage>
-            </FormItem>
-          )}
-        />
-      </form>
-    </Form>
+                  {onRemove && (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      className="absolute top-2 right-2 flex items-center justify-center rounded-full bg-red-500 p-2 hover:bg-red-600"
+                      onClick={async (e) => {
+                        e.stopPropagation()
+                        await handleRemoveImage()
+                      }}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  )}
+                </>
+              )}
+
+              <ImagePlus
+                className={`size-20 ${preview ? "hidden" : "block"}`}
+              />
+              <Input {...getInputProps()} type="file" />
+
+              <p className="m-0 text-sm">
+                <Trans
+                  i18nKey={
+                    isDragActive
+                      ? "uploadButton.dropImage"
+                      : "uploadButton.clickHereOrDragImage"
+                  }
+                  components={{ b: <b /> }}
+                />
+              </p>
+            </div>
+          </FormControl>
+
+          <FormMessage>
+            {fileRejections.length !== 0 && <p>{t("uploadButton.warning")}</p>}
+          </FormMessage>
+        </FormItem>
+      )}
+    />
   )
 }
