@@ -7,11 +7,11 @@ import { QuestionsList } from "../QuestionsList/QuestionsList"
 
 import { CompanyProfile } from "./components/CompanyProfile/CompanyProfile"
 import { CompanyProfileForm } from "./components/CompanyProfile/components/CompanyProfileForm/CompanyProfileForm"
+import { useJobDescriptionsQuery } from "./components/JobDescriptionForm/hooks/useJobDescriptionsQuery"
 import { JobDescriptionForm } from "./components/JobDescriptionForm/JobDescriptionForm"
 import { JobDescriptionList } from "./components/JobDescriptionList/JobDescriptionList"
 import { useGenerateInverviewQuestionsMutation } from "./hooks/useGenerateInverviewQuestionsMutation"
 import { useInterviewQuestionsQuery } from "./hooks/useInterviewQuestionsQuery"
-import { useJobDescriptionsQuery } from "./hooks/useJobDescriptionsQuery"
 
 import { useAuth } from "@/hooks/useAuth"
 

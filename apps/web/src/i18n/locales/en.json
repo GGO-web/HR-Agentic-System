@@ -116,6 +116,10 @@
         "noJobDescriptions": "No job descriptions yet.",
         "actions": {
           "rename": "Rename job description",
+          "create": {
+            "success": "Job description created successfully",
+            "error": "Failed to create job description"
+          },
           "edit": {
             "title": "Edit Job Description",
             "save": "Save",
@@ -174,7 +178,8 @@
       "jobTitle": "Job Title",
       "jobDescription": "Job Description",
       "buttons": {
-        "addNew": "Add New"
+        "addNew": "Add New",
+        "edit": "Edit"
       }
     }
   },

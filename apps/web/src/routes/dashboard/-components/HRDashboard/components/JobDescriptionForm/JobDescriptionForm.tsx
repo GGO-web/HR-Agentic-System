@@ -1,19 +1,17 @@
-import { api } from "@convex/_generated/api"
-import { type Id } from "@convex/_generated/dataModel"
+import { type Doc, type Id } from "@convex/_generated/dataModel"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@workspace/ui/components/button"
 import {
   Dialog,
   DialogContent,
   DialogFooter,
-  DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "@workspace/ui/components/dialog"
-import { FormItem } from "@workspace/ui/components/form"
+import { Form, FormField, FormItem } from "@workspace/ui/components/form"
 import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
 import { Textarea } from "@workspace/ui/components/textarea"
-import { useMutation } from "convex/react"
 import { PlusIcon } from "lucide-react"
 import { useState } from "react"
 import { type FieldErrors, useForm } from "react-hook-form"
@@ -21,6 +19,8 @@ import { useTranslation } from "react-i18next"
 import { toast } from "react-toastify"
 
 import { JOB_DESCRIPTION_DEFAULT_VALUES } from "./constants"
+import { useCreateJobDescriptionMutation } from "./hooks/useCreateJobDescriptionMutation"
+import { useUpdateJobDescriptionMutation } from "./hooks/useUpdateJobDescriptionMutation"
 
 import {
   jobDescriptionSchema,
@@ -31,51 +31,73 @@ interface JobDescriptionFormProps {
   trigger?: React.ReactNode
   companyId?: Id<"companies">
   userId?: Id<"users">
+  job?: Doc<"jobDescriptions">
   onClose?: () => void
+  onSuccess?: () => void
 }
 
 export function JobDescriptionForm({
   trigger,
   companyId,
   userId,
+  job,
   onClose,
+  onSuccess,
 }: JobDescriptionFormProps) {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
 
-  const createJobDescription = useMutation(api.jobDescriptions.create)
+  const { mutateAsync: createJobDescription, isPending: isCreating } =
+    useCreateJobDescriptionMutation()
+  const { mutateAsync: updateJobDescription, isPending: isUpdating } =
+    useUpdateJobDescriptionMutation()
+
+  const form = useForm<JobDescriptionFormData>({
+    resolver: zodResolver(jobDescriptionSchema),
+    defaultValues: job
+      ? {
+          title: job.title,
+          description: job.description,
+        }
+      : JOB_DESCRIPTION_DEFAULT_VALUES,
+  })
 
   const {
-    register,
     handleSubmit,
     formState: { errors, isSubmitting, isValid },
     reset,
-  } = useForm<JobDescriptionFormData>({
-    resolver: zodResolver(jobDescriptionSchema),
-    defaultValues: JOB_DESCRIPTION_DEFAULT_VALUES,
-  })
+  } = form
 
   const onSubmit = async (data: JobDescriptionFormData) => {
-    if (!companyId || !userId) {
-      toast.error(
-        `Missing required data. 
-        - Company ID: ${companyId} 
-        - User ID: ${userId}`,
-      )
-      return
-    }
-
     try {
-      await createJobDescription({
-        title: data.title,
-        description: data.description,
-        companyId,
-        createdBy: userId,
-      })
+      if (job) {
+        await updateJobDescription({
+          id: job._id,
+          title: data.title,
+          description: data.description,
+        })
+      } else {
+        if (!companyId || !userId) {
+          toast.error(
+            `Missing required data. 
+            - Company ID: ${companyId} 
+            - User ID: ${userId}`,
+          )
+          return
+        }
 
-      toast.success("Job description created successfully!")
-      reset()
-      onClose?.()
+        await createJobDescription({
+          title: data.title,
+          description: data.description,
+          companyId,
+          createdBy: userId,
+        })
+
+        reset()
+      }
+
+      onSuccess?.()
+      setIsOpen(false)
     } catch {
       toast.error("Failed to create job description. Please try again.")
     }
@@ -100,65 +122,83 @@ export function JobDescriptionForm({
       </DialogTrigger>
 
       <DialogContent>
-        <DialogHeader>
-          <h2 className="text-xl font-semibold">
-            {t("jobDescription.form.title")}
-          </h2>
-        </DialogHeader>
+        <DialogTitle>{t("jobDescription.form.title")}</DialogTitle>
 
-        <form
-          onSubmit={handleSubmit(onSubmit, onInvalid)}
-          className="space-y-3"
-        >
-          <FormItem>
-            <Label htmlFor="title" className="mb-1 block text-sm font-medium">
-              {t("jobDescription.form.jobTitle")}
-            </Label>
-            <Input
-              id="title"
-              type="text"
-              {...register("title")}
-              className={errors.title ? "border-red-500" : ""}
-              placeholder="Enter job title"
+        <Form {...form}>
+          <form
+            onSubmit={handleSubmit(onSubmit, onInvalid)}
+            className="space-y-3"
+          >
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <Label
+                    htmlFor="title"
+                    className="mb-1 block text-sm font-medium"
+                  >
+                    {t("jobDescription.form.jobTitle")}
+                  </Label>
+                  <Input
+                    id="title"
+                    type="text"
+                    {...field}
+                    className={errors.title ? "border-red-500" : ""}
+                    placeholder="Enter job title"
+                  />
+                </FormItem>
+              )}
             />
-          </FormItem>
 
-          <FormItem>
-            <Label
-              htmlFor="description"
-              className="mb-1 block text-sm font-medium"
-            >
-              {t("jobDescription.form.jobDescription")}
-            </Label>
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <Label
+                    htmlFor="description"
+                    className="mb-1 block text-sm font-medium"
+                  >
+                    {t("jobDescription.form.jobDescription")}
+                  </Label>
 
-            <Textarea
-              id="description"
-              {...register("description")}
-              className="min-h-30"
-              disabled={isSubmitting}
-              placeholder="Enter detailed job description..."
+                  <Textarea
+                    id="description"
+                    {...field}
+                    className="min-h-30"
+                    disabled={isSubmitting}
+                    placeholder="Enter detailed job description..."
+                  />
+                </FormItem>
+              )}
             />
-          </FormItem>
 
-          <DialogFooter className="flex justify-end gap-2">
-            <Button
-              variant="ghost"
-              type="button"
-              onClick={() => setIsOpen(false)}
-              disabled={isSubmitting}
-            >
-              {t("common.cancel")}
-            </Button>
+            <DialogFooter className="flex justify-end gap-2">
+              <Button
+                variant="ghost"
+                type="button"
+                onClick={() => {
+                  setIsOpen(false)
+                  onClose?.()
+                }}
+                disabled={isSubmitting}
+              >
+                {t("common.cancel")}
+              </Button>
 
-            <Button
-              type="submit"
-              className="bg-primary text-primary-foreground rounded-md px-4 py-2 text-sm"
-              disabled={isSubmitting || !isValid}
-            >
-              {isSubmitting ? t("common.loading") : t("common.save")}
-            </Button>
-          </DialogFooter>
-        </form>
+              <Button
+                type="submit"
+                className="bg-primary text-primary-foreground rounded-md px-4 py-2 text-sm"
+                disabled={isSubmitting || !isValid}
+              >
+                {isSubmitting || isUpdating || isCreating
+                  ? t("common.loading")
+                  : t("common.save")}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   )
