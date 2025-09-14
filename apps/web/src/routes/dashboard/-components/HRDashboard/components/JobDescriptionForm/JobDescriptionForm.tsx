@@ -64,7 +64,7 @@ export function JobDescriptionForm({
 
   const {
     handleSubmit,
-    formState: { errors, isSubmitting, isValid },
+    formState: { isSubmitting, isValid },
     reset,
   } = form
 
@@ -146,7 +146,6 @@ export function JobDescriptionForm({
                     id="title"
                     type="text"
                     {...field}
-                    className={errors.title ? "border-red-500" : ""}
                     placeholder={t(
                       "dashboard.hr.jobDescriptions.form.jobTitlePlaceholder",
                     )}
