@@ -192,11 +192,7 @@ export function JobDescriptionForm({
                 {t("common.cancel")}
               </Button>
 
-              <Button
-                type="submit"
-                className="bg-primary text-primary-foreground rounded-md px-4 py-2 text-sm"
-                disabled={isSubmitting || !isValid}
-              >
+              <Button type="submit" disabled={isSubmitting || !isValid}>
                 {isSubmitting || isUpdating || isCreating
                   ? t("common.loading")
                   : t("common.save")}
