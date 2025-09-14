@@ -172,7 +172,10 @@
     "form": {
       "title": "Add New Job Description",
       "jobTitle": "Job Title",
-      "jobDescription": "Job Description"
+      "jobDescription": "Job Description",
+      "buttons": {
+        "addNew": "Add New"
+      }
     }
   },
   "company": {

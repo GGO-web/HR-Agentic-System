@@ -2,10 +2,20 @@ import { api } from "@convex/_generated/api"
 import { type Id } from "@convex/_generated/dataModel"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@workspace/ui/components/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTrigger,
+} from "@workspace/ui/components/dialog"
+import { FormItem } from "@workspace/ui/components/form"
 import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { useMutation } from "convex/react"
+import { PlusIcon } from "lucide-react"
+import { useState } from "react"
 import { type FieldErrors, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { toast } from "react-toastify"
@@ -18,17 +28,21 @@ import {
 } from "@/schema/jobDescription"
 
 interface JobDescriptionFormProps {
+  trigger?: React.ReactNode
   companyId?: Id<"companies">
   userId?: Id<"users">
-  onClose: () => void
+  onClose?: () => void
 }
 
 export function JobDescriptionForm({
+  trigger,
   companyId,
   userId,
   onClose,
 }: JobDescriptionFormProps) {
   const { t } = useTranslation()
+  const [isOpen, setIsOpen] = useState(false)
+
   const createJobDescription = useMutation(api.jobDescriptions.create)
 
   const {
@@ -61,7 +75,7 @@ export function JobDescriptionForm({
 
       toast.success("Job description created successfully!")
       reset()
-      onClose()
+      onClose?.()
     } catch {
       toast.error("Failed to create job description. Please try again.")
     }
@@ -75,14 +89,28 @@ export function JobDescriptionForm({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-background w-full max-w-lg rounded-lg p-6 shadow-lg">
-        <h2 className="mb-4 text-xl font-semibold">
-          {t("jobDescription.form.title")}
-        </h2>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        {trigger || (
+          <Button>
+            <PlusIcon className="size-4" />
+            {t("jobDescription.form.buttons.addNew")}
+          </Button>
+        )}
+      </DialogTrigger>
 
-        <form onSubmit={handleSubmit(onSubmit, onInvalid)}>
-          <div className="mb-4">
+      <DialogContent>
+        <DialogHeader>
+          <h2 className="text-xl font-semibold">
+            {t("jobDescription.form.title")}
+          </h2>
+        </DialogHeader>
+
+        <form
+          onSubmit={handleSubmit(onSubmit, onInvalid)}
+          className="space-y-3"
+        >
+          <FormItem>
             <Label htmlFor="title" className="mb-1 block text-sm font-medium">
               {t("jobDescription.form.jobTitle")}
             </Label>
@@ -93,9 +121,9 @@ export function JobDescriptionForm({
               className={errors.title ? "border-red-500" : ""}
               placeholder="Enter job title"
             />
-          </div>
+          </FormItem>
 
-          <div className="mb-6">
+          <FormItem>
             <Label
               htmlFor="description"
               className="mb-1 block text-sm font-medium"
@@ -110,13 +138,13 @@ export function JobDescriptionForm({
               disabled={isSubmitting}
               placeholder="Enter detailed job description..."
             />
-          </div>
+          </FormItem>
 
-          <div className="flex justify-end gap-2">
+          <DialogFooter className="flex justify-end gap-2">
             <Button
               variant="ghost"
               type="button"
-              onClick={onClose}
+              onClick={() => setIsOpen(false)}
               disabled={isSubmitting}
             >
               {t("common.cancel")}
@@ -129,9 +157,9 @@ export function JobDescriptionForm({
             >
               {isSubmitting ? t("common.loading") : t("common.save")}
             </Button>
-          </div>
+          </DialogFooter>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }
