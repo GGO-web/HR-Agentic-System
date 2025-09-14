@@ -116,13 +116,15 @@ export function JobDescriptionForm({
         {trigger || (
           <Button>
             <PlusIcon className="size-4" />
-            {t("jobDescription.form.buttons.addNew")}
+            {t("dashboard.hr.jobDescriptions.form.buttons.addNew")}
           </Button>
         )}
       </DialogTrigger>
 
       <DialogContent>
-        <DialogTitle>{t("jobDescription.form.title")}</DialogTitle>
+        <DialogTitle>
+          {t("dashboard.hr.jobDescriptions.form.title")}
+        </DialogTitle>
 
         <Form {...form}>
           <form
@@ -138,14 +140,16 @@ export function JobDescriptionForm({
                     htmlFor="title"
                     className="mb-1 block text-sm font-medium"
                   >
-                    {t("jobDescription.form.jobTitle")}
+                    {t("dashboard.hr.jobDescriptions.form.jobTitle")}
                   </Label>
                   <Input
                     id="title"
                     type="text"
                     {...field}
                     className={errors.title ? "border-red-500" : ""}
-                    placeholder="Enter job title"
+                    placeholder={t(
+                      "dashboard.hr.jobDescriptions.form.jobTitlePlaceholder",
+                    )}
                   />
                 </FormItem>
               )}
@@ -160,7 +164,7 @@ export function JobDescriptionForm({
                     htmlFor="description"
                     className="mb-1 block text-sm font-medium"
                   >
-                    {t("jobDescription.form.jobDescription")}
+                    {t("dashboard.hr.jobDescriptions.form.jobDescription")}
                   </Label>
 
                   <Textarea
@@ -168,7 +172,9 @@ export function JobDescriptionForm({
                     {...field}
                     className="min-h-30"
                     disabled={isSubmitting}
-                    placeholder="Enter detailed job description..."
+                    placeholder={t(
+                      "dashboard.hr.jobDescriptions.form.jobDescriptionPlaceholder",
+                    )}
                   />
                 </FormItem>
               )}

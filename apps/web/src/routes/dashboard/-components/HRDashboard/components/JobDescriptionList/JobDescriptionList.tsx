@@ -56,7 +56,7 @@ export function JobDescriptionList({
                     size="sm"
                     variant="ghost"
                     className="size-8 p-0"
-                    title={t("jobDescription.form.buttons.edit")}
+                    title={t("dashboard.hr.jobDescriptions.form.buttons.edit")}
                   >
                     <Edit2 className="size-4" />
                   </Button>
