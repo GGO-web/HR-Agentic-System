@@ -55,6 +55,8 @@
   --color-green: hsl(92, 33%, 56%);
   --color-ocean-blue: hsl(215, 27%, 47%);
   --color-deep-blue: hsl(206, 51%, 37%);
+
+  --color-success: hsl(92, 33%, 56%);
 }
 
 .dark {
@@ -102,6 +104,8 @@
   --shadow-lg: 1px 1px 4px 0px hsl(0 0% 0% / 0.10), 1px 4px 6px -1px hsl(0 0% 0% / 0.10);
   --shadow-xl: 1px 1px 4px 0px hsl(0 0% 0% / 0.10), 1px 8px 10px -1px hsl(0 0% 0% / 0.10);
   --shadow-2xl: 1px 1px 4px 0px hsl(0 0% 0% / 0.25);
+
+  --color-success: hsl(92, 33%, 56%);
 }
 
 @theme inline {
@@ -159,6 +163,8 @@
   --color-green: var(--color-green);
   --color-ocean-blue: var(--color-ocean-blue);
   --color-deep-blue: var(--color-deep-blue);
+
+  --color-success: var(--color-success);
 }
 
 @layer base {
