@@ -57,6 +57,7 @@
   --color-deep-blue: hsl(206, 51%, 37%);
 
   --color-success: hsl(92, 33%, 56%);
+  --color-destructive: hsl(358, 85%, 56%);
 }
 
 .dark {
@@ -106,6 +107,7 @@
   --shadow-2xl: 1px 1px 4px 0px hsl(0 0% 0% / 0.25);
 
   --color-success: hsl(92, 33%, 56%);
+  --color-destructive: hsl(358, 85%, 56%);
 }
 
 @theme inline {
@@ -165,6 +167,7 @@
   --color-deep-blue: var(--color-deep-blue);
 
   --color-success: var(--color-success);
+  --color-destructive: var(--color-destructive);
 }
 
 @layer base {

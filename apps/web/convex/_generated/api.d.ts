@@ -13,7 +13,10 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as attachments from "../attachments.js";
 import type * as companies from "../companies.js";
+import type * as hooks_useCreateAttachmentsMutation from "../hooks/useCreateAttachmentsMutation.js";
+import type * as hooks_useGetAttachmentsQuery from "../hooks/useGetAttachmentsQuery.js";
 import type * as interviewQuestions from "../interviewQuestions.js";
 import type * as interviewResponses from "../interviewResponses.js";
 import type * as interviewSessions from "../interviewSessions.js";
@@ -29,7 +32,10 @@ import type * as users from "../users.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  attachments: typeof attachments;
   companies: typeof companies;
+  "hooks/useCreateAttachmentsMutation": typeof hooks_useCreateAttachmentsMutation;
+  "hooks/useGetAttachmentsQuery": typeof hooks_useGetAttachmentsQuery;
   interviewQuestions: typeof interviewQuestions;
   interviewResponses: typeof interviewResponses;
   interviewSessions: typeof interviewSessions;

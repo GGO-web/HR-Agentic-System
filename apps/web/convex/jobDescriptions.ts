@@ -7,6 +7,7 @@ export const create = mutation({
   args: {
     title: v.string(),
     description: v.string(),
+    files: v.array(v.string()),
     companyId: v.id("companies"),
     createdBy: v.id("users"),
   },
@@ -14,6 +15,7 @@ export const create = mutation({
     const jobDescriptionId = await ctx.db.insert("jobDescriptions", {
       title: args.title,
       description: args.description,
+      files: args.files,
       companyId: args.companyId,
       createdBy: args.createdBy,
       createdAt: Date.now(),
@@ -49,6 +51,7 @@ export const update = mutation({
     id: v.id("jobDescriptions"),
     title: v.optional(v.string()),
     description: v.optional(v.string()),
+    files: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
     const { id, ...updates } = args

@@ -45,6 +45,7 @@ interface ProgressUploadProps {
   accept?: string;
   multiple?: boolean;
   className?: string;
+  defaultFiles?: FileMetadata[];
   onFilesChange?: (files: FileWithPreview[]) => void;
   simulateUpload?: boolean;
 }
@@ -55,16 +56,28 @@ export function ProgressUpload({
   accept = "*",
   multiple = true,
   className,
+  defaultFiles = [],
   onFilesChange,
   simulateUpload = true,
 }: ProgressUploadProps) {
-  // Create default images using FileMetadata type
+  // Convert default images to FileUploadItem format
+  const defaultUploadFiles: FileUploadItem[] = defaultFiles.map((file) => ({
+    id: file.id,
+    file: {
+      name: file.name,
+      size: file.size,
+      type: file.type,
+    } as File,
+    preview: file.url,
+    progress: 100,
+    status: "completed" as const,
+  }));
 
-  const [uploadFiles, setUploadFiles] = useState<FileUploadItem[]>([]);
+  const [uploadFiles, setUploadFiles] =
+    useState<FileUploadItem[]>(defaultUploadFiles);
 
   const [
     { isDragging, errors },
-
     {
       removeFile,
       clearFiles,

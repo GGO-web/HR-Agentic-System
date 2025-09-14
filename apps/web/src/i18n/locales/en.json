@@ -183,6 +183,14 @@
       }
     }
   },
+  "attachments": {
+    "actions": {
+      "create": {
+        "success": "Attachment created successfully",
+        "error": "Failed to create attachment"
+      }
+    }
+  },
   "company": {
     "profile": {
       "title": "Company Profile",

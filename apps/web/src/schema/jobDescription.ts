@@ -8,6 +8,7 @@ export const jobDescriptionSchema = z.object({
   description: z
     .string()
     .max(2000, "Job description must be less than 2000 characters"),
+  files: z.array(z.any()).optional(),
 })
 
 export type JobDescriptionFormData = z.infer<typeof jobDescriptionSchema>
