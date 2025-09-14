@@ -4,10 +4,13 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
+import { Textarea } from "@workspace/ui/components/textarea"
 import { useMutation } from "convex/react"
 import { type FieldErrors, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { toast } from "react-toastify"
+
+import { JOB_DESCRIPTION_DEFAULT_VALUES } from "./constants"
 
 import {
   jobDescriptionSchema,
@@ -35,10 +38,7 @@ export function JobDescriptionForm({
     reset,
   } = useForm<JobDescriptionFormData>({
     resolver: zodResolver(jobDescriptionSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-    },
+    defaultValues: JOB_DESCRIPTION_DEFAULT_VALUES,
   })
 
   const onSubmit = async (data: JobDescriptionFormData) => {
@@ -102,17 +102,14 @@ export function JobDescriptionForm({
             >
               {t("jobDescription.form.jobDescription")}
             </Label>
-            <textarea
+
+            <Textarea
               id="description"
               {...register("description")}
-              className={`border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring h-40 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 ${
-                errors.description ? "border-red-500" : ""
-              }`}
+              className="min-h-30"
+              disabled={isSubmitting}
               placeholder="Enter detailed job description..."
             />
-            <p className="text-muted-foreground mt-1 text-xs">
-              {t("jobDescription.form.descriptionHint")}
-            </p>
           </div>
 
           <div className="flex justify-end gap-2">
@@ -124,6 +121,7 @@ export function JobDescriptionForm({
             >
               {t("common.cancel")}
             </Button>
+
             <Button
               type="submit"
               className="bg-primary text-primary-foreground rounded-md px-4 py-2 text-sm"

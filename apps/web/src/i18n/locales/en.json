@@ -172,8 +172,7 @@
     "form": {
       "title": "Add New Job Description",
       "jobTitle": "Job Title",
-      "jobDescription": "Job Description",
-      "descriptionHint": "Provide a detailed job description. This will be used to generate interview questions."
+      "jobDescription": "Job Description"
     }
   },
   "company": {
