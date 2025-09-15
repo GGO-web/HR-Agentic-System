@@ -166,7 +166,12 @@ export function formatCurrency(
  */
 
 export function absoluteUrl(path: string): string {
-  return `${import.meta.url}${path}`;
+  const base =
+    typeof window !== "undefined" && window.location?.origin
+      ? window.location.origin
+      : "";
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+  return base ? new URL(cleanPath, base).toString() : cleanPath;
 }
 
 /**
