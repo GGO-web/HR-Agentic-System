@@ -86,29 +86,29 @@ export function JobDescriptionForm({
       )
       const fileNames = files.map((file) => file.name)
 
-      const attachmentFileNames = (attachments || [])?.map(
-        (attachment) => attachment.fileName,
+      const attachmentFileNames = (attachments || []).map(
+        (attachment) => attachment?.fileName,
       )
 
       const filesToUpload = files.filter(
         (file) => !attachmentFileNames?.includes(file.name),
       )
       const attachmentsToSkip = (attachments || [])
-        ?.filter((attachment) => fileNames.includes(attachment.fileName))
+        ?.filter((attachment) => fileNames.includes(attachment?.fileName ?? ""))
         .map((attachment) => ({
-          name: attachment.fileName,
-          type: attachment.fileType,
-          size: attachment.fileSize,
-          url: attachment.fileUrl,
+          name: attachment?.fileName ?? "",
+          type: attachment?.fileType ?? "",
+          size: attachment?.fileSize ?? 0,
+          url: attachment?.fileUrl ?? "",
         }))
 
       const filesToDelete = (attachments || [])?.filter(
-        (attachment) => !fileNames.includes(attachment.fileName),
+        (attachment) => !fileNames.includes(attachment?.fileName ?? ""),
       )
 
       await Promise.all(
         filesToDelete.map(async (file) => {
-          await deleteFileFromS3(file.fileUrl)
+          await deleteFileFromS3(file?.fileUrl ?? "")
         }),
       )
 
@@ -131,7 +131,7 @@ export function JobDescriptionForm({
       })
 
       const attachmentIds = uploadedAttachments.map(
-        (attachment) => attachment._id,
+        (attachment) => attachment?._id,
       )
 
       if (job) {
@@ -255,11 +255,11 @@ export function JobDescriptionForm({
                   <ProgressUpload
                     onFilesChange={field.onChange}
                     defaultFiles={(attachments || [])?.map((attachment) => ({
-                      id: attachment._id,
-                      name: attachment.fileName,
-                      size: attachment.fileSize,
-                      type: attachment.fileType,
-                      url: attachment.fileUrl,
+                      id: attachment?._id ?? "",
+                      name: attachment?.fileName ?? "",
+                      size: attachment?.fileSize ?? 0,
+                      type: attachment?.fileType ?? "",
+                      url: attachment?.fileUrl ?? "",
                     }))}
                   />
                 </FormItem>

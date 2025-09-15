@@ -9,9 +9,6 @@ export const useUpdateJobDescriptionMutation = () => {
 
   return useMutation({
     mutationFn: useConvexMutation(api.jobDescriptions.update),
-    onSuccess: () => {
-      toast.success(t("dashboard.hr.jobDescriptions.actions.edit.success"))
-    },
     onError: () => {
       toast.error(t("dashboard.hr.jobDescriptions.actions.edit.error"))
     },

@@ -9,9 +9,6 @@ export const useCreateAttachmentsMutation = () => {
 
   return useMutation({
     mutationFn: useConvexMutation(api.attachments.create),
-    onSuccess: () => {
-      toast.success(t("attachments.actions.create.success"))
-    },
     onError: () => {
       toast.error(t("attachments.actions.create.error"))
     },

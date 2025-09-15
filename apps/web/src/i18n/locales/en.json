@@ -188,6 +188,10 @@
       "create": {
         "success": "Attachment created successfully",
         "error": "Failed to create attachment"
+      },
+      "delete": {
+        "success": "Attachment deleted successfully",
+        "error": "Failed to delete attachment"
       }
     }
   },
