@@ -58,6 +58,12 @@
 
   --color-success: hsl(92, 33%, 56%);
   --color-destructive: hsl(358, 85%, 56%);
+
+  --color-success-foreground: hsl(0 0% 100%);
+  --color-info: hsl(214, 84%, 56%);
+  --color-info-foreground: hsl(0 0% 100%);
+  --color-warning: hsl(38, 92%, 50%);
+  --color-warning-foreground: hsl(0 0% 0%);
 }
 
 .dark {
@@ -108,6 +114,12 @@
 
   --color-success: hsl(92, 33%, 56%);
   --color-destructive: hsl(358, 85%, 56%);
+
+  --color-success-foreground: hsl(0 0% 100%);
+  --color-info: hsl(214, 84%, 56%);
+  --color-info-foreground: hsl(0 0% 100%);
+  --color-warning: hsl(38, 92%, 50%);
+  --color-warning-foreground: hsl(0 0% 0%);
 }
 
 @theme inline {
@@ -168,6 +180,12 @@
 
   --color-success: var(--color-success);
   --color-destructive: var(--color-destructive);
+
+  --color-success-foreground: var(--color-success-foreground);
+  --color-info: var(--color-info);
+  --color-info-foreground: var(--color-info-foreground);
+  --color-warning: var(--color-warning);
+  --color-warning-foreground: var(--color-warning-foreground);
 }
 
 @layer base {
