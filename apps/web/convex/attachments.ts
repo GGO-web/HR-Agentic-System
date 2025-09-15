@@ -38,13 +38,7 @@ export const create = mutation({
 export const queryByIds = query({
   args: { ids: v.array(v.id("attachments")) },
   handler: async (ctx, args) => {
-    return await ctx.db
-      .query("attachments")
-      .collect()
-      .then((attachments) => {
-        return attachments.filter((q) => {
-          return args.ids.includes(q._id)
-        })
-      })
+    const docs = await Promise.all(args.ids.map((id) => ctx.db.get(id)))
+    return docs.filter(Boolean)
   },
 })
