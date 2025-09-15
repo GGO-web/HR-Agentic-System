@@ -7,7 +7,7 @@ export const create = mutation({
   args: {
     title: v.string(),
     description: v.string(),
-    files: v.array(v.string()),
+    files: v.array(v.id("attachments")),
     companyId: v.id("companies"),
     createdBy: v.id("users"),
   },
@@ -51,7 +51,7 @@ export const update = mutation({
     id: v.id("jobDescriptions"),
     title: v.optional(v.string()),
     description: v.optional(v.string()),
-    files: v.optional(v.array(v.string())),
+    files: v.optional(v.array(v.id("attachments"))),
   },
   handler: async (ctx, args) => {
     const { id, ...updates } = args

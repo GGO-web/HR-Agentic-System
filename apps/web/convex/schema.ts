@@ -37,7 +37,7 @@ export default defineSchema({
   jobDescriptions: defineTable({
     title: v.string(),
     description: v.string(),
-    files: v.array(v.string()), // Array of attachment IDs
+    files: v.array(v.id("attachments")), // Array of attachment IDs
     companyId: v.id("companies"),
     createdAt: v.number(),
     updatedAt: v.number(),
