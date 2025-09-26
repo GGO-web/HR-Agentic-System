@@ -23,6 +23,7 @@ const s3Client = new S3Client({
 const BUCKET_NAME = import.meta.env.VITE_AWS_S3_BUCKET_NAME || ""
 const IMAGES_FOLDER =
   import.meta.env.VITE_AWS_S3_IMAGES_FOLDER || "company-images"
+const FILES_FOLDER = import.meta.env.VITE_AWS_S3_FILES_FOLDER || "files"
 
 const bucketUrl = `https://${BUCKET_NAME}.s3.${AWS_REGION}.amazonaws.com`
 
@@ -54,6 +55,10 @@ function generateImageFilename(
  */
 function getImageKey(companyId: string, filename: string): string {
   return `${IMAGES_FOLDER}/${companyId}/${filename}`
+}
+
+function getFileKey(filename: string): string {
+  return `${FILES_FOLDER}/${filename}`
 }
 
 /**
@@ -175,5 +180,69 @@ export async function generatePresignedUploadUrl(
   } catch (error) {
     console.error("Error generating presigned URL:", error)
     return null
+  }
+}
+
+export async function uploadFileToS3(file: File): Promise<UploadResult> {
+  try {
+    if (!BUCKET_NAME) {
+      throw new Error("S3 bucket name not configured")
+    }
+
+    const buffer = await file.arrayBuffer()
+    const key = getFileKey(file.name)
+
+    const command = new PutObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+      Body: new Uint8Array(buffer),
+      ContentType: file.type,
+    })
+
+    await s3Client.send(command)
+
+    const publicUrl = `${bucketUrl}/${key}`
+
+    return {
+      success: true,
+      url: publicUrl,
+    }
+  } catch (error) {
+    console.error("Error uploading to S3:", error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Upload failed",
+    }
+  }
+}
+
+export async function deleteFileFromS3(fileUrl: string): Promise<DeleteResult> {
+  try {
+    if (!BUCKET_NAME) {
+      throw new Error("S3 bucket name not configured")
+    }
+
+    const key = fileUrl.replace(`${bucketUrl}/`, "")
+
+    if (!key.startsWith(FILES_FOLDER)) {
+      throw new Error("Invalid file URL")
+    }
+
+    const command = new DeleteObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+    })
+
+    await s3Client.send(command)
+
+    return {
+      success: true,
+    }
+  } catch (error) {
+    console.error("Error deleting from S3:", error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Delete failed",
+    }
   }
 }

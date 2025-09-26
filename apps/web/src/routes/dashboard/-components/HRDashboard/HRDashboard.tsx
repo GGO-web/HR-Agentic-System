@@ -7,11 +7,11 @@ import { QuestionsList } from "../QuestionsList/QuestionsList"
 
 import { CompanyProfile } from "./components/CompanyProfile/CompanyProfile"
 import { CompanyProfileForm } from "./components/CompanyProfile/components/CompanyProfileForm/CompanyProfileForm"
+import { useJobDescriptionsQuery } from "./components/JobDescriptionForm/hooks/useJobDescriptionsQuery"
 import { JobDescriptionForm } from "./components/JobDescriptionForm/JobDescriptionForm"
 import { JobDescriptionList } from "./components/JobDescriptionList/JobDescriptionList"
 import { useGenerateInverviewQuestionsMutation } from "./hooks/useGenerateInverviewQuestionsMutation"
 import { useInterviewQuestionsQuery } from "./hooks/useInterviewQuestionsQuery"
-import { useJobDescriptionsQuery } from "./hooks/useJobDescriptionsQuery"
 
 import { useAuth } from "@/hooks/useAuth"
 
@@ -19,7 +19,6 @@ export function HRDashboard() {
   const { userData, companyData } = useAuth()
   const [selectedJobId, setSelectedJobId] =
     useState<Id<"jobDescriptions"> | null>(null)
-  const [isFormOpen, setIsFormOpen] = useState(false)
   const [isCompanyProfileFormOpen, setIsCompanyProfileFormOpen] =
     useState(false)
   const { t } = useTranslation()
@@ -83,12 +82,11 @@ export function HRDashboard() {
             <h2 className="text-xl font-semibold">
               {t("dashboard.hr.jobDescriptions.title")}
             </h2>
-            <Button
-              onClick={() => setIsFormOpen(true)}
-              className="bg-primary text-primary-foreground rounded px-3 py-1 text-sm"
-            >
-              {t("dashboard.hr.jobDescriptions.addNew")}
-            </Button>
+
+            <JobDescriptionForm
+              companyId={companyData?._id}
+              userId={userData?._id}
+            />
           </div>
 
           {jobDescriptions && jobDescriptions.length > 0 ? (
@@ -141,15 +139,6 @@ export function HRDashboard() {
           )}
         </div>
       </div>
-
-      {/* Job description form modal */}
-      {isFormOpen && (
-        <JobDescriptionForm
-          companyId={companyData?._id}
-          userId={userData?._id}
-          onClose={() => setIsFormOpen(false)}
-        />
-      )}
 
       {/* Company profile form modal */}
       {isCompanyProfileFormOpen && (

@@ -4,16 +4,16 @@ import { useMutation } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 import { toast } from "react-toastify"
 
-export const useUpdateJobDescriptionMutation = () => {
+export const useCreateJobDescriptionMutation = () => {
   const { t } = useTranslation()
 
   return useMutation({
-    mutationFn: useConvexMutation(api.jobDescriptions.update),
+    mutationFn: useConvexMutation(api.jobDescriptions.create),
     onSuccess: () => {
-      toast.success(t("dashboard.hr.jobDescriptions.actions.edit.success"))
+      toast.success(t("dashboard.hr.jobDescriptions.actions.create.success"))
     },
     onError: () => {
-      toast.error(t("dashboard.hr.jobDescriptions.actions.edit.error"))
+      toast.error(t("dashboard.hr.jobDescriptions.actions.create.error"))
     },
   })
 }

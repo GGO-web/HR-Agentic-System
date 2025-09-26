@@ -1,67 +1,169 @@
-import { api } from "@convex/_generated/api"
-import { type Id } from "@convex/_generated/dataModel"
+import { type Doc, type Id } from "@convex/_generated/dataModel"
+import { useCreateAttachmentsMutation } from "@convex/hooks/useCreateAttachmentsMutation"
+import { useGetAttachmentsQuery } from "@convex/hooks/useGetAttachmentsQuery"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@workspace/ui/components/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogTitle,
+  DialogTrigger,
+} from "@workspace/ui/components/dialog"
+import { Form, FormField, FormItem } from "@workspace/ui/components/form"
 import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
-import { useMutation } from "convex/react"
+import { ProgressUpload } from "@workspace/ui/components/progress-upload"
+import { Textarea } from "@workspace/ui/components/textarea"
+import { type FileWithPreview } from "@workspace/ui/hooks/use-file-upload"
+import { PlusIcon } from "lucide-react"
+import { useState } from "react"
 import { type FieldErrors, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { toast } from "react-toastify"
+
+import { JOB_DESCRIPTION_DEFAULT_VALUES } from "./constants"
+import { useCreateJobDescriptionMutation } from "./hooks/useCreateJobDescriptionMutation"
+import { useUpdateJobDescriptionMutation } from "./hooks/useUpdateJobDescriptionMutation"
 
 import {
   jobDescriptionSchema,
   type JobDescriptionFormData,
 } from "@/schema/jobDescription"
+import { deleteFileFromS3, uploadFileToS3 } from "@/services/s3Service"
 
 interface JobDescriptionFormProps {
+  trigger?: React.ReactNode
   companyId?: Id<"companies">
   userId?: Id<"users">
-  onClose: () => void
+  job?: Doc<"jobDescriptions">
+  onClose?: () => void
+  onSuccess?: () => void
 }
 
 export function JobDescriptionForm({
+  trigger,
   companyId,
   userId,
+  job,
   onClose,
+  onSuccess,
 }: JobDescriptionFormProps) {
   const { t } = useTranslation()
-  const createJobDescription = useMutation(api.jobDescriptions.create)
+  const [isOpen, setIsOpen] = useState(false)
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting, isValid },
-    reset,
-  } = useForm<JobDescriptionFormData>({
+  const { mutateAsync: createJobDescription, isPending: isCreating } =
+    useCreateJobDescriptionMutation()
+  const { mutateAsync: updateJobDescription, isPending: isUpdating } =
+    useUpdateJobDescriptionMutation()
+  const { mutateAsync: createAttachments } = useCreateAttachmentsMutation()
+
+  const { data: attachments } = useGetAttachmentsQuery(
+    job?.files.map((file) => file as Id<"attachments">) || [],
+  )
+
+  const form = useForm<JobDescriptionFormData>({
     resolver: zodResolver(jobDescriptionSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-    },
+    defaultValues: job
+      ? {
+          title: job.title,
+          description: job.description,
+          files: job.files,
+        }
+      : JOB_DESCRIPTION_DEFAULT_VALUES,
   })
 
-  const onSubmit = async (data: JobDescriptionFormData) => {
-    if (!companyId || !userId) {
-      toast.error(
-        `Missing required data. 
-        - Company ID: ${companyId} 
-        - User ID: ${userId}`,
-      )
-      return
-    }
+  const {
+    handleSubmit,
+    formState: { isSubmitting },
+    reset,
+  } = form
 
+  const onSubmit = async (data: JobDescriptionFormData) => {
     try {
-      await createJobDescription({
-        title: data.title,
-        description: data.description,
-        companyId,
-        createdBy: userId,
+      const files = (data.files as FileWithPreview[]).map(
+        (file) => file.file as File,
+      )
+      const fileNames = files.map((file) => file.name)
+
+      const attachmentFileNames = (attachments || []).map(
+        (attachment) => attachment?.fileName,
+      )
+
+      const filesToUpload = files.filter(
+        (file) => !attachmentFileNames?.includes(file.name),
+      )
+      const attachmentsToSkip = (attachments || [])
+        ?.filter((attachment) => fileNames.includes(attachment?.fileName ?? ""))
+        .map((attachment) => ({
+          name: attachment?.fileName ?? "",
+          type: attachment?.fileType ?? "",
+          size: attachment?.fileSize ?? 0,
+          url: attachment?.fileUrl ?? "",
+        }))
+
+      const filesToDelete = (attachments || [])?.filter(
+        (attachment) => !fileNames.includes(attachment?.fileName ?? ""),
+      )
+
+      await Promise.all(
+        filesToDelete.map(async (file) => {
+          await deleteFileFromS3(file?.fileUrl ?? "")
+        }),
+      )
+
+      const uploadedFiles = await Promise.all(
+        filesToUpload.map(async (file) => {
+          const result = await uploadFileToS3(file)
+
+          return {
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            url: result.url || "",
+          }
+        }),
+      )
+
+      const allUploadedFiles = [...uploadedFiles, ...attachmentsToSkip]
+      const uploadedAttachments = await createAttachments({
+        files: allUploadedFiles,
       })
 
-      toast.success("Job description created successfully!")
-      reset()
-      onClose()
+      const attachmentIds = uploadedAttachments.map(
+        (attachment) => attachment?._id,
+      )
+
+      if (job) {
+        await updateJobDescription({
+          id: job._id,
+          title: data.title,
+          description: data.description,
+          files: attachmentIds,
+        })
+      } else {
+        if (!companyId || !userId) {
+          toast.error(
+            `Missing required data. 
+            - Company ID: ${companyId} 
+            - User ID: ${userId}`,
+          )
+          return
+        }
+
+        await createJobDescription({
+          title: data.title,
+          description: data.description,
+          files: attachmentIds,
+          companyId,
+          createdBy: userId,
+        })
+
+        reset()
+      }
+
+      onSuccess?.()
+      setIsOpen(false)
     } catch {
       toast.error("Failed to create job description. Please try again.")
     }
@@ -75,65 +177,117 @@ export function JobDescriptionForm({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-background w-full max-w-lg rounded-lg p-6 shadow-lg">
-        <h2 className="mb-4 text-xl font-semibold">
-          {t("jobDescription.form.title")}
-        </h2>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        {trigger || (
+          <Button>
+            <PlusIcon className="size-4" />
+            {t("dashboard.hr.jobDescriptions.form.buttons.addNew")}
+          </Button>
+        )}
+      </DialogTrigger>
 
-        <form onSubmit={handleSubmit(onSubmit, onInvalid)}>
-          <div className="mb-4">
-            <Label htmlFor="title" className="mb-1 block text-sm font-medium">
-              {t("jobDescription.form.jobTitle")}
-            </Label>
-            <Input
-              id="title"
-              type="text"
-              {...register("title")}
-              className={errors.title ? "border-red-500" : ""}
-              placeholder="Enter job title"
+      <DialogContent>
+        <DialogTitle>
+          {t("dashboard.hr.jobDescriptions.form.title")}
+        </DialogTitle>
+
+        <Form {...form}>
+          <form
+            onSubmit={handleSubmit(onSubmit, onInvalid)}
+            className="space-y-3"
+          >
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <Label
+                    htmlFor="title"
+                    className="mb-1 block text-sm font-medium"
+                  >
+                    {t("dashboard.hr.jobDescriptions.form.jobTitle")}
+                  </Label>
+                  <Input
+                    id="title"
+                    type="text"
+                    {...field}
+                    placeholder={t(
+                      "dashboard.hr.jobDescriptions.form.jobTitlePlaceholder",
+                    )}
+                  />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="mb-6">
-            <Label
-              htmlFor="description"
-              className="mb-1 block text-sm font-medium"
-            >
-              {t("jobDescription.form.jobDescription")}
-            </Label>
-            <textarea
-              id="description"
-              {...register("description")}
-              className={`border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring h-40 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 ${
-                errors.description ? "border-red-500" : ""
-              }`}
-              placeholder="Enter detailed job description..."
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <Label
+                    htmlFor="description"
+                    className="mb-1 block text-sm font-medium"
+                  >
+                    {t("dashboard.hr.jobDescriptions.form.jobDescription")}
+                  </Label>
+
+                  <Textarea
+                    id="description"
+                    {...field}
+                    className="min-h-30"
+                    disabled={isSubmitting}
+                    placeholder={t(
+                      "dashboard.hr.jobDescriptions.form.jobDescriptionPlaceholder",
+                    )}
+                  />
+                </FormItem>
+              )}
             />
-            <p className="text-muted-foreground mt-1 text-xs">
-              {t("jobDescription.form.descriptionHint")}
-            </p>
-          </div>
 
-          <div className="flex justify-end gap-2">
-            <Button
-              variant="ghost"
-              type="button"
-              onClick={onClose}
-              disabled={isSubmitting}
-            >
-              {t("common.cancel")}
-            </Button>
-            <Button
-              type="submit"
-              className="bg-primary text-primary-foreground rounded-md px-4 py-2 text-sm"
-              disabled={isSubmitting || !isValid}
-            >
-              {isSubmitting ? t("common.loading") : t("common.save")}
-            </Button>
-          </div>
-        </form>
-      </div>
-    </div>
+            <FormField
+              control={form.control}
+              name="files"
+              render={({ field }) => (
+                <FormItem>
+                  <Label htmlFor="files">Files</Label>
+
+                  <ProgressUpload
+                    onFilesChange={field.onChange}
+                    defaultFiles={(attachments || [])?.map((attachment) => ({
+                      id: attachment?._id ?? "",
+                      name: attachment?.fileName ?? "",
+                      size: attachment?.fileSize ?? 0,
+                      type: attachment?.fileType ?? "",
+                      url: attachment?.fileUrl ?? "",
+                    }))}
+                  />
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter className="flex justify-end gap-2">
+              <Button
+                variant="ghost"
+                type="button"
+                onClick={() => {
+                  setIsOpen(false)
+                  onClose?.()
+                }}
+                disabled={isSubmitting}
+              >
+                {t("common.cancel")}
+              </Button>
+
+              <Button type="submit">
+                {isSubmitting || isUpdating || isCreating
+                  ? t("common.loading")
+                  : t("common.save")}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   )
 }

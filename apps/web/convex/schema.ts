@@ -37,11 +37,22 @@ export default defineSchema({
   jobDescriptions: defineTable({
     title: v.string(),
     description: v.string(),
+    files: v.array(v.id("attachments")), // Array of attachment IDs
     companyId: v.id("companies"),
     createdAt: v.number(),
     updatedAt: v.number(),
     createdBy: v.id("users"),
   }).index("by_company", ["companyId"]),
+
+  // Attachments table
+  attachments: defineTable({
+    fileName: v.string(),
+    fileType: v.string(),
+    fileSize: v.number(),
+    fileUrl: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }),
 
   // Interview questions table
   interviewQuestions: defineTable({
