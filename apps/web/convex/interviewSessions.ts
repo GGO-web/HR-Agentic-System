@@ -1,47 +1,50 @@
-import { mutation, query } from "./_generated/server";
-import { v } from "convex/values";
+import { v } from "convex/values"
+
+import { mutation, query } from "./_generated/server"
 
 // Create a new interview session
 export const create = mutation({
   args: {
-    candidateId: v.id("users"),
+    candidateEmail: v.string(),
     jobDescriptionId: v.id("jobDescriptions"),
     scheduledAt: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const sessionId = await ctx.db.insert("interviewSessions", {
-      candidateId: args.candidateId,
+      candidateEmail: args.candidateEmail,
       jobDescriptionId: args.jobDescriptionId,
       status: "scheduled",
       scheduledAt: args.scheduledAt,
-      startedAt: null,
-      completedAt: null,
+      startedAt: undefined,
+      completedAt: undefined,
       createdAt: Date.now(),
       updatedAt: Date.now(),
-    });
-    
-    return sessionId;
+    })
+
+    return sessionId
   },
-});
+})
 
 // Get interview session by ID
 export const getById = query({
   args: { id: v.id("interviewSessions") },
   handler: async (ctx, args) => {
-    return await ctx.db.get(args.id);
+    return await ctx.db.get(args.id)
   },
-});
+})
 
 // Get interview sessions by candidate ID
 export const getByCandidate = query({
-  args: { candidateId: v.id("users") },
+  args: { candidateEmail: v.string() },
   handler: async (ctx, args) => {
     return await ctx.db
       .query("interviewSessions")
-      .withIndex("by_candidate", (q) => q.eq("candidateId", args.candidateId))
-      .collect();
+      .withIndex("by_candidate", (q) =>
+        q.eq("candidateEmail", args.candidateEmail),
+      )
+      .collect()
   },
-});
+})
 
 // Get interview sessions by job description ID
 export const getByJobDescription = query({
@@ -49,10 +52,12 @@ export const getByJobDescription = query({
   handler: async (ctx, args) => {
     return await ctx.db
       .query("interviewSessions")
-      .withIndex("by_job_description", (q) => q.eq("jobDescriptionId", args.jobDescriptionId))
-      .collect();
+      .withIndex("by_job_description", (q) =>
+        q.eq("jobDescriptionId", args.jobDescriptionId),
+      )
+      .collect()
   },
-});
+})
 
 // Start an interview session
 export const startSession = mutation({
@@ -62,11 +67,11 @@ export const startSession = mutation({
       status: "in_progress",
       startedAt: Date.now(),
       updatedAt: Date.now(),
-    });
-    
-    return args.id;
+    })
+
+    return args.id
   },
-});
+})
 
 // Complete an interview session
 export const completeSession = mutation({
@@ -76,8 +81,8 @@ export const completeSession = mutation({
       status: "completed",
       completedAt: Date.now(),
       updatedAt: Date.now(),
-    });
-    
-    return args.id;
+    })
+
+    return args.id
   },
-});
+})

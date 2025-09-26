@@ -1,5 +1,6 @@
-import { mutation, query } from "./_generated/server";
-import { v } from "convex/values";
+import { v } from "convex/values"
+
+import { mutation, query } from "./_generated/server"
 
 // Create a new interview response
 export const create = mutation({
@@ -18,11 +19,11 @@ export const create = mutation({
       transcription: args.transcription,
       aiAnalysis: args.aiAnalysis,
       createdAt: Date.now(),
-    });
-    
-    return responseId;
+    })
+
+    return responseId
   },
-});
+})
 
 // Get responses by interview session ID
 export const getByInterviewSession = query({
@@ -30,10 +31,12 @@ export const getByInterviewSession = query({
   handler: async (ctx, args) => {
     return await ctx.db
       .query("interviewResponses")
-      .withIndex("by_interview_session", (q) => q.eq("interviewSessionId", args.interviewSessionId))
-      .collect();
+      .withIndex("by_interview_session", (q) =>
+        q.eq("interviewSessionId", args.interviewSessionId),
+      )
+      .collect()
   },
-});
+})
 
 // Get responses by question ID
 export const getByQuestion = query({
@@ -42,9 +45,9 @@ export const getByQuestion = query({
     return await ctx.db
       .query("interviewResponses")
       .withIndex("by_question", (q) => q.eq("questionId", args.questionId))
-      .collect();
+      .collect()
   },
-});
+})
 
 // Update response with transcription and AI analysis
 export const updateAnalysis = mutation({
@@ -54,9 +57,9 @@ export const updateAnalysis = mutation({
     aiAnalysis: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const { id, ...updates } = args;
-    
-    await ctx.db.patch(id, updates);
-    return id;
+    const { id, ...updates } = args
+
+    await ctx.db.patch(id, updates)
+    return id
   },
-});
+})

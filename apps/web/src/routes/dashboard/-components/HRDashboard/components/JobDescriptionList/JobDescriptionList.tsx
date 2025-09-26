@@ -1,10 +1,11 @@
 import { type Id, type Doc } from "@convex/_generated/dataModel"
 import { Button } from "@workspace/ui/components/button"
 import { cn } from "@workspace/ui/lib/utils"
-import { Edit2 } from "lucide-react"
+import { Edit2, UserPlus } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { DeleteJobDescriptionButton } from "../DeleteJobDescriptionButton/DeleteJobDescriptionButton"
+import { InviteCandidateForm } from "../InviteCandidateForm/InviteCandidateForm"
 import { JobDescriptionForm } from "../JobDescriptionForm/JobDescriptionForm"
 
 interface JobDescriptionListProps {
@@ -48,6 +49,21 @@ export function JobDescriptionList({
 
           <div className="group:opacity-100 group:has-active:opacity-100 absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100">
             <div className="flex gap-1">
+              <InviteCandidateForm
+                job={job}
+                onSuccess={onJobUpdated}
+                trigger={
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="size-8 p-0"
+                    title="Invite Candidate"
+                  >
+                    <UserPlus className="size-4" />
+                  </Button>
+                }
+              />
+
               <JobDescriptionForm
                 job={job}
                 onSuccess={onJobUpdated}

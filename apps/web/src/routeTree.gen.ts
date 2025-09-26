@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SignUpIndexRouteImport } from './routes/sign-up/index'
 import { Route as SignInIndexRouteImport } from './routes/sign-in/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as InvitationTokenIndexRouteImport } from './routes/invitation/$token/index'
 import { Route as InterviewSessionIdIndexRouteImport } from './routes/interview/$sessionId/index'
 import { Route as InterviewSessionIdResultsRouteImport } from './routes/interview/$sessionId/results'
 
@@ -36,6 +37,11 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: '/dashboard/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InvitationTokenIndexRoute = InvitationTokenIndexRouteImport.update({
+  id: '/invitation/$token/',
+  path: '/invitation/$token/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InterviewSessionIdIndexRoute = InterviewSessionIdIndexRouteImport.update({
   id: '/interview/$sessionId/',
   path: '/interview/$sessionId/',
@@ -55,6 +61,7 @@ export interface FileRoutesByFullPath {
   '/sign-up': typeof SignUpIndexRoute
   '/interview/$sessionId/results': typeof InterviewSessionIdResultsRoute
   '/interview/$sessionId': typeof InterviewSessionIdIndexRoute
+  '/invitation/$token': typeof InvitationTokenIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -63,6 +70,7 @@ export interface FileRoutesByTo {
   '/sign-up': typeof SignUpIndexRoute
   '/interview/$sessionId/results': typeof InterviewSessionIdResultsRoute
   '/interview/$sessionId': typeof InterviewSessionIdIndexRoute
+  '/invitation/$token': typeof InvitationTokenIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -72,6 +80,7 @@ export interface FileRoutesById {
   '/sign-up/': typeof SignUpIndexRoute
   '/interview/$sessionId/results': typeof InterviewSessionIdResultsRoute
   '/interview/$sessionId/': typeof InterviewSessionIdIndexRoute
+  '/invitation/$token/': typeof InvitationTokenIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -82,6 +91,7 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/interview/$sessionId/results'
     | '/interview/$sessionId'
+    | '/invitation/$token'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -90,6 +100,7 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/interview/$sessionId/results'
     | '/interview/$sessionId'
+    | '/invitation/$token'
   id:
     | '__root__'
     | '/'
@@ -98,6 +109,7 @@ export interface FileRouteTypes {
     | '/sign-up/'
     | '/interview/$sessionId/results'
     | '/interview/$sessionId/'
+    | '/invitation/$token/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -107,6 +119,7 @@ export interface RootRouteChildren {
   SignUpIndexRoute: typeof SignUpIndexRoute
   InterviewSessionIdResultsRoute: typeof InterviewSessionIdResultsRoute
   InterviewSessionIdIndexRoute: typeof InterviewSessionIdIndexRoute
+  InvitationTokenIndexRoute: typeof InvitationTokenIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -139,6 +152,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/invitation/$token/': {
+      id: '/invitation/$token/'
+      path: '/invitation/$token'
+      fullPath: '/invitation/$token'
+      preLoaderRoute: typeof InvitationTokenIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/interview/$sessionId/': {
       id: '/interview/$sessionId/'
       path: '/interview/$sessionId'
@@ -163,6 +183,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignUpIndexRoute: SignUpIndexRoute,
   InterviewSessionIdResultsRoute: InterviewSessionIdResultsRoute,
   InterviewSessionIdIndexRoute: InterviewSessionIdIndexRoute,
+  InvitationTokenIndexRoute: InvitationTokenIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
