@@ -82,15 +82,20 @@ export const create = mutation({
     }
 
     // Check if candidate is already invited for this job
-    const existingInvitation = await ctx.db
+    const existingInvitations = await ctx.db
       .query("interviewInvitations")
       .withIndex("by_job_description", (q) =>
         q.eq("jobDescriptionId", args.jobDescriptionId),
       )
       .filter((q) => q.eq(q.field("candidateEmail"), args.candidateEmail))
-      .first()
+      .collect()
 
-    if (existingInvitation) {
+    const isAlreadyInvited = existingInvitations.some(
+      (invitation) =>
+        invitation.status === "pending" || invitation.status === "accepted",
+    )
+
+    if (isAlreadyInvited) {
       throw new Error(
         "This candidate has already been invited for this position.",
       )
