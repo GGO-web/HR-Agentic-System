@@ -76,7 +76,19 @@ export function InviteCandidateForm({
     } catch (error) {
       console.log(error)
       console.error("Error sending invitation:", error)
-      toast.error(t("dashboard.hr.inviteCandidate.actions.error"))
+
+      // Handle specific error messages
+      const errorMessage = error instanceof Error ? error.message : ""
+
+      if (errorMessage.includes("Account not found")) {
+        toast.error(t("dashboard.hr.inviteCandidate.actions.accountNotFound"))
+      } else if (errorMessage.includes("HR manager")) {
+        toast.error(t("dashboard.hr.inviteCandidate.actions.invalidRole"))
+      } else if (errorMessage.includes("already been invited")) {
+        toast.error(t("dashboard.hr.inviteCandidate.actions.alreadyInvited"))
+      } else {
+        toast.error(t("dashboard.hr.inviteCandidate.actions.error"))
+      }
     }
   }
 

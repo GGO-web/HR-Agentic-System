@@ -170,7 +170,10 @@
         "sendInvitation": "Send Invitation",
         "actions": {
           "success": "Invitation sent successfully!",
-          "error": "Failed to send invitation. Please try again."
+          "error": "Failed to send invitation. Please try again.",
+          "accountNotFound": "Account not found. Please ensure the candidate has registered.",
+          "invalidRole": "This email belongs to an HR manager. Only candidates can be invited to interviews.",
+          "alreadyInvited": "This candidate has already been invited for this position."
         }
       }
     },

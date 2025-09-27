@@ -51,10 +51,6 @@ export const create = mutation({
     personalMessage: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    // Generate unique invitation token
-    const invitationToken = generateInvitationToken()
-    const expiresAt = calculateExpirationDate()
-
     // Get job description and company details for email
     const jobDescription = await ctx.db.get(args.jobDescriptionId)
     if (!jobDescription) {
@@ -66,6 +62,44 @@ export const create = mutation({
       throw new Error("Company not found")
     }
 
+    // Check if candidate exists
+    const candidate = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", args.candidateEmail))
+      .first()
+
+    if (!candidate) {
+      throw new Error(
+        "Account not found. Please ensure the candidate has registered.",
+      )
+    }
+
+    // Check if candidate has the correct role
+    if (candidate.role !== "candidate") {
+      throw new Error(
+        "This email belongs to an HR manager. Only candidates can be invited to interviews.",
+      )
+    }
+
+    // Check if candidate is already invited for this job
+    const existingInvitation = await ctx.db
+      .query("interviewInvitations")
+      .withIndex("by_job_description", (q) =>
+        q.eq("jobDescriptionId", args.jobDescriptionId),
+      )
+      .filter((q) => q.eq(q.field("candidateEmail"), args.candidateEmail))
+      .first()
+
+    if (existingInvitation) {
+      throw new Error(
+        "This candidate has already been invited for this position.",
+      )
+    }
+
+    // Generate unique invitation token
+    const invitationToken = generateInvitationToken()
+    const expiresAt = calculateExpirationDate()
+
     const invitationId = await ctx.db.insert("interviewInvitations", {
       jobDescriptionId: args.jobDescriptionId,
       candidateEmail: args.candidateEmail,
@@ -76,15 +110,6 @@ export const create = mutation({
       createdAt: Date.now(),
       updatedAt: Date.now(),
     })
-
-    const candidate = await ctx.db
-      .query("users")
-      .withIndex("by_email", (q) => q.eq("email", args.candidateEmail))
-      .first()
-
-    if (!candidate) {
-      throw new Error("Candidate not found")
-    }
 
     // Send invitation email (in production, this would be handled by a background job)
     try {
