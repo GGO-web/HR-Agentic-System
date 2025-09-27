@@ -21,6 +21,7 @@ import { Textarea } from "@workspace/ui/components/textarea"
 import { UserPlus } from "lucide-react"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 import { toast } from "react-toastify"
 
 import { useCreateInvitationMutation } from "./hooks/useCreateInvitationMutation"
@@ -45,6 +46,7 @@ export function InviteCandidateForm({
   const [open, setOpen] = useState(false)
   const { mutateAsync: createInvitation, isPending: isCreatingInvitation } =
     useCreateInvitationMutation()
+  const { t } = useTranslation()
 
   const { userData } = useAuth()
 
@@ -67,14 +69,14 @@ export function InviteCandidateForm({
         invitedBy: userData?._id,
       })
 
-      toast.success("Invitation sent successfully!")
+      toast.success(t("dashboard.hr.inviteCandidate.actions.success"))
       form.reset()
       setOpen(false)
       onSuccess?.()
     } catch (error) {
       console.log(error)
       console.error("Error sending invitation:", error)
-      toast.error("Failed to send invitation. Please try again.")
+      toast.error(t("dashboard.hr.inviteCandidate.actions.error"))
     }
   }
 
@@ -84,19 +86,21 @@ export function InviteCandidateForm({
         {trigger || (
           <Button size="sm" variant="outline" className="gap-2">
             <UserPlus className="h-4 w-4" />
-            Invite Candidate
+            {t("dashboard.hr.inviteCandidate.button")}
           </Button>
         )}
       </DialogTrigger>
+
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Invite Candidate for Interview</DialogTitle>
+          <DialogTitle>{t("dashboard.hr.inviteCandidate.title")}</DialogTitle>
         </DialogHeader>
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <p className="text-muted-foreground text-sm">
-                Invite a candidate to interview for:{" "}
+                {t("dashboard.hr.inviteCandidate.description")}{" "}
                 <strong>{job.title}</strong>
               </p>
             </div>
@@ -106,11 +110,15 @@ export function InviteCandidateForm({
               name="candidateEmail"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email Address</FormLabel>
+                  <FormLabel>
+                    {t("dashboard.hr.inviteCandidate.emailLabel")}
+                  </FormLabel>
                   <Input
                     {...field}
                     type="email"
-                    placeholder="candidate@example.com"
+                    placeholder={t(
+                      "dashboard.hr.inviteCandidate.emailPlaceholder",
+                    )}
                     disabled={isCreatingInvitation}
                   />
                   <FormMessage />
@@ -123,10 +131,14 @@ export function InviteCandidateForm({
               name="message"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Personal Message (Optional)</FormLabel>
+                  <FormLabel>
+                    {t("dashboard.hr.inviteCandidate.messageLabel")}
+                  </FormLabel>
                   <Textarea
                     {...field}
-                    placeholder="Add a personal message to the invitation..."
+                    placeholder={t(
+                      "dashboard.hr.inviteCandidate.messagePlaceholder",
+                    )}
                     disabled={isCreatingInvitation}
                     rows={3}
                   />
@@ -142,10 +154,12 @@ export function InviteCandidateForm({
                 onClick={() => setOpen(false)}
                 disabled={isCreatingInvitation}
               >
-                Cancel
+                {t("dashboard.hr.inviteCandidate.cancel")}
               </Button>
               <Button type="submit" disabled={isCreatingInvitation}>
-                {isCreatingInvitation ? "Sending..." : "Send Invitation"}
+                {isCreatingInvitation
+                  ? t("dashboard.hr.inviteCandidate.sending")
+                  : t("dashboard.hr.inviteCandidate.sendInvitation")}
               </Button>
             </DialogFooter>
           </form>

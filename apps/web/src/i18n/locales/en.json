@@ -156,6 +156,22 @@
         "noQuestions": "No questions yet. Click \"Generate AI Questions\" to create questions based on the job description.",
         "selectJobDescription": "Select a job description to view or generate questions.",
         "aiGenerated": "AI Generated"
+      },
+      "inviteCandidate": {
+        "title": "Invite Candidate for Interview",
+        "button": "Invite Candidate",
+        "description": "Invite a candidate to interview for:",
+        "emailLabel": "Email Address",
+        "emailPlaceholder": "candidate@example.com",
+        "messageLabel": "Personal Message (Optional)",
+        "messagePlaceholder": "Add a personal message to the invitation...",
+        "cancel": "Cancel",
+        "sending": "Sending...",
+        "sendInvitation": "Send Invitation",
+        "actions": {
+          "success": "Invitation sent successfully!",
+          "error": "Failed to send invitation. Please try again."
+        }
       }
     },
     "candidate": {
