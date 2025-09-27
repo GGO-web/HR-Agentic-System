@@ -69,7 +69,11 @@ export default defineSchema({
   interviewSessions: defineTable({
     candidateEmail: v.string(),
     jobDescriptionId: v.id("jobDescriptions"),
-    status: v.string(), // "scheduled", "in_progress", "completed"
+    status: v.union(
+      v.literal("scheduled"),
+      v.literal("in_progress"),
+      v.literal("completed"),
+    ), // "scheduled", "in_progress", "completed"
     scheduledAt: v.optional(v.number()),
     startedAt: v.optional(v.number()),
     completedAt: v.optional(v.number()),
