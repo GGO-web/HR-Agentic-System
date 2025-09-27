@@ -1,6 +1,4 @@
-import { useUser } from "@clerk/clerk-react"
-import { api } from "@convex/_generated/api"
-import { type Id, type Doc } from "@convex/_generated/dataModel"
+import { type Doc } from "@convex/_generated/dataModel"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -20,11 +18,9 @@ import {
 } from "@workspace/ui/components/form"
 import { Input } from "@workspace/ui/components/input"
 import { Textarea } from "@workspace/ui/components/textarea"
-import { useQuery } from "convex/react"
 import { UserPlus } from "lucide-react"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
-import { useTranslation } from "react-i18next"
 import { toast } from "react-toastify"
 
 import { useCreateInvitationMutation } from "./hooks/useCreateInvitationMutation"
@@ -32,6 +28,8 @@ import {
   type InviteCandidateFormData,
   inviteCandidateSchema,
 } from "./schema/inviteCandidate"
+
+import { useAuth } from "@/hooks/useAuth"
 
 interface InviteCandidateFormProps {
   job: Doc<"jobDescriptions">
@@ -44,15 +42,11 @@ export function InviteCandidateForm({
   trigger,
   onSuccess,
 }: InviteCandidateFormProps) {
-  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
-  const { mutateAsync: createInvitation } = useCreateInvitationMutation()
+  const { mutateAsync: createInvitation, isPending: isCreatingInvitation } =
+    useCreateInvitationMutation()
 
-  const { user, isSignedIn } = useUser()
-  const userData = useQuery(
-    api.users.getByClerkId,
-    isSignedIn && user?.id ? { clerkId: user.id } : "skip",
-  )
+  const { userData } = useAuth()
 
   const form = useForm<InviteCandidateFormData>({
     resolver: zodResolver(inviteCandidateSchema),
@@ -117,7 +111,7 @@ export function InviteCandidateForm({
                     {...field}
                     type="email"
                     placeholder="candidate@example.com"
-                    disabled={createInvitation.isPending}
+                    disabled={isCreatingInvitation}
                   />
                   <FormMessage />
                 </FormItem>
@@ -133,7 +127,7 @@ export function InviteCandidateForm({
                   <Textarea
                     {...field}
                     placeholder="Add a personal message to the invitation..."
-                    disabled={createInvitation.isPending}
+                    disabled={isCreatingInvitation}
                     rows={3}
                   />
                   <FormMessage />
@@ -146,12 +140,12 @@ export function InviteCandidateForm({
                 type="button"
                 variant="outline"
                 onClick={() => setOpen(false)}
-                disabled={createInvitation.isPending}
+                disabled={isCreatingInvitation}
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={createInvitation.isPending}>
-                {createInvitation.isPending ? "Sending..." : "Send Invitation"}
+              <Button type="submit" disabled={isCreatingInvitation}>
+                {isCreatingInvitation ? "Sending..." : "Send Invitation"}
               </Button>
             </DialogFooter>
           </form>

@@ -168,7 +168,14 @@
       "continueInterview": "Continue Interview",
       "viewResults": "View Results",
       "noInterviews": "No interviews scheduled yet.",
-      "noInterviewsDescription": "Your interviews will appear here once they are scheduled by HR."
+      "noInterviewsDescription": "Your interviews will appear here once they are scheduled by HR.",
+      "invitedJobDescriptions": {
+        "title": "Job Descriptions",
+        "description": "You've been invited to interview for these positions",
+        "invited": "Invited",
+        "viewDetails": "View Details",
+        "sessionNotCreated": "Session not created yet"
+      }
     },
     "questionsList": {
       "actions": {
