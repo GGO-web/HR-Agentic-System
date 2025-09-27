@@ -145,13 +145,26 @@ export const getByToken = query({
       return null
     }
 
+    // Fetch candidate information
+    const candidate = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", invitation.candidateEmail))
+      .first()
+
     // Check if invitation is expired
     if (invitation.expiresAt < Date.now() && invitation.status === "pending") {
       // Return expired status without updating the database
-      return { ...invitation, status: "expired" }
+      return {
+        ...invitation,
+        status: "expired",
+        candidateName: candidate?.name || "Candidate",
+      }
     }
 
-    return invitation
+    return {
+      ...invitation,
+      candidateName: candidate?.name || "Candidate",
+    }
   },
 })
 

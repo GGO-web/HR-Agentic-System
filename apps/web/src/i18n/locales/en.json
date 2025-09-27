@@ -289,6 +289,46 @@
       "stopRecordingHint": "Click \"Stop Recording\" when you've finished your answer."
     }
   },
+  "invitation": {
+    "loading": "Loading invitation...",
+    "notFound": {
+      "title": "Invitation Not Found",
+      "description": "This invitation link is invalid or has expired."
+    },
+    "title": "Interview Invitation",
+    "description": "You've been invited to interview for a position",
+    "greeting": "Hello {{name}}!",
+    "message": "You've been invited to interview for a position. Click the button below to accept this invitation and view the job description.",
+    "status": {
+      "accepted": "Accepted",
+      "declined": "Declined",
+      "expired": "Expired",
+      "pending": "Pending"
+    },
+    "expired": {
+      "title": "Invitation Expired",
+      "message": "This invitation has expired. Please contact the company for a new invitation."
+    },
+    "accepted": {
+      "title": "Invitation Accepted",
+      "message": "You have accepted this invitation. You can now view the job description and start the interview process."
+    },
+    "declined": {
+      "title": "Invitation Declined",
+      "message": "You have declined this invitation. If you change your mind, please contact the company."
+    },
+    "actions": {
+      "accept": "Accept Invitation",
+      "accepting": "Accepting...",
+      "decline": "Decline",
+      "declining": "Declining...",
+      "goToDashboard": "Go to Dashboard",
+      "acceptSuccess": "Invitation accepted! You can now view the job description.",
+      "declineSuccess": "Invitation declined.",
+      "acceptError": "Failed to accept invitation. Please try again.",
+      "declineError": "Failed to decline invitation. Please try again."
+    }
+  },
   "protectedRoute": {
     "accessDenied": "Access Denied",
     "noPermission": "You don't have permission to access this page.",
