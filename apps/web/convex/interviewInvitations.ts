@@ -1,5 +1,3 @@
-import { randomBytes } from "node:crypto";
-
 import { v } from "convex/values";
 import i18next from "i18next";
 
@@ -8,7 +6,11 @@ import { mutation, query } from "./_generated/server";
 // Utility functions for invitation management
 function generateInvitationToken(): string {
   // Generate a secure random token
-  return randomBytes(32).toString("hex");
+  const array = new Uint8Array(32);
+  crypto.getRandomValues(array);
+  return Array.from(array)
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 function calculateExpirationDate(): number {
