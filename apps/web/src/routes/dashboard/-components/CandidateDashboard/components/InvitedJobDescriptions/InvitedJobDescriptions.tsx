@@ -23,7 +23,7 @@ export const InvitedJobDescriptions = () => {
   // Fetch invited job descriptions for the candidate
   const invitedJobDescriptions = useQuery(
     api.interviewInvitations.getInvitedJobDescriptions,
-    userData ? { candidateEmail: userData.email } : "skip",
+    userData?.email ? { candidateEmail: userData.email } : "skip",
   );
 
   return (
