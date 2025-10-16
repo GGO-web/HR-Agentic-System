@@ -1,17 +1,14 @@
+import { randomBytes } from "node:crypto";
+
 import { v } from "convex/values";
+import i18next from "i18next";
 
 import { mutation, query } from "./_generated/server";
 
 // Utility functions for invitation management
 function generateInvitationToken(): string {
   // Generate a secure random token
-  const chars =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let result = "";
-  for (let i = 0; i < 32; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
+  return randomBytes(32).toString("hex");
 }
 
 function calculateExpirationDate(): number {
@@ -52,6 +49,12 @@ export const create = mutation({
     personalMessage: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    // check for authentication
+    const identity = await ctx.auth.getUserIdentity?.();
+    if (!identity) {
+      throw new Error("Authentication required");
+    }
+
     // Get job description and company details for email
     const jobDescription = await ctx.db.get(args.jobDescriptionId);
     if (!jobDescription) {
@@ -119,8 +122,9 @@ export const create = mutation({
 
     // Send invitation email (in production, this would be handled by a background job)
     try {
+      const t = i18next.t;
       await sendInvitationEmail({
-        candidateName: candidate.name || "Candidate",
+        candidateName: candidate.name || t("common.candidate"),
         candidateEmail: args.candidateEmail,
         jobTitle: jobDescription.title,
         companyName: company.name,
@@ -157,19 +161,21 @@ export const getByToken = query({
       .withIndex("by_email", (q) => q.eq("email", invitation.candidateEmail))
       .first();
 
+    const t = i18next.t;
+
     // Check if invitation is expired
     if (invitation.expiresAt < Date.now() && invitation.status === "pending") {
       // Return expired status without updating the database
       return {
         ...invitation,
         status: "expired",
-        candidateName: candidate?.name || "Candidate",
+        candidateName: candidate?.name || t("common.candidate"),
       };
     }
 
     return {
       ...invitation,
-      candidateName: candidate?.name || "Candidate",
+      candidateName: candidate?.name || t("common.candidate"),
     };
   },
 });
@@ -207,6 +213,11 @@ export const accept = mutation({
     candidateEmail: v.string(),
   },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity?.();
+    if (!identity) {
+      throw new Error("Authentication required");
+    }
+
     const invitation = await ctx.db.get(args.invitationId);
 
     if (!invitation) {
@@ -245,6 +256,11 @@ export const accept = mutation({
 export const decline = mutation({
   args: { invitationId: v.id("interviewInvitations") },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity?.();
+    if (!identity) {
+      throw new Error("Authentication required");
+    }
+
     const invitation = await ctx.db.get(args.invitationId);
 
     if (!invitation) {
@@ -320,6 +336,11 @@ export const updateStatus = mutation({
     ),
   },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity?.();
+    if (!identity) {
+      throw new Error("Authentication required");
+    }
+
     await ctx.db.patch(args.invitationId, {
       status: args.status,
       updatedAt: Date.now(),
@@ -333,6 +354,11 @@ export const updateStatus = mutation({
 export const remove = mutation({
   args: { invitationId: v.id("interviewInvitations") },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity?.();
+    if (!identity) {
+      throw new Error("Authentication required");
+    }
+
     await ctx.db.delete(args.invitationId);
     return args.invitationId;
   },
