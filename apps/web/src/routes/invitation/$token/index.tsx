@@ -40,7 +40,6 @@ function InvitationPage() {
     try {
       await acceptInvitation.mutateAsync({
         invitationId: invitation._id,
-        candidateEmail: invitation.candidateEmail,
       });
       toast.success(t("invitation.actions.acceptSuccess"));
 

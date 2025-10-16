@@ -212,7 +212,6 @@ export const getByCandidateEmail = query({
 export const accept = mutation({
   args: {
     invitationId: v.id("interviewInvitations"),
-    candidateEmail: v.string(),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity?.();
@@ -243,7 +242,7 @@ export const accept = mutation({
 
     // Create interview session
     const sessionId = await ctx.db.insert("interviewSessions", {
-      candidateEmail: args.candidateEmail,
+      candidateEmail: invitation.candidateEmail,
       jobDescriptionId: invitation.jobDescriptionId,
       status: "scheduled",
       createdAt: Date.now(),
