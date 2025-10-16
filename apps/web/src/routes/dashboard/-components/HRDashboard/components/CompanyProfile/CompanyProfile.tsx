@@ -1,17 +1,17 @@
-import { type Doc, type Id } from "@convex/_generated/dataModel"
-import { Button } from "@workspace/ui/components/button"
-import { Card } from "@workspace/ui/components/card"
-import { Building2, Edit } from "lucide-react"
-import { useTranslation } from "react-i18next"
+import { type Doc, type Id } from "@convex/_generated/dataModel";
+import { Button } from "@workspace/ui/components/button";
+import { Card } from "@workspace/ui/components/card";
+import { Building2, Edit } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface CompanyProfileProps {
-  companyId?: Id<"companies">
-  companyData?: Doc<"companies"> | null
-  onEdit: () => void
+  companyId?: Id<"companies">;
+  companyData?: Doc<"companies"> | null;
+  onEdit: () => void;
 }
 
 export function CompanyProfile({ companyData, onEdit }: CompanyProfileProps) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   if (!companyData) {
     return (
@@ -32,7 +32,7 @@ export function CompanyProfile({ companyData, onEdit }: CompanyProfileProps) {
           </Button>
         </div>
       </Card>
-    )
+    );
   }
 
   return (
@@ -69,5 +69,5 @@ export function CompanyProfile({ companyData, onEdit }: CompanyProfileProps) {
         {t("company.profile.editProfile")}
       </Button>
     </Card>
-  )
+  );
 }

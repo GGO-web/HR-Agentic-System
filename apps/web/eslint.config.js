@@ -1,4 +1,4 @@
-import eslintConfig from "../../packages/eslint-config/eslint.config.js"
+import eslintConfig from "../../packages/eslint-config/eslint.config.js";
 
 export default [
   ...eslintConfig,
@@ -14,4 +14,4 @@ export default [
       "react/no-unescaped-entities": "off",
     },
   },
-]
+];

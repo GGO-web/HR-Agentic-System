@@ -1,80 +1,80 @@
-import { api } from "@convex/_generated/api"
-import { type Id } from "@convex/_generated/dataModel"
-import { useNavigate, useRouter } from "@tanstack/react-router"
-import { Button } from "@workspace/ui/components/button"
-import { LoadingSpinner } from "@workspace/ui/components/shared/loading-spinner"
-import { useQuery, useMutation } from "convex/react"
-import { useState, useEffect } from "react"
-import { useTranslation } from "react-i18next"
+import { api } from "@convex/_generated/api";
+import { type Id } from "@convex/_generated/dataModel";
+import { useNavigate, useRouter } from "@tanstack/react-router";
+import { Button } from "@workspace/ui/components/button";
+import { LoadingSpinner } from "@workspace/ui/components/shared/loading-spinner";
+import { useQuery, useMutation } from "convex/react";
+import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
-import { AudioRecorder } from "./AudioRecorder"
-import { QuestionDisplay } from "./QuestionDisplay"
+import { AudioRecorder } from "./AudioRecorder";
+import { QuestionDisplay } from "./QuestionDisplay";
 
 interface InterviewFlowProps {
-  sessionId: Id<"interviewSessions">
+  sessionId: Id<"interviewSessions">;
 }
 
 export function InterviewFlow({ sessionId }: InterviewFlowProps) {
-  const navigate = useNavigate()
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
-  const [isRecording, setIsRecording] = useState(false)
-  const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const { t } = useTranslation()
+  const navigate = useNavigate();
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { t } = useTranslation();
 
-  const router = useRouter()
+  const router = useRouter();
 
   // Fetch interview session
-  const session = useQuery(api.interviewSessions.getById, { id: sessionId })
+  const session = useQuery(api.interviewSessions.getById, { id: sessionId });
 
   // Fetch job description
   const jobDescription = useQuery(
     api.jobDescriptions.getById,
     session ? { id: session.jobDescriptionId } : "skip",
-  )
+  );
 
   // Fetch questions for the job description
   const questions = useQuery(
     api.interviewQuestions.getByJobDescription,
     session ? { jobDescriptionId: session.jobDescriptionId } : "skip",
-  )
+  );
 
   // Mutations
-  const startSession = useMutation(api.interviewSessions.startSession)
-  const completeSession = useMutation(api.interviewSessions.completeSession)
-  const createResponse = useMutation(api.interviewResponses.create)
+  const startSession = useMutation(api.interviewSessions.startSession);
+  const completeSession = useMutation(api.interviewSessions.completeSession);
+  const createResponse = useMutation(api.interviewResponses.create);
 
   // Start the session if it's not already started
   useEffect(() => {
     if (session && session.status === "scheduled") {
-      void startSession({ id: sessionId })
+      void startSession({ id: sessionId });
     }
-  }, [session, sessionId, startSession])
+  }, [session, sessionId, startSession]);
 
   // Sort questions by order
   const sortedQuestions = questions
     ? [...questions].sort((a, b) => a.order - b.order)
-    : []
+    : [];
 
   // Current question
-  const currentQuestion = sortedQuestions[currentQuestionIndex]
+  const currentQuestion = sortedQuestions[currentQuestionIndex];
 
   // Handle recording complete
   const handleRecordingComplete = (blob: Blob) => {
-    setAudioBlob(blob)
-    setIsRecording(false)
-  }
+    setAudioBlob(blob);
+    setIsRecording(false);
+  };
 
   // Handle submitting the response
   const handleSubmitResponse = async () => {
-    if (!audioBlob || !currentQuestion) return
+    if (!audioBlob || !currentQuestion) return;
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
       // TODO: Implement actual audio upload to cloud storage
       // For now, we'll just use a placeholder URL
-      const audioUrl = `mock-audio-url-${Date.now()}`
+      const audioUrl = `mock-audio-url-${Date.now()}`;
 
       await createResponse({
         interviewSessionId: sessionId,
@@ -82,32 +82,32 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
         audioUrl,
         transcription: undefined, // Will be processed asynchronously
         aiAnalysis: undefined, // Will be processed asynchronously
-      })
+      });
 
       // Move to next question or complete the interview
       if (currentQuestionIndex < sortedQuestions.length - 1) {
-        setCurrentQuestionIndex(currentQuestionIndex + 1)
+        setCurrentQuestionIndex(currentQuestionIndex + 1);
       } else {
-        await completeSession({ id: sessionId })
-        await navigate({ to: router.routesByPath["/dashboard"].fullPath })
+        await completeSession({ id: sessionId });
+        await navigate({ to: router.routesByPath["/dashboard"].fullPath });
       }
 
       // Reset audio blob
-      setAudioBlob(null)
+      setAudioBlob(null);
     } catch (error) {
-      console.error("Failed to submit response:", error)
+      console.error("Failed to submit response:", error);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   // Loading state
   if (!session || !jobDescription || !questions) {
-    return <LoadingSpinner fullScreen text={t("interview.flow.loading")} />
+    return <LoadingSpinner fullScreen text={t("interview.flow.loading")} />;
   }
 
   // Calculate progress
-  const progress = ((currentQuestionIndex + 1) / sortedQuestions.length) * 100
+  const progress = ((currentQuestionIndex + 1) / sortedQuestions.length) * 100;
 
   return (
     <div className="container mx-auto flex min-h-screen flex-col p-6">
@@ -184,5 +184,5 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
         </div>
       )}
     </div>
-  )
+  );
 }

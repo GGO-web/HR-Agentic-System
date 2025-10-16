@@ -1,9 +1,9 @@
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "react-i18next";
 
-import { InvitedJobDescriptions } from "./components/InvitedJobDescriptions/InvitedJobDescriptions"
+import { InvitedJobDescriptions } from "./components/InvitedJobDescriptions/InvitedJobDescriptions";
 
 export function CandidateDashboard() {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <div className="container mx-auto space-y-8 p-6">
@@ -12,5 +12,5 @@ export function CandidateDashboard() {
       {/* Invited Job Descriptions Section */}
       <InvitedJobDescriptions />
     </div>
-  )
+  );
 }

@@ -1,12 +1,12 @@
-import { SignIn } from "@clerk/clerk-react"
-import { createFileRoute, useRouter } from "@tanstack/react-router"
+import { SignIn } from "@clerk/clerk-react";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/sign-in/")({
   component: SignInPage,
-})
+});
 
 function SignInPage() {
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <div className="flex min-h-screen items-center justify-center">
@@ -22,5 +22,5 @@ function SignInPage() {
         />
       </div>
     </div>
-  )
+  );
 }

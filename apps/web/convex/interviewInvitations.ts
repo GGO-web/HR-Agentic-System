@@ -1,37 +1,38 @@
-import { v } from "convex/values"
+import { v } from "convex/values";
 
-import { mutation, query } from "./_generated/server"
+import { mutation, query } from "./_generated/server";
 
 // Utility functions for invitation management
 function generateInvitationToken(): string {
   // Generate a secure random token
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-  let result = ""
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
   for (let i = 0; i < 32; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length))
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
   }
-  return result
+  return result;
 }
 
 function calculateExpirationDate(): number {
-  const now = Date.now()
-  const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000
-  return now + sevenDaysInMs
+  const now = Date.now();
+  const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
+  return now + sevenDaysInMs;
 }
 
 function generateInvitationLink(token: string): string {
   // In production, this would use the actual domain
-  return `${process.env.SITE_URL}/invitation/${token}`
+  return `${process.env.SITE_URL}/invitation/${token}`;
 }
 
 // Mock email service - in production, integrate with a real email service
 async function sendInvitationEmail(data: {
-  candidateName: string
-  candidateEmail: string
-  jobTitle: string
-  companyName: string
-  invitationLink: string
-  personalMessage?: string
+  candidateName: string;
+  candidateEmail: string;
+  jobTitle: string;
+  companyName: string;
+  invitationLink: string;
+  personalMessage?: string;
 }): Promise<void> {
   // Mock implementation - in production, replace with actual email service
   console.log("📧 Invitation email would be sent:", {
@@ -39,7 +40,7 @@ async function sendInvitationEmail(data: {
     subject: `Interview Invitation - ${data.jobTitle} at ${data.companyName}`,
     invitationLink: data.invitationLink,
     personalMessage: data.personalMessage,
-  })
+  });
 }
 
 // Create a new interview invitation
@@ -52,33 +53,33 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     // Get job description and company details for email
-    const jobDescription = await ctx.db.get(args.jobDescriptionId)
+    const jobDescription = await ctx.db.get(args.jobDescriptionId);
     if (!jobDescription) {
-      throw new Error("Job description not found")
+      throw new Error("Job description not found");
     }
 
-    const company = await ctx.db.get(jobDescription.companyId)
+    const company = await ctx.db.get(jobDescription.companyId);
     if (!company) {
-      throw new Error("Company not found")
+      throw new Error("Company not found");
     }
 
     // Check if candidate exists
     const candidate = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", args.candidateEmail))
-      .first()
+      .first();
 
     if (!candidate) {
       throw new Error(
         "Account not found. Please ensure the candidate has registered.",
-      )
+      );
     }
 
     // Check if candidate has the correct role
     if (candidate.role !== "candidate") {
       throw new Error(
         "This email belongs to an HR manager. Only candidates can be invited to interviews.",
-      )
+      );
     }
 
     // Check if candidate is already invited for this job
@@ -88,22 +89,22 @@ export const create = mutation({
         q.eq("jobDescriptionId", args.jobDescriptionId),
       )
       .filter((q) => q.eq(q.field("candidateEmail"), args.candidateEmail))
-      .collect()
+      .collect();
 
     const isAlreadyInvited = existingInvitations.some(
       (invitation) =>
         invitation.status === "pending" || invitation.status === "accepted",
-    )
+    );
 
     if (isAlreadyInvited) {
       throw new Error(
         "This candidate has already been invited for this position.",
-      )
+      );
     }
 
     // Generate unique invitation token
-    const invitationToken = generateInvitationToken()
-    const expiresAt = calculateExpirationDate()
+    const invitationToken = generateInvitationToken();
+    const expiresAt = calculateExpirationDate();
 
     const invitationId = await ctx.db.insert("interviewInvitations", {
       jobDescriptionId: args.jobDescriptionId,
@@ -114,7 +115,7 @@ export const create = mutation({
       expiresAt,
       createdAt: Date.now(),
       updatedAt: Date.now(),
-    })
+    });
 
     // Send invitation email (in production, this would be handled by a background job)
     try {
@@ -125,15 +126,15 @@ export const create = mutation({
         companyName: company.name,
         invitationLink: generateInvitationLink(invitationToken),
         personalMessage: args.personalMessage,
-      })
+      });
     } catch (error) {
-      console.error("Failed to send invitation email:", error)
+      console.error("Failed to send invitation email:", error);
       // Don't fail the mutation if email fails, but log the error
     }
 
-    return invitationId
+    return invitationId;
   },
-})
+});
 
 // Get invitation by token
 export const getByToken = query({
@@ -144,17 +145,17 @@ export const getByToken = query({
       .withIndex("by_invitation_token", (q) =>
         q.eq("invitationToken", args.token),
       )
-      .first()
+      .first();
 
     if (!invitation) {
-      return null
+      return null;
     }
 
     // Fetch candidate information
     const candidate = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", invitation.candidateEmail))
-      .first()
+      .first();
 
     // Check if invitation is expired
     if (invitation.expiresAt < Date.now() && invitation.status === "pending") {
@@ -163,15 +164,15 @@ export const getByToken = query({
         ...invitation,
         status: "expired",
         candidateName: candidate?.name || "Candidate",
-      }
+      };
     }
 
     return {
       ...invitation,
       candidateName: candidate?.name || "Candidate",
-    }
+    };
   },
-})
+});
 
 // Get invitations by job description
 export const getByJobDescription = query({
@@ -182,9 +183,9 @@ export const getByJobDescription = query({
       .withIndex("by_job_description", (q) =>
         q.eq("jobDescriptionId", args.jobDescriptionId),
       )
-      .collect()
+      .collect();
   },
-})
+});
 
 // Get invitations by candidate email
 export const getByCandidateEmail = query({
@@ -195,9 +196,9 @@ export const getByCandidateEmail = query({
       .withIndex("by_candidate_email", (q) =>
         q.eq("candidateEmail", args.candidateEmail),
       )
-      .collect()
+      .collect();
   },
-})
+});
 
 // Accept invitation
 export const accept = mutation({
@@ -206,18 +207,18 @@ export const accept = mutation({
     candidateEmail: v.string(),
   },
   handler: async (ctx, args) => {
-    const invitation = await ctx.db.get(args.invitationId)
+    const invitation = await ctx.db.get(args.invitationId);
 
     if (!invitation) {
-      throw new Error("Invitation not found")
+      throw new Error("Invitation not found");
     }
 
     if (invitation.status !== "pending") {
-      throw new Error("Invitation is no longer pending")
+      throw new Error("Invitation is no longer pending");
     }
 
     if (invitation.expiresAt < Date.now()) {
-      throw new Error("Invitation has expired")
+      throw new Error("Invitation has expired");
     }
 
     // Update invitation status
@@ -225,7 +226,7 @@ export const accept = mutation({
       status: "accepted",
       acceptedAt: Date.now(),
       updatedAt: Date.now(),
-    })
+    });
 
     // Create interview session
     const sessionId = await ctx.db.insert("interviewSessions", {
@@ -234,35 +235,35 @@ export const accept = mutation({
       status: "scheduled",
       createdAt: Date.now(),
       updatedAt: Date.now(),
-    })
+    });
 
-    return { invitationId: args.invitationId, sessionId }
+    return { invitationId: args.invitationId, sessionId };
   },
-})
+});
 
 // Decline invitation
 export const decline = mutation({
   args: { invitationId: v.id("interviewInvitations") },
   handler: async (ctx, args) => {
-    const invitation = await ctx.db.get(args.invitationId)
+    const invitation = await ctx.db.get(args.invitationId);
 
     if (!invitation) {
-      throw new Error("Invitation not found")
+      throw new Error("Invitation not found");
     }
 
     if (invitation.status !== "pending") {
-      throw new Error("Invitation is no longer pending")
+      throw new Error("Invitation is no longer pending");
     }
 
     await ctx.db.patch(args.invitationId, {
       status: "declined",
       declinedAt: Date.now(),
       updatedAt: Date.now(),
-    })
+    });
 
-    return args.invitationId
+    return args.invitationId;
   },
-})
+});
 
 // Get job descriptions for candidate (invited ones)
 export const getInvitedJobDescriptions = query({
@@ -274,14 +275,14 @@ export const getInvitedJobDescriptions = query({
         q.eq("candidateEmail", args.candidateEmail),
       )
       .filter((q) => q.eq(q.field("status"), "accepted"))
-      .collect()
+      .collect();
 
     const jobDescriptions = await Promise.all(
       invitations.map(async (invitation) => {
-        const jobDescription = await ctx.db.get(invitation.jobDescriptionId)
+        const jobDescription = await ctx.db.get(invitation.jobDescriptionId);
         const company = jobDescription
           ? await ctx.db.get(jobDescription.companyId)
-          : null
+          : null;
 
         // Find the interview session for this invitation
         const interviewSession = await ctx.db
@@ -292,20 +293,20 @@ export const getInvitedJobDescriptions = query({
           .filter((q) =>
             q.eq(q.field("jobDescriptionId"), invitation.jobDescriptionId),
           )
-          .first()
+          .first();
 
         return {
           ...jobDescription,
           company,
           invitation,
           interviewSession,
-        }
+        };
       }),
-    )
+    );
 
-    return jobDescriptions.filter(Boolean)
+    return jobDescriptions.filter(Boolean);
   },
-})
+});
 
 // Update invitation status
 export const updateStatus = mutation({
@@ -322,17 +323,17 @@ export const updateStatus = mutation({
     await ctx.db.patch(args.invitationId, {
       status: args.status,
       updatedAt: Date.now(),
-    })
+    });
 
-    return args.invitationId
+    return args.invitationId;
   },
-})
+});
 
 // Delete invitation
 export const remove = mutation({
   args: { invitationId: v.id("interviewInvitations") },
   handler: async (ctx, args) => {
-    await ctx.db.delete(args.invitationId)
-    return args.invitationId
+    await ctx.db.delete(args.invitationId);
+    return args.invitationId;
   },
-})
+});

@@ -1,7 +1,7 @@
-import { defineSchema, defineTable } from "convex/server"
-import { v } from "convex/values"
+import { defineSchema, defineTable } from "convex/server";
+import { v } from "convex/values";
 
-import { UserRole } from "@/types/userRole"
+import { UserRole } from "@/types/userRole";
 
 export default defineSchema({
   // Companies table to store company information
@@ -118,4 +118,4 @@ export default defineSchema({
     .index("by_candidate_email", ["candidateEmail"])
     .index("by_invitation_token", ["invitationToken"])
     .index("by_status", ["status"]),
-})
+});

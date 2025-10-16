@@ -1,19 +1,19 @@
-import { type Id, type Doc } from "@convex/_generated/dataModel"
-import { Button } from "@workspace/ui/components/button"
-import { cn } from "@workspace/ui/lib/utils"
-import { Edit2, UserPlus } from "lucide-react"
-import { useTranslation } from "react-i18next"
+import { type Id, type Doc } from "@convex/_generated/dataModel";
+import { Button } from "@workspace/ui/components/button";
+import { cn } from "@workspace/ui/lib/utils";
+import { Edit2, UserPlus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
-import { DeleteJobDescriptionButton } from "../DeleteJobDescriptionButton/DeleteJobDescriptionButton"
-import { InviteCandidateForm } from "../InviteCandidateForm/InviteCandidateForm"
-import { JobDescriptionForm } from "../JobDescriptionForm/JobDescriptionForm"
+import { DeleteJobDescriptionButton } from "../DeleteJobDescriptionButton/DeleteJobDescriptionButton";
+import { InviteCandidateForm } from "../InviteCandidateForm/InviteCandidateForm";
+import { JobDescriptionForm } from "../JobDescriptionForm/JobDescriptionForm";
 
 interface JobDescriptionListProps {
-  jobDescriptions: Doc<"jobDescriptions">[]
-  selectedJobId: Id<"jobDescriptions"> | null
-  onSelect: (id: Id<"jobDescriptions">) => void
-  onJobDeleted?: (deletedJobId: Id<"jobDescriptions">) => void
-  onJobUpdated?: () => void
+  jobDescriptions: Doc<"jobDescriptions">[];
+  selectedJobId: Id<"jobDescriptions"> | null;
+  onSelect: (id: Id<"jobDescriptions">) => void;
+  onJobDeleted?: (deletedJobId: Id<"jobDescriptions">) => void;
+  onJobUpdated?: () => void;
 }
 
 export function JobDescriptionList({
@@ -23,7 +23,7 @@ export function JobDescriptionList({
   onJobDeleted,
   onJobUpdated,
 }: JobDescriptionListProps) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <div className="space-y-2">
@@ -85,5 +85,5 @@ export function JobDescriptionList({
         </div>
       ))}
     </div>
-  )
+  );
 }

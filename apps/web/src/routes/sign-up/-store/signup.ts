@@ -1,11 +1,11 @@
-import { create } from "zustand"
-import { persist } from "zustand/middleware"
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
-import { type UserRole } from "@/types/userRole"
+import { type UserRole } from "@/types/userRole";
 
 interface SignupStore {
-  selectedRole: UserRole | null
-  setSelectedRole: (role?: UserRole | null) => void
+  selectedRole: UserRole | null;
+  setSelectedRole: (role?: UserRole | null) => void;
 }
 
 export const signupStore = create<SignupStore>()(
@@ -21,4 +21,4 @@ export const signupStore = create<SignupStore>()(
       }),
     },
   ),
-)
+);

@@ -1,30 +1,30 @@
-import { api } from "@convex/_generated/api"
-import { useRouter } from "@tanstack/react-router"
-import { Button } from "@workspace/ui/components/button"
+import { api } from "@convex/_generated/api";
+import { useRouter } from "@tanstack/react-router";
+import { Button } from "@workspace/ui/components/button";
 import {
   Card,
   CardTitle,
   CardHeader,
   CardContent,
   CardDescription,
-} from "@workspace/ui/components/card"
-import { useQuery } from "convex/react"
-import { Building, Calendar, FileText } from "lucide-react"
-import React from "react"
-import { useTranslation } from "react-i18next"
+} from "@workspace/ui/components/card";
+import { useQuery } from "convex/react";
+import { Building, Calendar, FileText } from "lucide-react";
+import React from "react";
+import { useTranslation } from "react-i18next";
 
-import { useAuth } from "@/hooks/useAuth"
+import { useAuth } from "@/hooks/useAuth";
 
 export const InvitedJobDescriptions = () => {
-  const { userData } = useAuth()
-  const { t } = useTranslation()
-  const router = useRouter()
+  const { userData } = useAuth();
+  const { t } = useTranslation();
+  const router = useRouter();
 
   // Fetch invited job descriptions for the candidate
   const invitedJobDescriptions = useQuery(
     api.interviewInvitations.getInvitedJobDescriptions,
     userData ? { candidateEmail: userData.email } : "skip",
-  )
+  );
 
   return (
     invitedJobDescriptions &&
@@ -74,7 +74,7 @@ export const InvitedJobDescriptions = () => {
                             params: {
                               sessionId: item.interviewSession?._id ?? "",
                             },
-                          })
+                          });
                         }}
                       >
                         {t(
@@ -96,5 +96,5 @@ export const InvitedJobDescriptions = () => {
         </CardContent>
       </Card>
     )
-  )
-}
+  );
+};

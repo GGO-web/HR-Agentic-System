@@ -1,25 +1,25 @@
-import { Button } from "@workspace/ui/components/button"
+import { Button } from "@workspace/ui/components/button";
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@workspace/ui/components/form"
-import { Input } from "@workspace/ui/components/input"
-import { ImagePlus, X } from "lucide-react"
-import React from "react"
-import { useDropzone } from "react-dropzone"
-import { useFormContext } from "react-hook-form"
-import { Trans, useTranslation } from "react-i18next"
-import { toast } from "react-toastify"
+} from "@workspace/ui/components/form";
+import { Input } from "@workspace/ui/components/input";
+import { ImagePlus, X } from "lucide-react";
+import React from "react";
+import { useDropzone } from "react-dropzone";
+import { useFormContext } from "react-hook-form";
+import { Trans, useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
 
-import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from "@/constants/s3"
+import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from "@/constants/s3";
 
 interface UploadButtonProps {
-  defaultPreview?: string | ArrayBuffer | null
-  onUpload: (file: File) => void
-  onRemove?: () => void | Promise<void>
+  defaultPreview?: string | ArrayBuffer | null;
+  onUpload: (file: File) => void;
+  onRemove?: () => void | Promise<void>;
 }
 
 export const UploadButtton: React.FC<UploadButtonProps> = ({
@@ -27,34 +27,34 @@ export const UploadButtton: React.FC<UploadButtonProps> = ({
   onUpload,
   onRemove,
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   const [preview, setPreview] = React.useState<string | ArrayBuffer | null>(
     defaultPreview ?? null,
-  )
+  );
 
-  const form = useFormContext()
+  const form = useFormContext();
 
   const onDrop = React.useCallback(
     (acceptedFiles: File[]) => {
-      if (!acceptedFiles[0]) return
+      if (!acceptedFiles[0]) return;
 
-      const reader = new FileReader()
+      const reader = new FileReader();
       try {
-        reader.onload = () => setPreview(reader.result)
-        reader.readAsDataURL(acceptedFiles[0])
-        form.setValue("image", acceptedFiles[0])
-        form.clearErrors("image")
+        reader.onload = () => setPreview(reader.result);
+        reader.readAsDataURL(acceptedFiles[0]);
+        form.setValue("image", acceptedFiles[0]);
+        form.clearErrors("image");
 
-        onUpload(acceptedFiles[0])
+        onUpload(acceptedFiles[0]);
       } catch (error) {
-        console.error(error)
-        setPreview(null)
-        form.resetField("image")
+        console.error(error);
+        setPreview(null);
+        form.resetField("image");
       }
     },
     [form, onUpload],
-  )
+  );
 
   const { getRootProps, getInputProps, isDragActive, fileRejections } =
     useDropzone({
@@ -62,21 +62,21 @@ export const UploadButtton: React.FC<UploadButtonProps> = ({
       maxFiles: 1,
       maxSize: MAX_IMAGE_SIZE,
       accept: Object.fromEntries(ALLOWED_IMAGE_TYPES.map((type) => [type, []])),
-    })
+    });
 
   const handleRemoveImage = async () => {
     try {
       if (onRemove) {
-        await onRemove()
+        await onRemove();
       }
-      setPreview(null)
+      setPreview(null);
 
-      toast.success(t("uploadButton.removeImage.success"))
+      toast.success(t("uploadButton.removeImage.success"));
     } catch (error) {
-      console.error(error)
-      toast.error(t("uploadButton.removeImage.error"))
+      console.error(error);
+      toast.error(t("uploadButton.removeImage.error"));
     }
-  }
+  };
 
   return (
     <FormField
@@ -115,8 +115,8 @@ export const UploadButtton: React.FC<UploadButtonProps> = ({
                       variant="destructive"
                       className="absolute top-2 right-2 flex items-center justify-center rounded-full bg-red-500 p-2 hover:bg-red-600"
                       onClick={async (e) => {
-                        e.stopPropagation()
-                        await handleRemoveImage()
+                        e.stopPropagation();
+                        await handleRemoveImage();
                       }}
                     >
                       <X className="h-3 w-3" />
@@ -149,5 +149,5 @@ export const UploadButtton: React.FC<UploadButtonProps> = ({
         </FormItem>
       )}
     />
-  )
-}
+  );
+};

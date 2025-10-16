@@ -1,14 +1,14 @@
-import i18n from "i18next"
-import LanguageDetector from "i18next-browser-languagedetector"
-import { initReactI18next } from "react-i18next"
+import i18n from "i18next";
+import LanguageDetector from "i18next-browser-languagedetector";
+import { initReactI18next } from "react-i18next";
 
-import en from "./locales/en.json"
+import en from "./locales/en.json";
 
 const resources = {
   en: {
     translation: en,
   },
-}
+};
 
 void i18n
   .use(LanguageDetector)
@@ -24,6 +24,6 @@ void i18n
       order: ["localStorage", "navigator"],
       caches: ["localStorage"],
     },
-  })
+  });
 
-export default i18n
+export default i18n;

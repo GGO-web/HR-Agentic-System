@@ -1,4 +1,4 @@
-import { z } from "zod"
+import { z } from "zod";
 
 export const jobDescriptionSchema = z.object({
   title: z
@@ -9,6 +9,6 @@ export const jobDescriptionSchema = z.object({
     .string()
     .max(2000, "Job description must be less than 2000 characters"),
   files: z.array(z.any()).optional(),
-})
+});
 
-export type JobDescriptionFormData = z.infer<typeof jobDescriptionSchema>
+export type JobDescriptionFormData = z.infer<typeof jobDescriptionSchema>;

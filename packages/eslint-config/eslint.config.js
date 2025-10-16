@@ -129,7 +129,7 @@ export default [
           arrowParens: "always",
           bracketSameLine: false,
           jsxSingleQuote: false,
-          endOfLine: "crlf",
+          endOfLine: "auto",
           plugins: ["prettier-plugin-tailwindcss"],
         },
       ],

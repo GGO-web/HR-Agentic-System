@@ -1,6 +1,6 @@
-import { type Doc } from "@convex/_generated/dataModel"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Button } from "@workspace/ui/components/button"
+import { type Doc } from "@convex/_generated/dataModel";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@workspace/ui/components/button";
 import {
   Dialog,
   DialogContent,
@@ -8,34 +8,34 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@workspace/ui/components/dialog"
+} from "@workspace/ui/components/dialog";
 import {
   Form,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@workspace/ui/components/form"
-import { Input } from "@workspace/ui/components/input"
-import { Textarea } from "@workspace/ui/components/textarea"
-import { UserPlus } from "lucide-react"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { useTranslation } from "react-i18next"
-import { toast } from "react-toastify"
+} from "@workspace/ui/components/form";
+import { Input } from "@workspace/ui/components/input";
+import { Textarea } from "@workspace/ui/components/textarea";
+import { UserPlus } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
 
-import { useCreateInvitationMutation } from "./hooks/useCreateInvitationMutation"
+import { useCreateInvitationMutation } from "./hooks/useCreateInvitationMutation";
 import {
   type InviteCandidateFormData,
   inviteCandidateSchema,
-} from "./schema/inviteCandidate"
+} from "./schema/inviteCandidate";
 
-import { useAuth } from "@/hooks/useAuth"
+import { useAuth } from "@/hooks/useAuth";
 
 interface InviteCandidateFormProps {
-  job: Doc<"jobDescriptions">
-  trigger?: React.ReactNode
-  onSuccess?: () => void
+  job: Doc<"jobDescriptions">;
+  trigger?: React.ReactNode;
+  onSuccess?: () => void;
 }
 
 export function InviteCandidateForm({
@@ -43,12 +43,12 @@ export function InviteCandidateForm({
   trigger,
   onSuccess,
 }: InviteCandidateFormProps) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
   const { mutateAsync: createInvitation, isPending: isCreatingInvitation } =
-    useCreateInvitationMutation()
-  const { t } = useTranslation()
+    useCreateInvitationMutation();
+  const { t } = useTranslation();
 
-  const { userData } = useAuth()
+  const { userData } = useAuth();
 
   const form = useForm<InviteCandidateFormData>({
     resolver: zodResolver(inviteCandidateSchema),
@@ -56,41 +56,41 @@ export function InviteCandidateForm({
       candidateEmail: "",
       message: "",
     },
-  })
+  });
 
   const onSubmit = async (data: InviteCandidateFormData) => {
     try {
-      if (!userData) return
+      if (!userData) return;
 
       await createInvitation({
         jobDescriptionId: job._id,
         candidateEmail: data.candidateEmail,
         personalMessage: data.message,
         invitedBy: userData?._id,
-      })
+      });
 
-      toast.success(t("dashboard.hr.inviteCandidate.actions.success"))
-      form.reset()
-      setOpen(false)
-      onSuccess?.()
+      toast.success(t("dashboard.hr.inviteCandidate.actions.success"));
+      form.reset();
+      setOpen(false);
+      onSuccess?.();
     } catch (error) {
-      console.log(error)
-      console.error("Error sending invitation:", error)
+      console.log(error);
+      console.error("Error sending invitation:", error);
 
       // Handle specific error messages
-      const errorMessage = error instanceof Error ? error.message : ""
+      const errorMessage = error instanceof Error ? error.message : "";
 
       if (errorMessage.includes("Account not found")) {
-        toast.error(t("dashboard.hr.inviteCandidate.actions.accountNotFound"))
+        toast.error(t("dashboard.hr.inviteCandidate.actions.accountNotFound"));
       } else if (errorMessage.includes("HR manager")) {
-        toast.error(t("dashboard.hr.inviteCandidate.actions.invalidRole"))
+        toast.error(t("dashboard.hr.inviteCandidate.actions.invalidRole"));
       } else if (errorMessage.includes("already been invited")) {
-        toast.error(t("dashboard.hr.inviteCandidate.actions.alreadyInvited"))
+        toast.error(t("dashboard.hr.inviteCandidate.actions.alreadyInvited"));
       } else {
-        toast.error(t("dashboard.hr.inviteCandidate.actions.error"))
+        toast.error(t("dashboard.hr.inviteCandidate.actions.error"));
       }
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -178,5 +178,5 @@ export function InviteCandidateForm({
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

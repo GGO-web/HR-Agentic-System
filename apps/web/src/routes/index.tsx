@@ -1,19 +1,19 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router"
-import { Link } from "@tanstack/react-router"
-import { Button } from "@workspace/ui/components/button"
-import { FileText, Mic, GitBranch } from "lucide-react"
-import { useTranslation } from "react-i18next"
+import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
+import { Button } from "@workspace/ui/components/button";
+import { FileText, Mic, GitBranch } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
-import { useAuth } from "@/hooks/useAuth"
+import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
-})
+});
 
 function HomePage() {
-  const { isSignedIn } = useAuth()
-  const router = useRouter()
-  const { t } = useTranslation()
+  const { isSignedIn } = useAuth();
+  const router = useRouter();
+  const { t } = useTranslation();
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -96,5 +96,5 @@ function HomePage() {
         </div>
       </section>
     </div>
-  )
+  );
 }

@@ -1,69 +1,69 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { Badge } from "@workspace/ui/components/badge"
-import { Button } from "@workspace/ui/components/button"
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Badge } from "@workspace/ui/components/badge";
+import { Button } from "@workspace/ui/components/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@workspace/ui/components/card"
-import { CheckCircle, XCircle, Clock, AlertCircle } from "lucide-react"
-import { useTranslation } from "react-i18next"
-import { toast } from "react-toastify"
+} from "@workspace/ui/components/card";
+import { CheckCircle, XCircle, Clock, AlertCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
 
-import { useAcceptInvitationMutation } from "./-hooks/useAcceptInvitationMutation"
-import { useDeclineInvitationMutation } from "./-hooks/useDeclineInvitationMutation"
-import { useGetInvitationByTokenQuery } from "./-hooks/useGetInvitationByTokenQuery"
+import { useAcceptInvitationMutation } from "./-hooks/useAcceptInvitationMutation";
+import { useDeclineInvitationMutation } from "./-hooks/useDeclineInvitationMutation";
+import { useGetInvitationByTokenQuery } from "./-hooks/useGetInvitationByTokenQuery";
 
 export const Route = createFileRoute("/invitation/$token/")({
   component: InvitationPage,
-})
+});
 
 function InvitationPage() {
-  const { token } = Route.useParams()
-  const navigate = useNavigate()
-  const { t } = useTranslation()
+  const { token } = Route.useParams();
+  const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const {
     data: invitation,
     isLoading: isLoadingInvitation,
     error: invitationError,
-  } = useGetInvitationByTokenQuery(token)
+  } = useGetInvitationByTokenQuery(token);
 
-  const acceptInvitation = useAcceptInvitationMutation()
-  const declineInvitation = useDeclineInvitationMutation()
+  const acceptInvitation = useAcceptInvitationMutation();
+  const declineInvitation = useDeclineInvitationMutation();
 
   const handleAccept = async () => {
-    if (isLoadingInvitation || !invitation) return
+    if (isLoadingInvitation || !invitation) return;
 
     try {
       await acceptInvitation.mutateAsync({
         invitationId: invitation._id,
         candidateEmail: invitation.candidateEmail,
-      })
-      toast.success(t("invitation.actions.acceptSuccess"))
+      });
+      toast.success(t("invitation.actions.acceptSuccess"));
 
-      await navigate({ to: "/dashboard" })
+      await navigate({ to: "/dashboard" });
     } catch (error) {
-      console.error("Error accepting invitation:", error)
-      toast.error(t("invitation.actions.acceptError"))
+      console.error("Error accepting invitation:", error);
+      toast.error(t("invitation.actions.acceptError"));
     }
-  }
+  };
 
   const handleDecline = async () => {
-    if (isLoadingInvitation || !invitation) return
+    if (isLoadingInvitation || !invitation) return;
 
     try {
       await declineInvitation.mutateAsync({
         invitationId: invitation._id,
-      })
-      toast.success(t("invitation.actions.declineSuccess"))
+      });
+      toast.success(t("invitation.actions.declineSuccess"));
     } catch (error) {
-      console.error("Error declining invitation:", error)
-      toast.error(t("invitation.actions.declineError"))
+      console.error("Error declining invitation:", error);
+      toast.error(t("invitation.actions.declineError"));
     }
-  }
+  };
 
   if (
     acceptInvitation.isPending ||
@@ -79,7 +79,7 @@ function InvitationPage() {
           </p>
         </div>
       </div>
-    )
+    );
   }
 
   if (invitationError || !invitation) {
@@ -95,11 +95,11 @@ function InvitationPage() {
           </CardHeader>
         </Card>
       </div>
-    )
+    );
   }
 
-  const isExpired = invitation.expiresAt < Date.now()
-  const isPending = invitation.status === "pending"
+  const isExpired = invitation.expiresAt < Date.now();
+  const isPending = invitation.status === "pending";
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -223,5 +223,5 @@ function InvitationPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

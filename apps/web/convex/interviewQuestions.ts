@@ -1,9 +1,9 @@
-import { v } from "convex/values"
+import { v } from "convex/values";
 
-import { internal } from "./_generated/api"
-import { type Doc } from "./_generated/dataModel"
-import { action, mutation, query } from "./_generated/server"
-import { questionsService } from "./services/questions/questions.service"
+import { internal } from "./_generated/api";
+import { type Doc } from "./_generated/dataModel";
+import { action, mutation, query } from "./_generated/server";
+import { questionsService } from "./services/questions/questions.service";
 
 // Create a new interview question
 export const create = mutation({
@@ -21,11 +21,11 @@ export const create = mutation({
       isAIGenerated: args.isAIGenerated,
       createdAt: Date.now(),
       updatedAt: Date.now(),
-    })
+    });
 
-    return questionId
+    return questionId;
   },
-})
+});
 
 // Get questions by job description ID
 export const getByJobDescription = query({
@@ -36,17 +36,17 @@ export const getByJobDescription = query({
       .withIndex("by_job_description", (q) =>
         q.eq("jobDescriptionId", args.jobDescriptionId),
       )
-      .collect()
+      .collect();
   },
-})
+});
 
 // Get question by ID
 export const getById = query({
   args: { id: v.id("interviewQuestions") },
   handler: async (ctx, args) => {
-    return await ctx.db.get(args.id)
+    return await ctx.db.get(args.id);
   },
-})
+});
 
 // Update question
 export const update = mutation({
@@ -56,23 +56,23 @@ export const update = mutation({
     order: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const { id, ...updates } = args
+    const { id, ...updates } = args;
 
     // Only include fields that were provided
-    const fieldsToUpdate = { ...updates, updatedAt: Date.now() }
+    const fieldsToUpdate = { ...updates, updatedAt: Date.now() };
 
-    await ctx.db.patch(id, fieldsToUpdate)
-    return id
+    await ctx.db.patch(id, fieldsToUpdate);
+    return id;
   },
-})
+});
 
 // Delete question
 export const remove = mutation({
   args: { id: v.id("interviewQuestions") },
   handler: async (ctx, args) => {
-    await ctx.db.delete(args.id)
+    await ctx.db.delete(args.id);
   },
-})
+});
 
 export const actionGenerateAndSaveAIQuestions = action({
   args: {
@@ -85,14 +85,14 @@ export const actionGenerateAndSaveAIQuestions = action({
     const response = await questionsService.generateQuestions(
       args.title,
       args.description,
-    )
+    );
 
     if (!response.ok) {
-      throw new Error(`Error generating AI questions: ${response.statusText}`)
+      throw new Error(`Error generating AI questions: ${response.statusText}`);
     }
 
-    const data = await response.json()
-    const aiQuestions = data.questions // assuming returns array
+    const data = await response.json();
+    const aiQuestions = data.questions; // assuming returns array
 
     // 2. Save to Convex DB inside the action using a mutation
     const questionIds = await Promise.all(
@@ -104,11 +104,11 @@ export const actionGenerateAndSaveAIQuestions = action({
           isAIGenerated: true,
         }),
       ),
-    )
+    );
 
-    return questionIds
+    return questionIds;
   },
-})
+});
 
 export const deleteByJobDescription = mutation({
   args: { jobDescriptionId: v.id("jobDescriptions") },
@@ -118,7 +118,7 @@ export const deleteByJobDescription = mutation({
       .withIndex("by_job_description", (q) =>
         q.eq("jobDescriptionId", args.jobDescriptionId),
       )
-      .collect()
+      .collect();
 
     await Promise.all(
       questions.map((question: Doc<"interviewQuestions">) =>
@@ -126,6 +126,6 @@ export const deleteByJobDescription = mutation({
           id: question._id,
         }),
       ),
-    )
+    );
   },
-})
+});

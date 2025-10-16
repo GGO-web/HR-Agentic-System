@@ -1,17 +1,17 @@
 interface EmailData {
-  to: string
-  subject: string
-  html: string
-  text?: string
+  to: string;
+  subject: string;
+  html: string;
+  text?: string;
 }
 
 interface InvitationEmailData {
-  candidateName: string
-  candidateEmail: string
-  jobTitle: string
-  companyName: string
-  invitationLink: string
-  personalMessage?: string
+  candidateName: string;
+  candidateEmail: string;
+  jobTitle: string;
+  companyName: string;
+  invitationLink: string;
+  personalMessage?: string;
 }
 
 /**
@@ -19,13 +19,13 @@ interface InvitationEmailData {
  * like SendGrid, Resend, or AWS SES
  */
 export class EmailService {
-  private static instance: EmailService
+  private static instance: EmailService;
 
   static getInstance(): EmailService {
     if (!EmailService.instance) {
-      EmailService.instance = new EmailService()
+      EmailService.instance = new EmailService();
     }
-    return EmailService.instance
+    return EmailService.instance;
   }
 
   async sendEmail(emailData: EmailData): Promise<void> {
@@ -34,24 +34,24 @@ export class EmailService {
       to: emailData.to,
       subject: emailData.subject,
       html: emailData.html,
-    })
+    });
 
     // Simulate async operation
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 
   async sendInvitationEmail(data: InvitationEmailData): Promise<void> {
-    const subject = `Interview Invitation - ${data.jobTitle} at ${data.companyName}`
+    const subject = `Interview Invitation - ${data.jobTitle} at ${data.companyName}`;
 
-    const html = this.generateInvitationEmailHTML(data)
-    const text = this.generateInvitationEmailText(data)
+    const html = this.generateInvitationEmailHTML(data);
+    const text = this.generateInvitationEmailText(data);
 
     await this.sendEmail({
       to: data.candidateEmail,
       subject,
       html,
       text,
-    })
+    });
   }
 
   private generateInvitationEmailHTML(data: InvitationEmailData): string {
@@ -107,7 +107,7 @@ export class EmailService {
           </div>
         </body>
       </html>
-    `
+    `;
   }
 
   private generateInvitationEmailText(data: InvitationEmailData): string {
@@ -127,8 +127,8 @@ This invitation will expire in 7 days. If you have any questions, please don't h
 
 Best regards,
 ${data.companyName}
-    `.trim()
+    `.trim();
   }
 }
 
-export const emailService = EmailService.getInstance()
+export const emailService = EmailService.getInstance();
