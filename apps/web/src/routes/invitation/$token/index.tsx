@@ -149,7 +149,7 @@ function InvitationPage() {
               <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
                 <h3 className="mb-2 font-semibold text-blue-900">
                   {t("invitation.greeting", {
-                    name: invitation.candidateName || "Candidate",
+                    name: invitation.candidateName || t("common.candidate"),
                   })}
                 </h3>
                 <p className="text-blue-800">{t("invitation.message")}</p>

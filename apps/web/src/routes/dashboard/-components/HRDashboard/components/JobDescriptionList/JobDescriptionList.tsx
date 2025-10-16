@@ -57,7 +57,7 @@ export function JobDescriptionList({
                     size="sm"
                     variant="ghost"
                     className="size-8 p-0"
-                    title="Invite Candidate"
+                    title={t("dashboard.hr.inviteCandidate.button")}
                   >
                     <UserPlus className="size-4" />
                   </Button>
