@@ -10,7 +10,7 @@ import { CompanyProfileForm } from "./components/CompanyProfile/components/Compa
 import { useJobDescriptionsQuery } from "./components/JobDescriptionForm/hooks/useJobDescriptionsQuery";
 import { JobDescriptionForm } from "./components/JobDescriptionForm/JobDescriptionForm";
 import { JobDescriptionList } from "./components/JobDescriptionList/JobDescriptionList";
-import { useGenerateInverviewQuestionsMutation } from "./hooks/useGenerateInverviewQuestionsMutation";
+import { useGenerateInterviewQuestionsMutation } from "./hooks/useGenerateInterviewQuestionsMutation";
 import { useInterviewQuestionsQuery } from "./hooks/useInterviewQuestionsQuery";
 
 import { useAuth } from "@/hooks/useAuth";
@@ -33,7 +33,7 @@ export function HRDashboard() {
 
   // Generate AI questions mutation
   const { mutateAsync: generateQuestions, isPending: isGeneratingQuestions } =
-    useGenerateInverviewQuestionsMutation();
+    useGenerateInterviewQuestionsMutation();
 
   // Handle job selection
   const handleJobSelect = (jobId: Id<"jobDescriptions">) => {

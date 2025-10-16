@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
-export const useGenerateInverviewQuestionsMutation = () => {
+export const useGenerateInterviewQuestionsMutation = () => {
   const { t } = useTranslation();
 
   return useMutation({
