@@ -1,25 +1,24 @@
-import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+
+import { mutation, query } from "./_generated/server";
 
 // Create a new interview session
 export const create = mutation({
   args: {
-    candidateId: v.id("users"),
+    candidateEmail: v.string(),
     jobDescriptionId: v.id("jobDescriptions"),
     scheduledAt: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const sessionId = await ctx.db.insert("interviewSessions", {
-      candidateId: args.candidateId,
+      candidateEmail: args.candidateEmail,
       jobDescriptionId: args.jobDescriptionId,
       status: "scheduled",
       scheduledAt: args.scheduledAt,
-      startedAt: null,
-      completedAt: null,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });
-    
+
     return sessionId;
   },
 });
@@ -34,11 +33,13 @@ export const getById = query({
 
 // Get interview sessions by candidate ID
 export const getByCandidate = query({
-  args: { candidateId: v.id("users") },
+  args: { candidateEmail: v.string() },
   handler: async (ctx, args) => {
     return await ctx.db
       .query("interviewSessions")
-      .withIndex("by_candidate", (q) => q.eq("candidateId", args.candidateId))
+      .withIndex("by_candidate", (q) =>
+        q.eq("candidateEmail", args.candidateEmail),
+      )
       .collect();
   },
 });
@@ -49,7 +50,9 @@ export const getByJobDescription = query({
   handler: async (ctx, args) => {
     return await ctx.db
       .query("interviewSessions")
-      .withIndex("by_job_description", (q) => q.eq("jobDescriptionId", args.jobDescriptionId))
+      .withIndex("by_job_description", (q) =>
+        q.eq("jobDescriptionId", args.jobDescriptionId),
+      )
       .collect();
   },
 });
@@ -63,7 +66,7 @@ export const startSession = mutation({
       startedAt: Date.now(),
       updatedAt: Date.now(),
     });
-    
+
     return args.id;
   },
 });
@@ -77,7 +80,7 @@ export const completeSession = mutation({
       completedAt: Date.now(),
       updatedAt: Date.now(),
     });
-    
+
     return args.id;
   },
 });

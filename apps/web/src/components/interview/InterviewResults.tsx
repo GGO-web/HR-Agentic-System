@@ -1,48 +1,48 @@
-import { api } from "@convex/_generated/api"
-import { type Id } from "@convex/_generated/dataModel"
-import { Link, useRouter } from "@tanstack/react-router"
-import { LoadingSpinner } from "@workspace/ui/components/shared/loading-spinner"
-import { useQuery } from "convex/react"
+import { api } from "@convex/_generated/api";
+import { type Id } from "@convex/_generated/dataModel";
+import { Link, useRouter } from "@tanstack/react-router";
+import { LoadingSpinner } from "@workspace/ui/components/shared/loading-spinner";
+import { useQuery } from "convex/react";
 
 interface InterviewResultsProps {
-  sessionId: Id<"interviewSessions">
+  sessionId: Id<"interviewSessions">;
 }
 
 export function InterviewResults({ sessionId }: InterviewResultsProps) {
   // Fetch interview session
-  const session = useQuery(api.interviewSessions.getById, { id: sessionId })
+  const session = useQuery(api.interviewSessions.getById, { id: sessionId });
 
-  const router = useRouter()
+  const router = useRouter();
 
   // Fetch job description
   const jobDescription = useQuery(
     api.jobDescriptions.getById,
     session ? { id: session.jobDescriptionId } : "skip",
-  )
+  );
 
   // Fetch questions for the job description
   const questions = useQuery(
     api.interviewQuestions.getByJobDescription,
     session ? { jobDescriptionId: session.jobDescriptionId } : "skip",
-  )
+  );
 
   // Fetch responses for the session
   const responses = useQuery(api.interviewResponses.getByInterviewSession, {
     interviewSessionId: sessionId,
-  })
+  });
 
   // Loading state
   if (!session || !jobDescription || !questions || !responses) {
-    return <LoadingSpinner fullScreen text="Loading results..." />
+    return <LoadingSpinner fullScreen text="Loading results..." />;
   }
 
   // Sort questions by order
-  const sortedQuestions = [...questions].sort((a, b) => a.order - b.order)
+  const sortedQuestions = [...questions].sort((a, b) => a.order - b.order);
 
   // Find response for a question
   const findResponse = (questionId: string) => {
-    return responses.find((response) => response.questionId === questionId)
-  }
+    return responses.find((response) => response.questionId === questionId);
+  };
 
   return (
     <div className="container mx-auto p-6">
@@ -67,7 +67,7 @@ export function InterviewResults({ sessionId }: InterviewResultsProps) {
 
       <div className="space-y-6">
         {sortedQuestions.map((question, index) => {
-          const response = findResponse(question._id)
+          const response = findResponse(question._id);
 
           return (
             <div
@@ -116,9 +116,9 @@ export function InterviewResults({ sessionId }: InterviewResultsProps) {
                 </div>
               )}
             </div>
-          )
+          );
         })}
       </div>
     </div>
-  )
+  );
 }

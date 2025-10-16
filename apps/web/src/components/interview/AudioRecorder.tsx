@@ -1,12 +1,12 @@
-import { Button } from "@workspace/ui/components/button"
-import { useState, useEffect, useRef, useCallback } from "react"
-import { useTranslation } from "react-i18next"
+import { Button } from "@workspace/ui/components/button";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 
 interface AudioRecorderProps {
-  isRecording: boolean
-  onStartRecording: () => void
-  onStopRecording: () => void
-  onRecordingComplete: (blob: Blob) => void
+  isRecording: boolean;
+  onStartRecording: () => void;
+  onStopRecording: () => void;
+  onRecordingComplete: (blob: Blob) => void;
 }
 
 export function AudioRecorder({
@@ -15,52 +15,52 @@ export function AudioRecorder({
   onStopRecording,
   onRecordingComplete,
 }: AudioRecorderProps) {
-  const [recordingTime, setRecordingTime] = useState(0)
+  const [recordingTime, setRecordingTime] = useState(0);
   const [recordingPermission, setRecordingPermission] = useState<
     boolean | null
-  >(null)
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
-  const audioChunksRef = useRef<Blob[]>([])
-  const timerRef = useRef<number | null>(null)
-  const { t } = useTranslation()
+  >(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const timerRef = useRef<number | null>(null);
+  const { t } = useTranslation();
 
   // Start recording function
   const startRecording = useCallback(async () => {
     try {
-      audioChunksRef.current = []
-      setRecordingTime(0)
+      audioChunksRef.current = [];
+      setRecordingTime(0);
 
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      const mediaRecorder = new MediaRecorder(stream)
-      mediaRecorderRef.current = mediaRecorder
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
 
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data)
+          audioChunksRef.current.push(event.data);
         }
-      }
+      };
 
       mediaRecorder.onstop = () => {
         const audioBlob = new Blob(audioChunksRef.current, {
           type: "audio/webm",
-        })
-        onRecordingComplete(audioBlob)
+        });
+        onRecordingComplete(audioBlob);
 
         // Stop all tracks
-        stream.getTracks().forEach((track) => track.stop())
-      }
+        stream.getTracks().forEach((track) => track.stop());
+      };
 
       // Start recording
-      mediaRecorder.start()
+      mediaRecorder.start();
 
       // Start timer
       timerRef.current = window.setInterval(() => {
-        setRecordingTime((prevTime) => prevTime + 1)
-      }, 1000)
+        setRecordingTime((prevTime) => prevTime + 1);
+      }, 1000);
     } catch (error) {
-      console.error("Error starting recording:", error)
+      console.error("Error starting recording:", error);
     }
-  }, [onRecordingComplete])
+  }, [onRecordingComplete]);
 
   // Stop recording function
   const stopRecording = useCallback(() => {
@@ -68,21 +68,21 @@ export function AudioRecorder({
       mediaRecorderRef.current &&
       mediaRecorderRef.current.state === "recording"
     ) {
-      mediaRecorderRef.current.stop()
+      mediaRecorderRef.current.stop();
 
       if (timerRef.current) {
-        clearInterval(timerRef.current)
-        timerRef.current = null
+        clearInterval(timerRef.current);
+        timerRef.current = null;
       }
     }
-  }, [])
+  }, []);
 
   // Format recording time
   const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60)
-    const remainingSeconds = seconds % 60
-    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`
-  }
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+  };
 
   // Request microphone permission
   useEffect(() => {
@@ -90,41 +90,41 @@ export function AudioRecorder({
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: true,
-        })
-        setRecordingPermission(true)
+        });
+        setRecordingPermission(true);
 
         // Clean up function to stop all tracks
         return () => {
-          stream.getTracks().forEach((track) => track.stop())
-        }
+          stream.getTracks().forEach((track) => track.stop());
+        };
       } catch (error) {
-        console.error("Error requesting microphone permission:", error)
-        setRecordingPermission(false)
+        console.error("Error requesting microphone permission:", error);
+        setRecordingPermission(false);
       }
     }
 
-    void requestPermission()
-  }, [])
+    void requestPermission();
+  }, []);
 
   // Handle recording state changes
   useEffect(() => {
-    if (!recordingPermission) return
+    if (!recordingPermission) return;
 
     if (isRecording) {
-      void startRecording()
+      void startRecording();
     } else if (
       mediaRecorderRef.current &&
       mediaRecorderRef.current.state === "recording"
     ) {
-      stopRecording()
+      stopRecording();
     }
 
     return () => {
       if (timerRef.current) {
-        clearInterval(timerRef.current)
+        clearInterval(timerRef.current);
       }
-    }
-  }, [isRecording, recordingPermission, startRecording, stopRecording])
+    };
+  }, [isRecording, recordingPermission, startRecording, stopRecording]);
 
   // If permission is denied
   if (recordingPermission === false) {
@@ -135,7 +135,7 @@ export function AudioRecorder({
         </p>
         <p className="mt-2">{t("interview.audioRecorder.enableMicrophone")}</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -175,5 +175,5 @@ export function AudioRecorder({
         </p>
       )}
     </div>
-  )
+  );
 }

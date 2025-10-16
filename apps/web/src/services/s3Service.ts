@@ -2,15 +2,15 @@ import {
   S3Client,
   PutObjectCommand,
   DeleteObjectCommand,
-} from "@aws-sdk/client-s3"
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
-import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from "@/constants/s3"
+import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from "@/constants/s3";
 
 // Initialize S3 client
-const AWS_REGION = import.meta.env.VITE_AWS_REGION || "us-east-1"
-const AWS_ACCESS_KEY_ID = import.meta.env.VITE_AWS_ACCESS_KEY_ID || ""
-const AWS_SECRET_ACCESS_KEY = import.meta.env.VITE_AWS_SECRET_ACCESS_KEY || ""
+const AWS_REGION = import.meta.env.VITE_AWS_REGION || "us-east-1";
+const AWS_ACCESS_KEY_ID = import.meta.env.VITE_AWS_ACCESS_KEY_ID || "";
+const AWS_SECRET_ACCESS_KEY = import.meta.env.VITE_AWS_SECRET_ACCESS_KEY || "";
 
 const s3Client = new S3Client({
   region: AWS_REGION,
@@ -18,24 +18,24 @@ const s3Client = new S3Client({
     accessKeyId: AWS_ACCESS_KEY_ID,
     secretAccessKey: AWS_SECRET_ACCESS_KEY,
   },
-})
+});
 
-const BUCKET_NAME = import.meta.env.VITE_AWS_S3_BUCKET_NAME || ""
+const BUCKET_NAME = import.meta.env.VITE_AWS_S3_BUCKET_NAME || "";
 const IMAGES_FOLDER =
-  import.meta.env.VITE_AWS_S3_IMAGES_FOLDER || "company-images"
-const FILES_FOLDER = import.meta.env.VITE_AWS_S3_FILES_FOLDER || "files"
+  import.meta.env.VITE_AWS_S3_IMAGES_FOLDER || "company-images";
+const FILES_FOLDER = import.meta.env.VITE_AWS_S3_FILES_FOLDER || "files";
 
-const bucketUrl = `https://${BUCKET_NAME}.s3.${AWS_REGION}.amazonaws.com`
+const bucketUrl = `https://${BUCKET_NAME}.s3.${AWS_REGION}.amazonaws.com`;
 
 export interface UploadResult {
-  success: boolean
-  url?: string
-  error?: string
+  success: boolean;
+  url?: string;
+  error?: string;
 }
 
 export interface DeleteResult {
-  success: boolean
-  error?: string
+  success: boolean;
+  error?: string;
 }
 
 /**
@@ -45,20 +45,20 @@ function generateImageFilename(
   companyId: string,
   originalName: string,
 ): string {
-  const timestamp = new Date().toISOString().replace(/[:.]/g, "-")
-  const extension = originalName.split(".").pop()?.toLowerCase() || "jpg"
-  return `image-${timestamp}.${extension}`
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const extension = originalName.split(".").pop()?.toLowerCase() || "jpg";
+  return `image-${timestamp}.${extension}`;
 }
 
 /**
  * Get the S3 key for a company logo
  */
 function getImageKey(companyId: string, filename: string): string {
-  return `${IMAGES_FOLDER}/${companyId}/${filename}`
+  return `${IMAGES_FOLDER}/${companyId}/${filename}`;
 }
 
 function getFileKey(filename: string): string {
-  return `${FILES_FOLDER}/${filename}`
+  return `${FILES_FOLDER}/${filename}`;
 }
 
 /**
@@ -70,26 +70,26 @@ export async function uploadImageToS3(
 ): Promise<UploadResult> {
   try {
     if (!BUCKET_NAME) {
-      throw new Error("S3 bucket name not configured")
+      throw new Error("S3 bucket name not configured");
     }
 
     // Validate file type
     if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
       throw new Error(
         "Invalid file type. Only JPEG, PNG, and WebP images are allowed.",
-      )
+      );
     }
 
     // Validate file size (max 5MB)
     if (file.size > MAX_IMAGE_SIZE) {
-      throw new Error("File size too large. Maximum size is 5MB.")
+      throw new Error("File size too large. Maximum size is 5MB.");
     }
 
-    const filename = generateImageFilename(companyId, file.name)
-    const key = getImageKey(companyId, filename)
+    const filename = generateImageFilename(companyId, file.name);
+    const key = getImageKey(companyId, filename);
 
     // Convert file to buffer
-    const buffer = await file.arrayBuffer()
+    const buffer = await file.arrayBuffer();
 
     // Upload to S3
     const command = new PutObjectCommand({
@@ -97,23 +97,23 @@ export async function uploadImageToS3(
       Key: key,
       Body: new Uint8Array(buffer),
       ContentType: file.type,
-    })
+    });
 
-    await s3Client.send(command)
+    await s3Client.send(command);
 
     // Return the public URL
-    const publicUrl = `${bucketUrl}/${key}`
+    const publicUrl = `${bucketUrl}/${key}`;
 
     return {
       success: true,
       url: publicUrl,
-    }
+    };
   } catch (error) {
-    console.error("Error uploading to S3:", error)
+    console.error("Error uploading to S3:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Upload failed",
-    }
+    };
   }
 }
 
@@ -123,33 +123,33 @@ export async function uploadImageToS3(
 export async function deleteLogoFromS3(logoUrl: string): Promise<DeleteResult> {
   try {
     if (!BUCKET_NAME) {
-      throw new Error("S3 bucket name not configured")
+      throw new Error("S3 bucket name not configured");
     }
 
     // Extract the key from the URL
 
-    const key = logoUrl.replace(`${bucketUrl}/`, "")
+    const key = logoUrl.replace(`${bucketUrl}/`, "");
 
     if (!key.startsWith(IMAGES_FOLDER)) {
-      throw new Error("Invalid logo URL")
+      throw new Error("Invalid logo URL");
     }
 
     const command = new DeleteObjectCommand({
       Bucket: BUCKET_NAME,
       Key: key,
-    })
+    });
 
-    await s3Client.send(command)
+    await s3Client.send(command);
 
     return {
       success: true,
-    }
+    };
   } catch (error) {
-    console.error("Error deleting from S3:", error)
+    console.error("Error deleting from S3:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Delete failed",
-    }
+    };
   }
 }
 
@@ -163,86 +163,86 @@ export async function generatePresignedUploadUrl(
 ): Promise<{ url: string; key: string } | null> {
   try {
     if (!BUCKET_NAME) {
-      throw new Error("S3 bucket name not configured")
+      throw new Error("S3 bucket name not configured");
     }
 
-    const key = getImageKey(companyId, filename)
+    const key = getImageKey(companyId, filename);
 
     const command = new PutObjectCommand({
       Bucket: BUCKET_NAME,
       Key: key,
       ContentType: contentType,
-    })
+    });
 
-    const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 }) // 1 hour
+    const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // 1 hour
 
-    return { url, key }
+    return { url, key };
   } catch (error) {
-    console.error("Error generating presigned URL:", error)
-    return null
+    console.error("Error generating presigned URL:", error);
+    return null;
   }
 }
 
 export async function uploadFileToS3(file: File): Promise<UploadResult> {
   try {
     if (!BUCKET_NAME) {
-      throw new Error("S3 bucket name not configured")
+      throw new Error("S3 bucket name not configured");
     }
 
-    const buffer = await file.arrayBuffer()
-    const key = getFileKey(file.name)
+    const buffer = await file.arrayBuffer();
+    const key = getFileKey(file.name);
 
     const command = new PutObjectCommand({
       Bucket: BUCKET_NAME,
       Key: key,
       Body: new Uint8Array(buffer),
       ContentType: file.type,
-    })
+    });
 
-    await s3Client.send(command)
+    await s3Client.send(command);
 
-    const publicUrl = `${bucketUrl}/${key}`
+    const publicUrl = `${bucketUrl}/${key}`;
 
     return {
       success: true,
       url: publicUrl,
-    }
+    };
   } catch (error) {
-    console.error("Error uploading to S3:", error)
+    console.error("Error uploading to S3:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Upload failed",
-    }
+    };
   }
 }
 
 export async function deleteFileFromS3(fileUrl: string): Promise<DeleteResult> {
   try {
     if (!BUCKET_NAME) {
-      throw new Error("S3 bucket name not configured")
+      throw new Error("S3 bucket name not configured");
     }
 
-    const key = fileUrl.replace(`${bucketUrl}/`, "")
+    const key = fileUrl.replace(`${bucketUrl}/`, "");
 
     if (!key.startsWith(FILES_FOLDER)) {
-      throw new Error("Invalid file URL")
+      throw new Error("Invalid file URL");
     }
 
     const command = new DeleteObjectCommand({
       Bucket: BUCKET_NAME,
       Key: key,
-    })
+    });
 
-    await s3Client.send(command)
+    await s3Client.send(command);
 
     return {
       success: true,
-    }
+    };
   } catch (error) {
-    console.error("Error deleting from S3:", error)
+    console.error("Error deleting from S3:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Delete failed",
-    }
+    };
   }
 }

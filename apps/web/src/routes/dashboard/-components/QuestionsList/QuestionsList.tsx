@@ -1,49 +1,49 @@
-import { type Id, type Doc } from "@convex/_generated/dataModel"
-import { Button } from "@workspace/ui/components/button"
-import { useState } from "react"
-import { useTranslation } from "react-i18next"
+import { type Id, type Doc } from "@convex/_generated/dataModel";
+import { Button } from "@workspace/ui/components/button";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
-import { useDeleteQuestionMutation } from "./hooks/useDeleteQuestionMutation"
-import { useUpdateQuestionMutation } from "./hooks/useUpdateQuestionMutation"
+import { useDeleteQuestionMutation } from "./hooks/useDeleteQuestionMutation";
+import { useUpdateQuestionMutation } from "./hooks/useUpdateQuestionMutation";
 
 interface QuestionsListProps {
-  questions: Doc<"interviewQuestions">[]
+  questions: Doc<"interviewQuestions">[];
 }
 
 export function QuestionsList({ questions }: QuestionsListProps) {
   const [editingId, setEditingId] = useState<Id<"interviewQuestions"> | null>(
     null,
-  )
-  const [editText, setEditText] = useState("")
-  const { t } = useTranslation()
+  );
+  const [editText, setEditText] = useState("");
+  const { t } = useTranslation();
 
   const { mutateAsync: updateQuestion, isPending: isUpdating } =
-    useUpdateQuestionMutation()
+    useUpdateQuestionMutation();
   const { mutateAsync: deleteQuestion, isPending: isDeleting } =
-    useDeleteQuestionMutation()
+    useDeleteQuestionMutation();
 
   // Start editing a question
   const handleEdit = (question: Doc<"interviewQuestions">) => {
-    setEditingId(question._id)
-    setEditText(question.question)
-  }
+    setEditingId(question._id);
+    setEditText(question.question);
+  };
 
   // Save edited question
   const handleSave = async (id: Id<"interviewQuestions">) => {
     await updateQuestion({
       id,
       question: editText,
-    })
-    setEditingId(null)
-  }
+    });
+    setEditingId(null);
+  };
 
   // Delete a question
   const handleDelete = async (id: Id<"interviewQuestions">) => {
-    await deleteQuestion({ id })
-  }
+    await deleteQuestion({ id });
+  };
 
   // Sort questions by order
-  const sortedQuestions = [...questions].sort((a, b) => a.order - b.order)
+  const sortedQuestions = [...questions].sort((a, b) => a.order - b.order);
 
   return (
     <div className="space-y-4">
@@ -100,5 +100,5 @@ export function QuestionsList({ questions }: QuestionsListProps) {
         </div>
       ))}
     </div>
-  )
+  );
 }

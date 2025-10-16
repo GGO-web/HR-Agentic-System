@@ -1,4 +1,4 @@
-import { type Id, type Doc } from "@convex/_generated/dataModel"
+import { type Id, type Doc } from "@convex/_generated/dataModel";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,30 +9,30 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@workspace/ui/components/alert-dialog"
-import { Button } from "@workspace/ui/components/button"
-import { Trash2 } from "lucide-react"
-import { useTranslation } from "react-i18next"
+} from "@workspace/ui/components/alert-dialog";
+import { Button } from "@workspace/ui/components/button";
+import { Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
-import { useDeleteJobDescriptionMutation } from "../../../JobDescriptionForm/hooks/useDeleteJobDescriptionMutation"
+import { useDeleteJobDescriptionMutation } from "@/routes/dashboard/-components/HRDashboard/components/JobDescriptionForm/hooks/useDeleteJobDescriptionMutation";
 
 interface DeleteJobDescriptionButtonProps {
-  job: Doc<"jobDescriptions">
-  onDeleted?: (deletedJobId: Id<"jobDescriptions">) => void
+  job: Doc<"jobDescriptions">;
+  onDeleted?: (deletedJobId: Id<"jobDescriptions">) => void;
 }
 
 export function DeleteJobDescriptionButton({
   job,
   onDeleted,
 }: DeleteJobDescriptionButtonProps) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   const { mutateAsync: deleteJobDescription, isPending: isDeleting } =
-    useDeleteJobDescriptionMutation(job._id)
+    useDeleteJobDescriptionMutation(job._id);
 
   const handleDelete = async () => {
-    await deleteJobDescription({ id: job._id })
-    onDeleted?.(job._id)
-  }
+    await deleteJobDescription({ id: job._id });
+    onDeleted?.(job._id);
+  };
 
   return (
     <AlertDialog>
@@ -69,5 +69,5 @@ export function DeleteJobDescriptionButton({
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
+  );
 }

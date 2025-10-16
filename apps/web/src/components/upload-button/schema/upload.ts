@@ -1,6 +1,6 @@
-import { z } from "zod"
+import { z } from "zod";
 
-import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from "@/constants/s3"
+import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE } from "@/constants/s3";
 
 export const uploadImageSchema = z.object({
   image: z
@@ -12,6 +12,6 @@ export const uploadImageSchema = z.object({
       "Unsupported file type",
     )
     .refine((file) => file.size <= MAX_IMAGE_SIZE, "File is too large"),
-})
+});
 
-export type UploadImageSchema = z.infer<typeof uploadImageSchema>
+export type UploadImageSchema = z.infer<typeof uploadImageSchema>;

@@ -1,8 +1,8 @@
-import { v } from "convex/values"
+import { v } from "convex/values";
 
-import { mutation, query } from "./_generated/server"
+import { mutation, query } from "./_generated/server";
 
-import { UserRole } from "@/types/userRole"
+import { UserRole } from "@/types/userRole";
 
 // Create a new user
 export const create = mutation({
@@ -21,10 +21,10 @@ export const create = mutation({
     const existingUser = await ctx.db
       .query("users")
       .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
-      .first()
+      .first();
 
     if (existingUser) {
-      throw new Error("User already exists")
+      throw new Error("User already exists");
     }
 
     const userId = await ctx.db.insert("users", {
@@ -36,11 +36,11 @@ export const create = mutation({
       createdAt: Date.now(),
       updatedAt: Date.now(),
       isActive: true,
-    })
+    });
 
-    return userId
+    return userId;
   },
-})
+});
 
 // Get user by Clerk ID
 export const getByClerkId = query({
@@ -49,17 +49,17 @@ export const getByClerkId = query({
     return await ctx.db
       .query("users")
       .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
-      .first()
+      .first();
   },
-})
+});
 
 // Get user by ID
 export const getById = query({
   args: { id: v.id("users") },
   handler: async (ctx, args) => {
-    return await ctx.db.get(args.id)
+    return await ctx.db.get(args.id);
   },
-})
+});
 
 // Get users by company ID
 export const getByCompany = query({
@@ -68,9 +68,9 @@ export const getByCompany = query({
     return await ctx.db
       .query("users")
       .withIndex("by_company", (q) => q.eq("companyId", args.companyId))
-      .collect()
+      .collect();
   },
-})
+});
 
 // Get users by role
 export const getByRole = query({
@@ -84,9 +84,9 @@ export const getByRole = query({
     return await ctx.db
       .query("users")
       .withIndex("by_role", (q) => q.eq("role", args.role))
-      .collect()
+      .collect();
   },
-})
+});
 
 // Update user
 export const update = mutation({
@@ -101,15 +101,15 @@ export const update = mutation({
     isActive: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-    const { id, ...updates } = args
+    const { id, ...updates } = args;
 
     // Only include fields that were provided
-    const fieldsToUpdate = { ...updates, updatedAt: Date.now() }
+    const fieldsToUpdate = { ...updates, updatedAt: Date.now() };
 
-    await ctx.db.patch(id, fieldsToUpdate)
-    return id
+    await ctx.db.patch(id, fieldsToUpdate);
+    return id;
   },
-})
+});
 
 // Delete user (soft delete by setting isActive to false)
 export const deactivate = mutation({
@@ -118,10 +118,10 @@ export const deactivate = mutation({
     await ctx.db.patch(args.id, {
       isActive: false,
       updatedAt: Date.now(),
-    })
-    return args.id
+    });
+    return args.id;
   },
-})
+});
 
 // Sync user from Clerk webhook
 export const syncFromClerk = mutation({
@@ -140,7 +140,7 @@ export const syncFromClerk = mutation({
     const existingUser = await ctx.db
       .query("users")
       .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
-      .first()
+      .first();
 
     if (existingUser) {
       // Update existing user
@@ -151,8 +151,8 @@ export const syncFromClerk = mutation({
         companyId: args.companyId,
         updatedAt: Date.now(),
         isActive: true,
-      })
-      return existingUser._id
+      });
+      return existingUser._id;
     } else {
       // Create new user
       return await ctx.db.insert("users", {
@@ -164,7 +164,7 @@ export const syncFromClerk = mutation({
         createdAt: Date.now(),
         updatedAt: Date.now(),
         isActive: true,
-      })
+      });
     }
   },
-})
+});

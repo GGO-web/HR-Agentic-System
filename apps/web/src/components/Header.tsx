@@ -1,17 +1,17 @@
-import { SignOutButton, useAuth as useClerkAuth } from "@clerk/clerk-react"
-import { Link, useRouter } from "@tanstack/react-router"
-import { Badge } from "@workspace/ui/components/badge"
-import { Button } from "@workspace/ui/components/button"
-import { User, Building2, LogOut, LogIn, UserPlus } from "lucide-react"
-import { useTranslation } from "react-i18next"
+import { SignOutButton, useAuth as useClerkAuth } from "@clerk/clerk-react";
+import { Link, useRouter } from "@tanstack/react-router";
+import { Badge } from "@workspace/ui/components/badge";
+import { Button } from "@workspace/ui/components/button";
+import { User, Building2, LogOut, LogIn, UserPlus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
-import { useAuth } from "@/hooks/useAuth"
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Header() {
-  const { isSignedIn, isHRManager, role } = useAuth()
-  const { signOut } = useClerkAuth()
-  const router = useRouter()
-  const { t } = useTranslation()
+  const { isSignedIn, isHRManager, role } = useAuth();
+  const { signOut } = useClerkAuth();
+  const router = useRouter();
+  const { t } = useTranslation();
 
   return (
     <header className="flex justify-between gap-2 p-4 shadow-sm">
@@ -71,5 +71,5 @@ export default function Header() {
         )}
       </div>
     </header>
-  )
+  );
 }

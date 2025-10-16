@@ -1,7 +1,7 @@
-import { defineSchema, defineTable } from "convex/server"
-import { v } from "convex/values"
+import { defineSchema, defineTable } from "convex/server";
+import { v } from "convex/values";
 
-import { UserRole } from "@/types/userRole"
+import { UserRole } from "@/types/userRole";
 
 export default defineSchema({
   // Companies table to store company information
@@ -31,6 +31,7 @@ export default defineSchema({
   })
     .index("by_clerk_id", ["clerkId"])
     .index("by_company", ["companyId"])
+    .index("by_email", ["email"])
     .index("by_role", ["role"]),
 
   // Job descriptions table
@@ -66,16 +67,20 @@ export default defineSchema({
 
   // Interview sessions table
   interviewSessions: defineTable({
-    candidateId: v.id("users"),
+    candidateEmail: v.string(),
     jobDescriptionId: v.id("jobDescriptions"),
-    status: v.string(), // "scheduled", "in_progress", "completed"
+    status: v.union(
+      v.literal("scheduled"),
+      v.literal("in_progress"),
+      v.literal("completed"),
+    ), // "scheduled", "in_progress", "completed"
     scheduledAt: v.optional(v.number()),
     startedAt: v.optional(v.number()),
     completedAt: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
-    .index("by_candidate", ["candidateId"])
+    .index("by_candidate", ["candidateEmail"])
     .index("by_job_description", ["jobDescriptionId"]),
 
   // Interview responses table
@@ -89,4 +94,28 @@ export default defineSchema({
   })
     .index("by_interview_session", ["interviewSessionId"])
     .index("by_question", ["questionId"]),
-})
+
+  // Interview invitations table
+  interviewInvitations: defineTable({
+    jobDescriptionId: v.id("jobDescriptions"),
+    candidateEmail: v.string(),
+    candidateName: v.optional(v.string()),
+    invitedBy: v.id("users"), // HR manager who sent the invitation
+    status: v.union(
+      v.literal("pending"), // Invitation sent, waiting for candidate to accept
+      v.literal("accepted"), // Candidate accepted the invitation
+      v.literal("declined"), // Candidate declined the invitation
+      v.literal("expired"), // Invitation expired
+    ),
+    invitationToken: v.string(), // Unique token for invitation link
+    expiresAt: v.number(), // Expiration timestamp
+    acceptedAt: v.optional(v.number()),
+    declinedAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_job_description", ["jobDescriptionId"])
+    .index("by_candidate_email", ["candidateEmail"])
+    .index("by_invitation_token", ["invitationToken"])
+    .index("by_status", ["status"]),
+});

@@ -1,18 +1,19 @@
-import { type Id, type Doc } from "@convex/_generated/dataModel"
-import { Button } from "@workspace/ui/components/button"
-import { cn } from "@workspace/ui/lib/utils"
-import { Edit2 } from "lucide-react"
-import { useTranslation } from "react-i18next"
+import { type Id, type Doc } from "@convex/_generated/dataModel";
+import { Button } from "@workspace/ui/components/button";
+import { cn } from "@workspace/ui/lib/utils";
+import { Edit2, UserPlus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
-import { DeleteJobDescriptionButton } from "../DeleteJobDescriptionButton/DeleteJobDescriptionButton"
-import { JobDescriptionForm } from "../JobDescriptionForm/JobDescriptionForm"
+import { DeleteJobDescriptionButton } from "../DeleteJobDescriptionButton/DeleteJobDescriptionButton";
+import { InviteCandidateForm } from "../InviteCandidateForm/InviteCandidateForm";
+import { JobDescriptionForm } from "../JobDescriptionForm/JobDescriptionForm";
 
 interface JobDescriptionListProps {
-  jobDescriptions: Doc<"jobDescriptions">[]
-  selectedJobId: Id<"jobDescriptions"> | null
-  onSelect: (id: Id<"jobDescriptions">) => void
-  onJobDeleted?: (deletedJobId: Id<"jobDescriptions">) => void
-  onJobUpdated?: () => void
+  jobDescriptions: Doc<"jobDescriptions">[];
+  selectedJobId: Id<"jobDescriptions"> | null;
+  onSelect: (id: Id<"jobDescriptions">) => void;
+  onJobDeleted?: (deletedJobId: Id<"jobDescriptions">) => void;
+  onJobUpdated?: () => void;
 }
 
 export function JobDescriptionList({
@@ -22,7 +23,7 @@ export function JobDescriptionList({
   onJobDeleted,
   onJobUpdated,
 }: JobDescriptionListProps) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <div className="space-y-2">
@@ -48,6 +49,21 @@ export function JobDescriptionList({
 
           <div className="group:opacity-100 group:has-active:opacity-100 absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100">
             <div className="flex gap-1">
+              <InviteCandidateForm
+                job={job}
+                onSuccess={onJobUpdated}
+                trigger={
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="size-8 p-0"
+                    title={t("dashboard.hr.inviteCandidate.button")}
+                  >
+                    <UserPlus className="size-4" />
+                  </Button>
+                }
+              />
+
               <JobDescriptionForm
                 job={job}
                 onSuccess={onJobUpdated}
@@ -69,5 +85,5 @@ export function JobDescriptionList({
         </div>
       ))}
     </div>
-  )
+  );
 }

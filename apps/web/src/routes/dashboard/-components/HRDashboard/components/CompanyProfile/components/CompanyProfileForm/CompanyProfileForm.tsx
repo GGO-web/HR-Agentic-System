@@ -1,25 +1,25 @@
-import { api } from "@convex/_generated/api"
-import { type Doc, type Id } from "@convex/_generated/dataModel"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Button } from "@workspace/ui/components/button"
-import { Input } from "@workspace/ui/components/input"
-import { Label } from "@workspace/ui/components/label"
-import { useMutation } from "convex/react"
-import { Building2 } from "lucide-react"
-import { useState } from "react"
-import { type FieldErrors, FormProvider, useForm } from "react-hook-form"
-import { useTranslation } from "react-i18next"
-import { toast } from "react-toastify"
+import { api } from "@convex/_generated/api";
+import { type Doc, type Id } from "@convex/_generated/dataModel";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@workspace/ui/components/button";
+import { Input } from "@workspace/ui/components/input";
+import { Label } from "@workspace/ui/components/label";
+import { useMutation } from "convex/react";
+import { Building2 } from "lucide-react";
+import { useState } from "react";
+import { type FieldErrors, FormProvider, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
 
-import { UploadButtton } from "@/components/upload-button/UploadButton"
-import { useAuth } from "@/hooks/useAuth"
-import { companySchema, type CompanyFormData } from "@/schema/company"
-import { uploadImageToS3, deleteLogoFromS3 } from "@/services/s3Service"
+import { UploadButtton } from "@/components/upload-button/UploadButton";
+import { useAuth } from "@/hooks/useAuth";
+import { companySchema, type CompanyFormData } from "@/schema/company";
+import { uploadImageToS3, deleteLogoFromS3 } from "@/services/s3Service";
 
 interface CompanyProfileFormProps {
-  companyId?: Id<"companies">
-  companyData?: Doc<"companies"> | null
-  onClose: () => void
+  companyId?: Id<"companies">;
+  companyData?: Doc<"companies"> | null;
+  onClose: () => void;
 }
 
 export function CompanyProfileForm({
@@ -27,17 +27,17 @@ export function CompanyProfileForm({
   companyData,
   onClose,
 }: CompanyProfileFormProps) {
-  const { t } = useTranslation()
-  const { user, userData } = useAuth()
-  const createCompany = useMutation(api.companies.create)
-  const updateCompany = useMutation(api.companies.update)
-  const updateUser = useMutation(api.users.update)
+  const { t } = useTranslation();
+  const { user, userData } = useAuth();
+  const createCompany = useMutation(api.companies.create);
+  const updateCompany = useMutation(api.companies.update);
+  const updateUser = useMutation(api.users.update);
 
-  const isEditing = Boolean(companyId && companyData)
+  const isEditing = Boolean(companyId && companyData);
   const [logoUrl, setLogoUrl] = useState<string | null>(
     companyData?.logoUrl || null,
-  )
-  const [imageFile, setImageFile] = useState<File | null>(null)
+  );
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const methods = useForm<CompanyFormData>({
     resolver: zodResolver(companySchema),
@@ -46,62 +46,62 @@ export function CompanyProfileForm({
       name: (companyData?.name as string) || "",
       description: (companyData?.description as string) || "",
     },
-  })
+  });
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting, isValid },
-  } = methods
+  } = methods;
 
   const handleUploadImage = async (file: File, companyIdParam = companyId) => {
-    setImageFile(file)
+    setImageFile(file);
 
-    if (!companyIdParam) return
+    if (!companyIdParam) return;
     try {
-      const result = await uploadImageToS3(file, companyIdParam)
+      const result = await uploadImageToS3(file, companyIdParam);
 
       if (result.success && result.url) {
-        setLogoUrl(result.url)
+        setLogoUrl(result.url);
 
         await updateCompany({
           id: companyIdParam,
           logoUrl: result.url || undefined,
-        })
+        });
       }
     } catch (error) {
-      console.error(error)
-      toast.error(t("company.form.uploadError"))
+      console.error(error);
+      toast.error(t("company.form.uploadError"));
     } finally {
-      setImageFile(null)
+      setImageFile(null);
     }
-  }
+  };
 
   const handleRemoveLogo = async () => {
     if (!companyId) {
-      setImageFile(null)
-      setLogoUrl(null)
-      return
+      setImageFile(null);
+      setLogoUrl(null);
+      return;
     }
     // Determine which logo URL to delete (current state or original company data)
-    const logoToDelete = logoUrl || companyData?.logoUrl
+    const logoToDelete = logoUrl || companyData?.logoUrl;
 
     // If there's a logo URL, delete it from S3
     if (logoToDelete) {
-      const result = await deleteLogoFromS3(logoToDelete)
+      const result = await deleteLogoFromS3(logoToDelete);
 
       if (!result.success) {
-        throw new Error(`Failed to delete logo from S3: ${result.error}`)
+        throw new Error(`Failed to delete logo from S3: ${result.error}`);
       }
 
       await updateCompany({
         id: companyId,
         logoUrl: "",
-      })
+      });
     }
 
     // Clear the logo URL from state
-    setLogoUrl(null)
-  }
+    setLogoUrl(null);
+  };
 
   const onSubmit = async (data: CompanyFormData) => {
     try {
@@ -110,14 +110,14 @@ export function CompanyProfileForm({
           id: companyId,
           ...data,
           logoUrl: logoUrl || undefined,
-        })
-        toast.success(t("company.form.updateSuccess"))
-        onClose()
+        });
+        toast.success(t("company.form.updateSuccess"));
+        onClose();
       } else {
         // Create new company and link it to the user
         if (!userData?._id || !user?.id) {
-          toast.error(t("company.form.userNotFound"))
-          return
+          toast.error(t("company.form.userNotFound"));
+          return;
         }
 
         const newCompanyId = await createCompany({
@@ -125,32 +125,32 @@ export function CompanyProfileForm({
           description: data.description,
           logoUrl: logoUrl || undefined,
           clerkId: user.id,
-        })
+        });
 
         if (imageFile) {
-          await handleUploadImage(imageFile, newCompanyId)
+          await handleUploadImage(imageFile, newCompanyId);
         }
 
         // Update user with company reference
         await updateUser({
           id: userData._id,
           companyId: newCompanyId,
-        })
+        });
 
-        toast.success(t("company.form.createSuccess"))
-        onClose()
+        toast.success(t("company.form.createSuccess"));
+        onClose();
       }
     } catch {
-      toast.error(t("company.form.saveError"))
+      toast.error(t("company.form.saveError"));
     }
-  }
+  };
 
   const onInvalid = (errors: FieldErrors<CompanyFormData>) => {
     const errorMessages = Object.values(errors)
       .map((error) => error.message)
-      .join(", ")
-    toast.error(errorMessages)
-  }
+      .join(", ");
+    toast.error(errorMessages);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -254,5 +254,5 @@ export function CompanyProfileForm({
         </FormProvider>
       </div>
     </div>
-  )
+  );
 }

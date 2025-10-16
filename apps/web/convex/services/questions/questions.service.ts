@@ -12,15 +12,15 @@ class QuestionsService {
           description,
         }),
       },
-    )
+    );
 
     if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(`HTTP ${response.status}: ${errorText}`)
+      const errorText = await response.text();
+      throw new Error(`HTTP ${response.status}: ${errorText}`);
     }
 
-    return response
+    return response;
   }
 }
 
-export const questionsService = new QuestionsService()
+export const questionsService = new QuestionsService();

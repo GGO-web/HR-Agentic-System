@@ -1,66 +1,68 @@
-import { type Id } from "@convex/_generated/dataModel"
-import { Button } from "@workspace/ui/components/button"
-import { useState } from "react"
-import { useTranslation } from "react-i18next"
+import { type Id } from "@convex/_generated/dataModel";
+import { Button } from "@workspace/ui/components/button";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
-import { QuestionsList } from "../QuestionsList/QuestionsList"
+import { QuestionsList } from "../QuestionsList/QuestionsList";
 
-import { CompanyProfile } from "./components/CompanyProfile/CompanyProfile"
-import { CompanyProfileForm } from "./components/CompanyProfile/components/CompanyProfileForm/CompanyProfileForm"
-import { useJobDescriptionsQuery } from "./components/JobDescriptionForm/hooks/useJobDescriptionsQuery"
-import { JobDescriptionForm } from "./components/JobDescriptionForm/JobDescriptionForm"
-import { JobDescriptionList } from "./components/JobDescriptionList/JobDescriptionList"
-import { useGenerateInverviewQuestionsMutation } from "./hooks/useGenerateInverviewQuestionsMutation"
-import { useInterviewQuestionsQuery } from "./hooks/useInterviewQuestionsQuery"
+import { CompanyProfile } from "./components/CompanyProfile/CompanyProfile";
+import { CompanyProfileForm } from "./components/CompanyProfile/components/CompanyProfileForm/CompanyProfileForm";
+import { useJobDescriptionsQuery } from "./components/JobDescriptionForm/hooks/useJobDescriptionsQuery";
+import { JobDescriptionForm } from "./components/JobDescriptionForm/JobDescriptionForm";
+import { JobDescriptionList } from "./components/JobDescriptionList/JobDescriptionList";
+import { useGenerateInterviewQuestionsMutation } from "./hooks/useGenerateInterviewQuestionsMutation";
+import { useInterviewQuestionsQuery } from "./hooks/useInterviewQuestionsQuery";
 
-import { useAuth } from "@/hooks/useAuth"
+import { useAuth } from "@/hooks/useAuth";
 
 export function HRDashboard() {
-  const { userData, companyData } = useAuth()
+  const { userData, companyData } = useAuth();
   const [selectedJobId, setSelectedJobId] =
-    useState<Id<"jobDescriptions"> | null>(null)
+    useState<Id<"jobDescriptions"> | null>(null);
   const [isCompanyProfileFormOpen, setIsCompanyProfileFormOpen] =
-    useState(false)
-  const { t } = useTranslation()
+    useState(false);
+  const { t } = useTranslation();
 
   // Fetch job descriptions for the company
-  const { data: jobDescriptions } = useJobDescriptionsQuery(companyData ?? null)
+  const { data: jobDescriptions } = useJobDescriptionsQuery(
+    companyData ?? null,
+  );
 
   // Fetch questions for the selected job
-  const { data: questions } = useInterviewQuestionsQuery(selectedJobId ?? null)
+  const { data: questions } = useInterviewQuestionsQuery(selectedJobId ?? null);
 
   // Generate AI questions mutation
   const { mutateAsync: generateQuestions, isPending: isGeneratingQuestions } =
-    useGenerateInverviewQuestionsMutation()
+    useGenerateInterviewQuestionsMutation();
 
   // Handle job selection
   const handleJobSelect = (jobId: Id<"jobDescriptions">) => {
-    setSelectedJobId(jobId)
-  }
+    setSelectedJobId(jobId);
+  };
 
   // Handle job deletion
   const handleJobDeleted = (deletedJobId: Id<"jobDescriptions">) => {
     if (selectedJobId === deletedJobId) {
-      setSelectedJobId(null)
+      setSelectedJobId(null);
     }
-  }
+  };
 
   // Handle AI question generation
   const handleGenerateQuestions = async () => {
     if (selectedJobId && jobDescriptions) {
       const selectedJob = jobDescriptions.find(
         (job) => job._id === selectedJobId,
-      )
+      );
 
       if (selectedJob) {
         await generateQuestions({
           jobDescriptionId: selectedJobId,
           title: selectedJob.title,
           description: selectedJob.description,
-        })
+        });
       }
     }
-  }
+  };
 
   return (
     <div className="container mx-auto p-6">
@@ -149,5 +151,5 @@ export function HRDashboard() {
         />
       )}
     </div>
-  )
+  );
 }

@@ -1,38 +1,38 @@
-import { SignUp } from "@clerk/clerk-react"
-import { useRouter } from "@tanstack/react-router"
-import { Badge } from "@workspace/ui/components/badge"
-import { Button } from "@workspace/ui/components/button"
+import { SignUp } from "@clerk/clerk-react";
+import { useRouter } from "@tanstack/react-router";
+import { Badge } from "@workspace/ui/components/badge";
+import { Button } from "@workspace/ui/components/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@workspace/ui/components/card"
-import { cn } from "@workspace/ui/lib/utils"
-import { User, Building2, CheckCircle } from "lucide-react"
-import { useState } from "react"
-import { useTranslation } from "react-i18next"
+} from "@workspace/ui/components/card";
+import { cn } from "@workspace/ui/lib/utils";
+import { User, Building2, CheckCircle } from "lucide-react";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
-import { signupStore } from "../-store/signup"
+import { signupStore } from "../-store/signup";
 
-import { UserRole } from "@/types/userRole"
+import { UserRole } from "@/types/userRole";
 
 interface RoleOption {
-  id: UserRole
-  title: string
-  description: string
-  icon: React.ReactNode
-  features: string[]
+  id: UserRole;
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  features: string[];
 }
 
 export function RoleSelectionSignUp() {
-  const router = useRouter()
-  const selectedRole = signupStore((state) => state.selectedRole)
-  const setSelectedRole = signupStore((state) => state.setSelectedRole)
+  const router = useRouter();
+  const selectedRole = signupStore((state) => state.selectedRole);
+  const setSelectedRole = signupStore((state) => state.setSelectedRole);
 
-  const [showSignUp, setShowSignUp] = useState(false)
-  const { t } = useTranslation()
+  const [showSignUp, setShowSignUp] = useState(false);
+  const { t } = useTranslation();
 
   const roleOptions: RoleOption[] = [
     {
@@ -61,17 +61,17 @@ export function RoleSelectionSignUp() {
         t("auth.roleSelection.candidate.features.4"),
       ],
     },
-  ]
+  ];
 
   const handleRoleSelect = (role: UserRole) => {
-    setSelectedRole(role)
-  }
+    setSelectedRole(role);
+  };
 
   const handleContinue = () => {
     if (selectedRole) {
-      setShowSignUp(true)
+      setShowSignUp(true);
     }
-  }
+  };
 
   if (showSignUp && selectedRole) {
     return (
@@ -105,7 +105,7 @@ export function RoleSelectionSignUp() {
           />
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -192,5 +192,5 @@ export function RoleSelectionSignUp() {
         </div>
       </div>
     </div>
-  )
+  );
 }

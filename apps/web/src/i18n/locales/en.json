@@ -20,7 +20,8 @@
     "error": "Error",
     "success": "Success",
     "warning": "Warning",
-    "info": "Information"
+    "info": "Information",
+    "candidate": "Candidate"
   },
   "uploadButton": {
     "uploadImageSuccess": "Image uploaded successfully",
@@ -156,6 +157,25 @@
         "noQuestions": "No questions yet. Click \"Generate AI Questions\" to create questions based on the job description.",
         "selectJobDescription": "Select a job description to view or generate questions.",
         "aiGenerated": "AI Generated"
+      },
+      "inviteCandidate": {
+        "title": "Invite Candidate for Interview",
+        "button": "Invite Candidate",
+        "description": "Invite a candidate to interview for:",
+        "emailLabel": "Email Address",
+        "emailPlaceholder": "candidate@example.com",
+        "messageLabel": "Personal Message (Optional)",
+        "messagePlaceholder": "Add a personal message to the invitation...",
+        "cancel": "Cancel",
+        "sending": "Sending...",
+        "sendInvitation": "Send Invitation",
+        "actions": {
+          "success": "Invitation sent successfully!",
+          "error": "Failed to send invitation. Please try again.",
+          "accountNotFound": "Account not found. Please ensure the candidate has registered.",
+          "invalidRole": "This email belongs to an HR manager. Only candidates can be invited to interviews.",
+          "alreadyInvited": "This candidate has already been invited for this position."
+        }
       }
     },
     "candidate": {
@@ -168,7 +188,14 @@
       "continueInterview": "Continue Interview",
       "viewResults": "View Results",
       "noInterviews": "No interviews scheduled yet.",
-      "noInterviewsDescription": "Your interviews will appear here once they are scheduled by HR."
+      "noInterviewsDescription": "Your interviews will appear here once they are scheduled by HR.",
+      "invitedJobDescriptions": {
+        "title": "Job Descriptions",
+        "description": "You've been invited to interview for these positions",
+        "invited": "Invited",
+        "viewDetails": "View Details",
+        "sessionNotCreated": "Session not created yet"
+      }
     },
     "questionsList": {
       "actions": {
@@ -261,6 +288,46 @@
       "startRecording": "Start Recording",
       "stopRecording": "Stop Recording",
       "stopRecordingHint": "Click \"Stop Recording\" when you've finished your answer."
+    }
+  },
+  "invitation": {
+    "loading": "Loading invitation...",
+    "notFound": {
+      "title": "Invitation Not Found",
+      "description": "This invitation link is invalid or has expired."
+    },
+    "title": "Interview Invitation",
+    "description": "You've been invited to interview for a position",
+    "greeting": "Hello {{name}}!",
+    "message": "You've been invited to interview for a position. Click the button below to accept this invitation and view the job description.",
+    "status": {
+      "accepted": "Accepted",
+      "declined": "Declined",
+      "expired": "Expired",
+      "pending": "Pending"
+    },
+    "expired": {
+      "title": "Invitation Expired",
+      "message": "This invitation has expired. Please contact the company for a new invitation."
+    },
+    "accepted": {
+      "title": "Invitation Accepted",
+      "message": "You have accepted this invitation. You can now view the job description and start the interview process."
+    },
+    "declined": {
+      "title": "Invitation Declined",
+      "message": "You have declined this invitation. If you change your mind, please contact the company."
+    },
+    "actions": {
+      "accept": "Accept Invitation",
+      "accepting": "Accepting...",
+      "decline": "Decline",
+      "declining": "Declining...",
+      "goToDashboard": "Go to Dashboard",
+      "acceptSuccess": "Invitation accepted! You can now view the job description.",
+      "declineSuccess": "Invitation declined.",
+      "acceptError": "Failed to accept invitation. Please try again.",
+      "declineError": "Failed to decline invitation. Please try again."
     }
   },
   "protectedRoute": {

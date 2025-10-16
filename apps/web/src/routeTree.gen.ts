@@ -8,151 +8,171 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as SignUpIndexRouteImport } from './routes/sign-up/index'
-import { Route as SignInIndexRouteImport } from './routes/sign-in/index'
-import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
-import { Route as InterviewSessionIdIndexRouteImport } from './routes/interview/$sessionId/index'
-import { Route as InterviewSessionIdResultsRouteImport } from './routes/interview/$sessionId/results'
+import { Route as rootRouteImport } from "./routes/__root";
+import { Route as IndexRouteImport } from "./routes/index";
+import { Route as SignUpIndexRouteImport } from "./routes/sign-up/index";
+import { Route as SignInIndexRouteImport } from "./routes/sign-in/index";
+import { Route as DashboardIndexRouteImport } from "./routes/dashboard/index";
+import { Route as InvitationTokenIndexRouteImport } from "./routes/invitation/$token/index";
+import { Route as InterviewSessionIdIndexRouteImport } from "./routes/interview/$sessionId/index";
+import { Route as InterviewSessionIdResultsRouteImport } from "./routes/interview/$sessionId/results";
 
 const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const SignUpIndexRoute = SignUpIndexRouteImport.update({
-  id: '/sign-up/',
-  path: '/sign-up/',
+  id: "/sign-up/",
+  path: "/sign-up/",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const SignInIndexRoute = SignInIndexRouteImport.update({
-  id: '/sign-in/',
-  path: '/sign-in/',
+  id: "/sign-in/",
+  path: "/sign-in/",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
-  id: '/dashboard/',
-  path: '/dashboard/',
+  id: "/dashboard/",
+  path: "/dashboard/",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
+const InvitationTokenIndexRoute = InvitationTokenIndexRouteImport.update({
+  id: "/invitation/$token/",
+  path: "/invitation/$token/",
+  getParentRoute: () => rootRouteImport,
+} as any);
 const InterviewSessionIdIndexRoute = InterviewSessionIdIndexRouteImport.update({
-  id: '/interview/$sessionId/',
-  path: '/interview/$sessionId/',
+  id: "/interview/$sessionId/",
+  path: "/interview/$sessionId/",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const InterviewSessionIdResultsRoute =
   InterviewSessionIdResultsRouteImport.update({
-    id: '/interview/$sessionId/results',
-    path: '/interview/$sessionId/results',
+    id: "/interview/$sessionId/results",
+    path: "/interview/$sessionId/results",
     getParentRoute: () => rootRouteImport,
-  } as any)
+  } as any);
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/dashboard': typeof DashboardIndexRoute
-  '/sign-in': typeof SignInIndexRoute
-  '/sign-up': typeof SignUpIndexRoute
-  '/interview/$sessionId/results': typeof InterviewSessionIdResultsRoute
-  '/interview/$sessionId': typeof InterviewSessionIdIndexRoute
+  "/": typeof IndexRoute;
+  "/dashboard": typeof DashboardIndexRoute;
+  "/sign-in": typeof SignInIndexRoute;
+  "/sign-up": typeof SignUpIndexRoute;
+  "/interview/$sessionId/results": typeof InterviewSessionIdResultsRoute;
+  "/interview/$sessionId": typeof InterviewSessionIdIndexRoute;
+  "/invitation/$token": typeof InvitationTokenIndexRoute;
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/dashboard': typeof DashboardIndexRoute
-  '/sign-in': typeof SignInIndexRoute
-  '/sign-up': typeof SignUpIndexRoute
-  '/interview/$sessionId/results': typeof InterviewSessionIdResultsRoute
-  '/interview/$sessionId': typeof InterviewSessionIdIndexRoute
+  "/": typeof IndexRoute;
+  "/dashboard": typeof DashboardIndexRoute;
+  "/sign-in": typeof SignInIndexRoute;
+  "/sign-up": typeof SignUpIndexRoute;
+  "/interview/$sessionId/results": typeof InterviewSessionIdResultsRoute;
+  "/interview/$sessionId": typeof InterviewSessionIdIndexRoute;
+  "/invitation/$token": typeof InvitationTokenIndexRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/dashboard/': typeof DashboardIndexRoute
-  '/sign-in/': typeof SignInIndexRoute
-  '/sign-up/': typeof SignUpIndexRoute
-  '/interview/$sessionId/results': typeof InterviewSessionIdResultsRoute
-  '/interview/$sessionId/': typeof InterviewSessionIdIndexRoute
+  __root__: typeof rootRouteImport;
+  "/": typeof IndexRoute;
+  "/dashboard/": typeof DashboardIndexRoute;
+  "/sign-in/": typeof SignInIndexRoute;
+  "/sign-up/": typeof SignUpIndexRoute;
+  "/interview/$sessionId/results": typeof InterviewSessionIdResultsRoute;
+  "/interview/$sessionId/": typeof InterviewSessionIdIndexRoute;
+  "/invitation/$token/": typeof InvitationTokenIndexRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
+  fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
-    | '/'
-    | '/dashboard'
-    | '/sign-in'
-    | '/sign-up'
-    | '/interview/$sessionId/results'
-    | '/interview/$sessionId'
-  fileRoutesByTo: FileRoutesByTo
+    | "/"
+    | "/dashboard"
+    | "/sign-in"
+    | "/sign-up"
+    | "/interview/$sessionId/results"
+    | "/interview/$sessionId"
+    | "/invitation/$token";
+  fileRoutesByTo: FileRoutesByTo;
   to:
-    | '/'
-    | '/dashboard'
-    | '/sign-in'
-    | '/sign-up'
-    | '/interview/$sessionId/results'
-    | '/interview/$sessionId'
+    | "/"
+    | "/dashboard"
+    | "/sign-in"
+    | "/sign-up"
+    | "/interview/$sessionId/results"
+    | "/interview/$sessionId"
+    | "/invitation/$token";
   id:
-    | '__root__'
-    | '/'
-    | '/dashboard/'
-    | '/sign-in/'
-    | '/sign-up/'
-    | '/interview/$sessionId/results'
-    | '/interview/$sessionId/'
-  fileRoutesById: FileRoutesById
+    | "__root__"
+    | "/"
+    | "/dashboard/"
+    | "/sign-in/"
+    | "/sign-up/"
+    | "/interview/$sessionId/results"
+    | "/interview/$sessionId/"
+    | "/invitation/$token/";
+  fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  DashboardIndexRoute: typeof DashboardIndexRoute
-  SignInIndexRoute: typeof SignInIndexRoute
-  SignUpIndexRoute: typeof SignUpIndexRoute
-  InterviewSessionIdResultsRoute: typeof InterviewSessionIdResultsRoute
-  InterviewSessionIdIndexRoute: typeof InterviewSessionIdIndexRoute
+  IndexRoute: typeof IndexRoute;
+  DashboardIndexRoute: typeof DashboardIndexRoute;
+  SignInIndexRoute: typeof SignInIndexRoute;
+  SignUpIndexRoute: typeof SignUpIndexRoute;
+  InterviewSessionIdResultsRoute: typeof InterviewSessionIdResultsRoute;
+  InterviewSessionIdIndexRoute: typeof InterviewSessionIdIndexRoute;
+  InvitationTokenIndexRoute: typeof InvitationTokenIndexRoute;
 }
 
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sign-up/': {
-      id: '/sign-up/'
-      path: '/sign-up'
-      fullPath: '/sign-up'
-      preLoaderRoute: typeof SignUpIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sign-in/': {
-      id: '/sign-in/'
-      path: '/sign-in'
-      fullPath: '/sign-in'
-      preLoaderRoute: typeof SignInIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard/': {
-      id: '/dashboard/'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/interview/$sessionId/': {
-      id: '/interview/$sessionId/'
-      path: '/interview/$sessionId'
-      fullPath: '/interview/$sessionId'
-      preLoaderRoute: typeof InterviewSessionIdIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/interview/$sessionId/results': {
-      id: '/interview/$sessionId/results'
-      path: '/interview/$sessionId/results'
-      fullPath: '/interview/$sessionId/results'
-      preLoaderRoute: typeof InterviewSessionIdResultsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+    "/": {
+      id: "/";
+      path: "/";
+      fullPath: "/";
+      preLoaderRoute: typeof IndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/sign-up/": {
+      id: "/sign-up/";
+      path: "/sign-up";
+      fullPath: "/sign-up";
+      preLoaderRoute: typeof SignUpIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/sign-in/": {
+      id: "/sign-in/";
+      path: "/sign-in";
+      fullPath: "/sign-in";
+      preLoaderRoute: typeof SignInIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/dashboard/": {
+      id: "/dashboard/";
+      path: "/dashboard";
+      fullPath: "/dashboard";
+      preLoaderRoute: typeof DashboardIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/invitation/$token/": {
+      id: "/invitation/$token/";
+      path: "/invitation/$token";
+      fullPath: "/invitation/$token";
+      preLoaderRoute: typeof InvitationTokenIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/interview/$sessionId/": {
+      id: "/interview/$sessionId/";
+      path: "/interview/$sessionId";
+      fullPath: "/interview/$sessionId";
+      preLoaderRoute: typeof InterviewSessionIdIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/interview/$sessionId/results": {
+      id: "/interview/$sessionId/results";
+      path: "/interview/$sessionId/results";
+      fullPath: "/interview/$sessionId/results";
+      preLoaderRoute: typeof InterviewSessionIdResultsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
   }
 }
 
@@ -163,7 +183,8 @@ const rootRouteChildren: RootRouteChildren = {
   SignUpIndexRoute: SignUpIndexRoute,
   InterviewSessionIdResultsRoute: InterviewSessionIdResultsRoute,
   InterviewSessionIdIndexRoute: InterviewSessionIdIndexRoute,
-}
+  InvitationTokenIndexRoute: InvitationTokenIndexRoute,
+};
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();

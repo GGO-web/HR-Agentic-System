@@ -1,26 +1,26 @@
-import { Navigate } from "@tanstack/react-router"
-import { Button } from "@workspace/ui/components/button"
+import { Navigate } from "@tanstack/react-router";
+import { Button } from "@workspace/ui/components/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@workspace/ui/components/card"
-import { LoadingSpinner } from "@workspace/ui/components/shared/loading-spinner"
-import { Building2, Shield, User } from "lucide-react"
-import { useTranslation } from "react-i18next"
+} from "@workspace/ui/components/card";
+import { LoadingSpinner } from "@workspace/ui/components/shared/loading-spinner";
+import { Building2, Shield, User } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
-import type { ReactNode } from "react"
+import type { ReactNode } from "react";
 
-import { useAuth } from "@/hooks/useAuth"
-import { type UserRole } from "@/types/userRole"
+import { useAuth } from "@/hooks/useAuth";
+import { type UserRole } from "@/types/userRole";
 
 interface RoleProtectedRouteProps {
-  children: ReactNode
-  allowedRoles: UserRole[]
-  requireAuth?: boolean
-  fallback?: ReactNode
+  children: ReactNode;
+  allowedRoles: UserRole[];
+  requireAuth?: boolean;
+  fallback?: ReactNode;
 }
 
 export function RoleProtectedRoute({
@@ -29,26 +29,26 @@ export function RoleProtectedRoute({
   requireAuth = true,
   fallback,
 }: RoleProtectedRouteProps) {
-  const { isSignedIn, isLoading, isHRManager, isCandidate, role } = useAuth()
-  const { t } = useTranslation()
+  const { isSignedIn, isLoading, isHRManager, isCandidate, role } = useAuth();
+  const { t } = useTranslation();
 
   // Show loading state
   if (isLoading || !role) {
-    return <LoadingSpinner fullScreen text={t("common.loading")} />
+    return <LoadingSpinner fullScreen text={t("common.loading")} />;
   }
 
   // Check if user has the required role
-  const hasRequiredRole = allowedRoles.includes(role)
+  const hasRequiredRole = allowedRoles.includes(role);
 
   // Check if authentication is required
   if (requireAuth && !isSignedIn) {
-    return <Navigate to="/sign-in" />
+    return <Navigate to="/sign-in" />;
   }
 
   if (!hasRequiredRole) {
     // Show custom fallback if provided
     if (fallback) {
-      return <>{fallback}</>
+      return <>{fallback}</>;
     }
 
     // Show default unauthorized message
@@ -98,8 +98,8 @@ export function RoleProtectedRoute({
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
-  return <>{children}</>
+  return <>{children}</>;
 }

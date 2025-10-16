@@ -1,23 +1,23 @@
-import { createFileRoute } from "@tanstack/react-router"
-import { LoadingSpinner } from "@workspace/ui/components/shared/loading-spinner"
+import { createFileRoute } from "@tanstack/react-router";
+import { LoadingSpinner } from "@workspace/ui/components/shared/loading-spinner";
 
-import { useAuth } from "../../hooks/useAuth"
-import { RoleProtectedRoute } from "../sign-up/-components/RoleProtectedRoute"
+import { useAuth } from "../../hooks/useAuth";
+import { RoleProtectedRoute } from "../sign-up/-components/RoleProtectedRoute";
 
-import { CandidateDashboard } from "./-components/CandidateDashboard/CandidateDashboard"
-import { HRDashboard } from "./-components/HRDashboard/HRDashboard"
+import { CandidateDashboard } from "./-components/CandidateDashboard/CandidateDashboard";
+import { HRDashboard } from "./-components/HRDashboard/HRDashboard";
 
-import { UserRole } from "@/types/userRole"
+import { UserRole } from "@/types/userRole";
 
 export const Route = createFileRoute("/dashboard/")({
   component: DashboardPage,
-})
+});
 
 function DashboardPage() {
-  const { isHRManager, isCandidate, isLoading } = useAuth()
+  const { isHRManager, isCandidate, isLoading } = useAuth();
 
   if (isLoading) {
-    return <LoadingSpinner fullScreen text="Loading..." />
+    return <LoadingSpinner fullScreen text="Loading..." />;
   }
 
   return (
@@ -28,5 +28,5 @@ function DashboardPage() {
       {isHRManager && <HRDashboard />}
       {isCandidate && <CandidateDashboard />}
     </RoleProtectedRoute>
-  )
+  );
 }

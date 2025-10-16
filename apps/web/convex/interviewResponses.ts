@@ -1,5 +1,6 @@
-import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+
+import { mutation, query } from "./_generated/server";
 
 // Create a new interview response
 export const create = mutation({
@@ -19,7 +20,7 @@ export const create = mutation({
       aiAnalysis: args.aiAnalysis,
       createdAt: Date.now(),
     });
-    
+
     return responseId;
   },
 });
@@ -30,7 +31,9 @@ export const getByInterviewSession = query({
   handler: async (ctx, args) => {
     return await ctx.db
       .query("interviewResponses")
-      .withIndex("by_interview_session", (q) => q.eq("interviewSessionId", args.interviewSessionId))
+      .withIndex("by_interview_session", (q) =>
+        q.eq("interviewSessionId", args.interviewSessionId),
+      )
       .collect();
   },
 });
@@ -55,7 +58,7 @@ export const updateAnalysis = mutation({
   },
   handler: async (ctx, args) => {
     const { id, ...updates } = args;
-    
+
     await ctx.db.patch(id, updates);
     return id;
   },

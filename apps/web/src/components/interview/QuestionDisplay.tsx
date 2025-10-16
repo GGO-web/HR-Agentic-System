@@ -1,36 +1,36 @@
-import { Button } from "@workspace/ui/components/button"
-import { useState } from "react"
-import { useTranslation } from "react-i18next"
+import { Button } from "@workspace/ui/components/button";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface QuestionDisplayProps {
-  question: string
-  questionNumber: number
+  question: string;
+  questionNumber: number;
 }
 
 export function QuestionDisplay({
   question,
   questionNumber,
 }: QuestionDisplayProps) {
-  const [isTextVisible, setIsTextVisible] = useState(false)
-  const [isPlaying, setIsPlaying] = useState(false)
-  const { t } = useTranslation()
+  const [isTextVisible, setIsTextVisible] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const { t } = useTranslation();
 
   // Function to speak the question using text-to-speech
   const speakQuestion = () => {
     if ("speechSynthesis" in window) {
-      const speech = new SpeechSynthesisUtterance(question)
-      speech.lang = "en-US"
-      speech.rate = 0.9
-      speech.pitch = 1
+      const speech = new SpeechSynthesisUtterance(question);
+      speech.lang = "en-US";
+      speech.rate = 0.9;
+      speech.pitch = 1;
 
-      speech.onstart = () => setIsPlaying(true)
-      speech.onend = () => setIsPlaying(false)
-      speech.onerror = () => setIsPlaying(false)
+      speech.onstart = () => setIsPlaying(true);
+      speech.onend = () => setIsPlaying(false);
+      speech.onerror = () => setIsPlaying(false);
 
-      window.speechSynthesis.cancel() // Cancel any ongoing speech
-      window.speechSynthesis.speak(speech)
+      window.speechSynthesis.cancel(); // Cancel any ongoing speech
+      window.speechSynthesis.speak(speech);
     }
-  }
+  };
 
   return (
     <div className="border-border bg-card rounded-lg border p-6 shadow-md">
@@ -66,5 +66,5 @@ export function QuestionDisplay({
         </div>
       )}
     </div>
-  )
+  );
 }
