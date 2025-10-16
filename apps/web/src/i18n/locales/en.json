@@ -1,30 +1,14 @@
 {
   "common": {
     "loading": "Loading...",
-    "submit": "Submit",
     "cancel": "Cancel",
     "save": "Save",
     "edit": "Edit",
     "delete": "Delete",
     "deleting": "Deleting...",
-    "add": "Add",
-    "continue": "Continue",
-    "back": "Back",
-    "next": "Next",
-    "previous": "Previous",
-    "close": "Close",
-    "confirm": "Confirm",
-    "yes": "Yes",
-    "no": "No",
-    "ok": "OK",
-    "error": "Error",
-    "success": "Success",
-    "warning": "Warning",
-    "info": "Information",
     "candidate": "Candidate"
   },
   "uploadButton": {
-    "uploadImageSuccess": "Image uploaded successfully",
     "clickHereOrDragImage": "<b>Click here</b> or <b>drag</b> an image to upload it",
     "dropImage": "<b>Drop the image!</b>",
     "warning": "Image must be less than 5MB and of type png, jpg, jpeg, or webp",
@@ -66,7 +50,6 @@
   },
   "auth": {
     "roleSelection": {
-      "title": "Choose Your Role",
       "joinTitle": "Join HR Agentic System",
       "joinSubtitle": "Choose your role to get started with AI-powered interviews",
       "hrManager": {
@@ -101,7 +84,6 @@
       "candidateSetup": "Create your candidate account to start taking interviews."
     },
     "userCreation": {
-      "settingUpAccount": "Setting up your account...",
       "actions": {
         "success": "User created successfully",
         "error": "Failed to create user"
@@ -113,22 +95,13 @@
       "title": "HR Dashboard",
       "jobDescriptions": {
         "title": "Job Descriptions",
-        "addNew": "Add New",
         "noJobDescriptions": "No job descriptions yet.",
         "actions": {
-          "rename": "Rename job description",
           "create": {
             "success": "Job description created successfully",
             "error": "Failed to create job description"
           },
           "edit": {
-            "title": "Edit Job Description",
-            "save": "Save",
-            "cancel": "Cancel",
-            "saving": "Saving...",
-            "savingError": "Failed to save job description",
-            "savingSuccess": "Job description updated successfully",
-            "success": "Job description updated successfully",
             "error": "Failed to update job description"
           },
           "delete": "Delete job description",
@@ -180,15 +153,6 @@
     },
     "candidate": {
       "title": "Candidate Dashboard",
-      "yourInterviews": "Your Interviews",
-      "interviewSession": "Interview Session",
-      "status": "Status",
-      "scheduledFor": "Scheduled for",
-      "startInterview": "Start Interview",
-      "continueInterview": "Continue Interview",
-      "viewResults": "View Results",
-      "noInterviews": "No interviews scheduled yet.",
-      "noInterviewsDescription": "Your interviews will appear here once they are scheduled by HR.",
       "invitedJobDescriptions": {
         "title": "Job Descriptions",
         "description": "You've been invited to interview for these positions",
@@ -213,34 +177,20 @@
   "attachments": {
     "actions": {
       "create": {
-        "success": "Attachment created successfully",
         "error": "Failed to create attachment"
-      },
-      "delete": {
-        "success": "Attachment deleted successfully",
-        "error": "Failed to delete attachment"
       }
     }
   },
   "company": {
     "profile": {
-      "title": "Company Profile",
       "noProfile": "No Company Profile",
       "noProfileDescription": "Create your company profile to get started with job postings.",
       "createProfile": "Create Company Profile",
       "editProfile": "Edit Profile",
-      "updateProfile": "Update Profile",
       "companyInformation": "Company Information",
-      "companyLogo": "Company Logo",
-      "companyName": "Company Name",
-      "description": "Company Description",
-      "about": "About",
-      "saving": "Saving...",
-      "createProfileButton": "Create Profile",
-      "updateProfileButton": "Update Profile"
+      "companyLogo": "Company Logo"
     },
     "form": {
-      "title": "Company Profile",
       "createTitle": "Create Company Profile",
       "editTitle": "Edit Company Profile",
       "companyName": "Company Name",
@@ -248,7 +198,6 @@
       "description": "Company Description",
       "descriptionPlaceholder": "Brief description of your company...",
       "cancel": "Cancel",
-      "save": "Save",
       "saving": "Saving...",
       "create": "Create Profile",
       "update": "Update Profile",
@@ -256,9 +205,7 @@
       "updateSuccess": "Company profile updated successfully!",
       "saveError": "Failed to save company profile. Please try again.",
       "userNotFound": "User not found. Please try again.",
-      "uploadError": "Failed to upload image. Please try again.",
-      "removeLogoSuccess": "Company logo removed successfully!",
-      "removeLogoError": "Failed to remove logo. Please try again."
+      "uploadError": "Failed to upload image. Please try again."
     }
   },
   "interview": {
@@ -307,23 +254,18 @@
       "pending": "Pending"
     },
     "expired": {
-      "title": "Invitation Expired",
       "message": "This invitation has expired. Please contact the company for a new invitation."
     },
     "accepted": {
-      "title": "Invitation Accepted",
       "message": "You have accepted this invitation. You can now view the job description and start the interview process."
     },
     "declined": {
-      "title": "Invitation Declined",
       "message": "You have declined this invitation. If you change your mind, please contact the company."
     },
     "actions": {
       "accept": "Accept Invitation",
-      "accepting": "Accepting...",
       "decline": "Decline",
-      "declining": "Declining...",
-      "goToDashboard": "Go to Dashboard",
+      "goToDashboard": "Go to dashboard",
       "acceptSuccess": "Invitation accepted! You can now view the job description.",
       "declineSuccess": "Invitation declined.",
       "acceptError": "Failed to accept invitation. Please try again.",
