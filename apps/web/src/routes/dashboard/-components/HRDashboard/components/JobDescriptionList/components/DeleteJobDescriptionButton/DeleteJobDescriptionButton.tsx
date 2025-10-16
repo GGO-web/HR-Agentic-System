@@ -14,7 +14,7 @@ import { Button } from "@workspace/ui/components/button";
 import { Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import { useDeleteJobDescriptionMutation } from "../../../JobDescriptionForm/hooks/useDeleteJobDescriptionMutation";
+import { useDeleteJobDescriptionMutation } from "@/routes/dashboard/-components/HRDashboard/components/JobDescriptionForm/hooks/useDeleteJobDescriptionMutation";
 
 interface DeleteJobDescriptionButtonProps {
   job: Doc<"jobDescriptions">;
