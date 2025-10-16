@@ -39,9 +39,11 @@ interface JobDescriptionFormProps {
   job?: Doc<"jobDescriptions">;
   onClose?: () => void;
   onSuccess?: () => void;
+  className?: string;
 }
 
 export function JobDescriptionForm({
+  className,
   trigger,
   companyId,
   userId,
@@ -180,7 +182,7 @@ export function JobDescriptionForm({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button>
+          <Button className={className}>
             <PlusIcon className="size-4" />
             {t("dashboard.hr.jobDescriptions.form.buttons.addNew")}
           </Button>
