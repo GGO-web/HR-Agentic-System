@@ -15,8 +15,6 @@ export const create = mutation({
       jobDescriptionId: args.jobDescriptionId,
       status: "scheduled",
       scheduledAt: args.scheduledAt,
-      startedAt: undefined,
-      completedAt: undefined,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });
