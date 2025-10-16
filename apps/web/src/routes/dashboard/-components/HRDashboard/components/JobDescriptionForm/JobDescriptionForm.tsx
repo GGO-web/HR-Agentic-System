@@ -187,7 +187,7 @@ export function JobDescriptionForm({
         )}
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent className="max-h-[90dvh] overflow-y-auto">
         <DialogTitle>
           {t("dashboard.hr.jobDescriptions.form.title")}
         </DialogTitle>
@@ -235,7 +235,7 @@ export function JobDescriptionForm({
                   <Textarea
                     id="description"
                     {...field}
-                    className="min-h-30"
+                    className="max-h-100 min-h-30"
                     disabled={isSubmitting}
                     placeholder={t(
                       "dashboard.hr.jobDescriptions.form.jobDescriptionPlaceholder",
