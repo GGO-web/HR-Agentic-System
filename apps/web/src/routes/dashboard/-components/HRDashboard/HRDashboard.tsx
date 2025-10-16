@@ -107,7 +107,7 @@ export function HRDashboard() {
         <div className="border-border bg-card col-span-2 rounded-lg border p-4 shadow-sm">
           {selectedJobId ? (
             <>
-              <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                 <h2 className="flex-1 text-xl font-semibold">
                   {t("dashboard.hr.interviewQuestions.title")}
                 </h2>
@@ -126,7 +126,7 @@ export function HRDashboard() {
               {questions && questions.length > 0 ? (
                 <QuestionsList questions={questions} />
               ) : (
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground text-sm md:text-base">
                   {t("dashboard.hr.interviewQuestions.noQuestions")}
                 </p>
               )}
