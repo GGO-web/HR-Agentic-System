@@ -7,7 +7,9 @@ export function CandidateDashboard() {
 
   return (
     <div className="container mx-auto space-y-8 p-6">
-      <h1 className="text-3xl font-bold">{t("dashboard.candidate.title")}</h1>
+      <h1 className="text-2xl font-bold md:text-3xl">
+        {t("dashboard.candidate.title")}
+      </h1>
 
       {/* Invited Job Descriptions Section */}
       <InvitedJobDescriptions />
