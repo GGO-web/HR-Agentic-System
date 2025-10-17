@@ -19,9 +19,11 @@ import { useDeleteJobDescriptionMutation } from "../JobDescriptionForm/hooks/use
 interface DeleteJobDescriptionButtonProps {
   job: Doc<"jobDescriptions">;
   onDeleted?: (deletedJobId: Id<"jobDescriptions">) => void;
+  triggerProps?: React.ComponentProps<typeof Button>;
 }
 
 export function DeleteJobDescriptionButton({
+  triggerProps,
   job,
   onDeleted,
 }: DeleteJobDescriptionButtonProps) {
@@ -38,14 +40,12 @@ export function DeleteJobDescriptionButton({
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button
-          size="sm"
           variant="ghost"
-          className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
           title={t("dashboard.hr.jobDescriptions.actions.delete")}
           disabled={isDeleting}
-          onClick={(e) => e.stopPropagation()}
+          {...triggerProps}
         >
-          <Trash2 className="h-4 w-4" />
+          <Trash2 className="h-full w-full" />
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>

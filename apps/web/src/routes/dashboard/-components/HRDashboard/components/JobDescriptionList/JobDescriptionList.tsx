@@ -38,49 +38,56 @@ export function JobDescriptionList({
           )}
         >
           <div className="cursor-pointer" onClick={() => onSelect(job._id)}>
-            <h3 className="font-medium">{job.title}</h3>
+            <div className="flex flex-wrap items-center gap-3">
+              <h3 className="flex-1 font-medium">{job.title}</h3>
+
+              <div className="flex gap-3">
+                <InviteCandidateForm
+                  job={job}
+                  onSuccess={onJobUpdated}
+                  trigger={
+                    <Button
+                      variant="ghost"
+                      className="size-7 rounded-full p-1.5 hover:bg-white"
+                      title={t("dashboard.hr.inviteCandidate.button")}
+                    >
+                      <UserPlus className="h-full w-full" />
+                    </Button>
+                  }
+                />
+
+                <JobDescriptionForm
+                  job={job}
+                  onSuccess={onJobUpdated}
+                  trigger={
+                    <Button
+                      variant="ghost"
+                      className="size-7 rounded-full p-1.5 hover:bg-white"
+                      title={t(
+                        "dashboard.hr.jobDescriptions.form.buttons.edit",
+                      )}
+                    >
+                      <Edit2 className="h-full w-full" />
+                    </Button>
+                  }
+                />
+
+                <DeleteJobDescriptionButton
+                  triggerProps={{
+                    className:
+                      "size-7 rounded-full hover:bg-white p-1.5 text-red-600 hover:text-red-700",
+                  }}
+                  job={job}
+                  onDeleted={onJobDeleted}
+                />
+              </div>
+            </div>
             <p className="text-muted-foreground mt-1 line-clamp-2 text-sm">
               {job.description}
             </p>
             <p className="text-muted-foreground mt-2 text-xs">
               {new Date(job.createdAt).toLocaleDateString()}
             </p>
-          </div>
-
-          <div className="group:opacity-100 group:has-active:opacity-100 absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100">
-            <div className="flex gap-1">
-              <InviteCandidateForm
-                job={job}
-                onSuccess={onJobUpdated}
-                trigger={
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="size-8 p-0"
-                    title={t("dashboard.hr.inviteCandidate.button")}
-                  >
-                    <UserPlus className="size-4" />
-                  </Button>
-                }
-              />
-
-              <JobDescriptionForm
-                job={job}
-                onSuccess={onJobUpdated}
-                trigger={
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="size-8 p-0"
-                    title={t("dashboard.hr.jobDescriptions.form.buttons.edit")}
-                  >
-                    <Edit2 className="size-4" />
-                  </Button>
-                }
-              />
-
-              <DeleteJobDescriptionButton job={job} onDeleted={onJobDeleted} />
-            </div>
           </div>
         </div>
       ))}
