@@ -224,8 +224,6 @@
       "question": "Question",
       "playQuestion": "Play Question",
       "speaking": "Speaking...",
-      "showText": "Show Text",
-      "hideText": "Hide Text",
       "clickToReveal": "Click \"Show Text\" to reveal the question or \"Play Question\" to hear it."
     },
     "audioRecorder": {
