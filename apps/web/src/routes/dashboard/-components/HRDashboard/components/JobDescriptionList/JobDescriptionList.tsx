@@ -50,6 +50,7 @@ export function JobDescriptionList({
                       variant="ghost"
                       className="size-7 rounded-full p-1.5 hover:bg-white"
                       title={t("dashboard.hr.inviteCandidate.button")}
+                      onClick={(e) => e.stopPropagation()}
                     >
                       <UserPlus className="h-full w-full" />
                     </Button>
@@ -66,6 +67,7 @@ export function JobDescriptionList({
                       title={t(
                         "dashboard.hr.jobDescriptions.form.buttons.edit",
                       )}
+                      onClick={(e) => e.stopPropagation()}
                     >
                       <Edit2 className="h-full w-full" />
                     </Button>
@@ -76,6 +78,7 @@ export function JobDescriptionList({
                   triggerProps={{
                     className:
                       "size-7 rounded-full hover:bg-white p-1.5 text-red-600 hover:text-red-700",
+                    onClick: (e) => e.stopPropagation(),
                   }}
                   job={job}
                   onDeleted={onJobDeleted}
