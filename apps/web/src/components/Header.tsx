@@ -21,7 +21,7 @@ export default function Header() {
           className="flex items-center gap-2 font-bold"
         >
           <img src="/logo.png" alt={t("header.logoAlt")} className="h-8 w-8" />
-          {t("header.logoAlt")}
+          <span className="hidden md:block">{t("header.logoAlt")}</span>
         </Link>
 
         {isSignedIn && (
@@ -33,7 +33,7 @@ export default function Header() {
 
       <div className="flex items-center gap-4">
         {isSignedIn && role && (
-          <div className="text-deep-blue flex items-center gap-2">
+          <div className="text-deep-blue hidden items-center gap-2 md:flex">
             {isHRManager ? (
               <Building2 className="size-4" />
             ) : (
@@ -50,7 +50,7 @@ export default function Header() {
           <SignOutButton>
             <Button variant="outline" size="sm" onClick={() => signOut()}>
               <LogOut className="size-4" />
-              {t("navigation.signOut")}
+              <span className="hidden md:block">{t("navigation.signOut")}</span>
             </Button>
           </SignOutButton>
         ) : (
@@ -58,13 +58,17 @@ export default function Header() {
             <Link to={router.routesByPath["/sign-in"].fullPath}>
               <Button variant="outline" size="sm">
                 <LogIn className="size-4" />
-                {t("navigation.signIn")}
+                <span className="hidden md:block">
+                  {t("navigation.signIn")}
+                </span>
               </Button>
             </Link>
             <Link to={router.routesByPath["/sign-up"].fullPath}>
               <Button size="sm">
                 <UserPlus className="size-4" />
-                {t("navigation.signUp")}
+                <span className="hidden md:block">
+                  {t("navigation.signUp")}
+                </span>
               </Button>
             </Link>
           </div>

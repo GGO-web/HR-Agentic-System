@@ -39,9 +39,11 @@ interface JobDescriptionFormProps {
   job?: Doc<"jobDescriptions">;
   onClose?: () => void;
   onSuccess?: () => void;
+  className?: string;
 }
 
 export function JobDescriptionForm({
+  className,
   trigger,
   companyId,
   userId,
@@ -180,14 +182,14 @@ export function JobDescriptionForm({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button>
+          <Button className={className}>
             <PlusIcon className="size-4" />
             {t("dashboard.hr.jobDescriptions.form.buttons.addNew")}
           </Button>
         )}
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent className="max-h-[90dvh] overflow-y-auto">
         <DialogTitle>
           {t("dashboard.hr.jobDescriptions.form.title")}
         </DialogTitle>
@@ -235,7 +237,7 @@ export function JobDescriptionForm({
                   <Textarea
                     id="description"
                     {...field}
-                    className="min-h-30"
+                    className="max-h-100 min-h-30"
                     disabled={isSubmitting}
                     placeholder={t(
                       "dashboard.hr.jobDescriptions.form.jobDescriptionPlaceholder",

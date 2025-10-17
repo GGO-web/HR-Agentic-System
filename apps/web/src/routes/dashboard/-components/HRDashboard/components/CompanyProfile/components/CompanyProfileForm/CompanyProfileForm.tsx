@@ -2,6 +2,12 @@ import { api } from "@convex/_generated/api";
 import { type Doc, type Id } from "@convex/_generated/dataModel";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@workspace/ui/components/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogTitle,
+} from "@workspace/ui/components/dialog";
 import { Input } from "@workspace/ui/components/input";
 import { Label } from "@workspace/ui/components/label";
 import { useMutation } from "convex/react";
@@ -11,7 +17,7 @@ import { type FieldErrors, FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
-import { UploadButtton } from "@/components/upload-button/UploadButton";
+import { UploadButton } from "@/components/upload-button/UploadButton";
 import { useAuth } from "@/hooks/useAuth";
 import { companySchema, type CompanyFormData } from "@/schema/company";
 import { uploadImageToS3, deleteLogoFromS3 } from "@/services/s3Service";
@@ -19,16 +25,19 @@ import { uploadImageToS3, deleteLogoFromS3 } from "@/services/s3Service";
 interface CompanyProfileFormProps {
   companyId?: Id<"companies">;
   companyData?: Doc<"companies"> | null;
-  onClose: () => void;
+  open: boolean;
+  setOpen: (open: boolean) => void;
 }
 
 export function CompanyProfileForm({
+  open,
+  setOpen,
   companyId,
   companyData,
-  onClose,
 }: CompanyProfileFormProps) {
   const { t } = useTranslation();
   const { user, userData } = useAuth();
+
   const createCompany = useMutation(api.companies.create);
   const updateCompany = useMutation(api.companies.update);
   const updateUser = useMutation(api.users.update);
@@ -42,11 +51,12 @@ export function CompanyProfileForm({
   const methods = useForm<CompanyFormData>({
     resolver: zodResolver(companySchema),
     mode: "onChange",
-    defaultValues: {
-      name: (companyData?.name as string) || "",
-      description: (companyData?.description as string) || "",
+    values: {
+      name: companyData?.name || "",
+      description: companyData?.description || "",
     },
   });
+
   const {
     register,
     handleSubmit,
@@ -57,6 +67,7 @@ export function CompanyProfileForm({
     setImageFile(file);
 
     if (!companyIdParam) return;
+
     try {
       const result = await uploadImageToS3(file, companyIdParam);
 
@@ -82,6 +93,7 @@ export function CompanyProfileForm({
       setLogoUrl(null);
       return;
     }
+
     // Determine which logo URL to delete (current state or original company data)
     const logoToDelete = logoUrl || companyData?.logoUrl;
 
@@ -111,8 +123,9 @@ export function CompanyProfileForm({
           ...data,
           logoUrl: logoUrl || undefined,
         });
+
         toast.success(t("company.form.updateSuccess"));
-        onClose();
+        setOpen(false);
       } else {
         // Create new company and link it to the user
         if (!userData?._id || !user?.id) {
@@ -138,7 +151,7 @@ export function CompanyProfileForm({
         });
 
         toast.success(t("company.form.createSuccess"));
-        onClose();
+        setOpen(false);
       }
     } catch {
       toast.error(t("company.form.saveError"));
@@ -153,16 +166,15 @@ export function CompanyProfileForm({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-background max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg p-6 shadow-lg">
-        <div className="mb-6 flex items-center gap-2">
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent className="max-h-[90dvh] overflow-y-auto">
+        <DialogTitle className="flex items-center gap-2">
           <Building2 className="text-primary h-6 w-6" />
-          <h2 className="text-2xl font-semibold">
-            {isEditing
-              ? t("company.form.editTitle")
-              : t("company.form.createTitle")}
-          </h2>
-        </div>
+
+          {isEditing
+            ? t("company.form.editTitle")
+            : t("company.form.createTitle")}
+        </DialogTitle>
 
         <FormProvider {...methods}>
           <form
@@ -175,7 +187,8 @@ export function CompanyProfileForm({
                 <Building2 className="h-5 w-5" />
                 {t("company.profile.companyLogo")}
               </h3>
-              <UploadButtton
+
+              <UploadButton
                 defaultPreview={companyData?.logoUrl}
                 onUpload={handleUploadImage}
                 onRemove={handleRemoveLogo}
@@ -196,6 +209,7 @@ export function CompanyProfileForm({
                 >
                   {t("company.form.companyName")} *
                 </Label>
+
                 <Input
                   id="name"
                   type="text"
@@ -203,6 +217,7 @@ export function CompanyProfileForm({
                   className={errors.name ? "border-red-500" : ""}
                   placeholder={t("company.form.companyNamePlaceholder")}
                 />
+
                 {errors.name && (
                   <p className="mt-1 text-xs text-red-500">
                     {errors.name.message}
@@ -217,6 +232,7 @@ export function CompanyProfileForm({
                 >
                   {t("company.form.description")}
                 </Label>
+
                 <textarea
                   id="description"
                   {...register("description")}
@@ -228,16 +244,16 @@ export function CompanyProfileForm({
               </div>
             </div>
 
-            {/* Form Actions */}
-            <div className="flex justify-end gap-3 border-t pt-6">
+            <DialogFooter className="flex justify-end gap-3 border-t pt-6">
               <Button
                 variant="ghost"
                 type="button"
-                onClick={onClose}
+                onClick={() => setOpen(false)}
                 disabled={isSubmitting}
               >
                 {t("company.form.cancel")}
               </Button>
+
               <Button
                 type="submit"
                 className="bg-primary text-primary-foreground rounded-md px-6 py-2"
@@ -249,10 +265,10 @@ export function CompanyProfileForm({
                     ? t("company.form.update")
                     : t("company.form.create")}
               </Button>
-            </div>
+            </DialogFooter>
           </form>
         </FormProvider>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

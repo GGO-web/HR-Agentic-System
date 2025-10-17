@@ -65,23 +65,21 @@ export function HRDashboard() {
   };
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="mx-auto flex flex-col gap-y-3 p-6">
       <h1 className="mb-6 text-3xl font-bold">{t("dashboard.hr.title")}</h1>
 
       {/* Company Profile Section */}
-      <div className="mb-8">
-        <CompanyProfile
-          companyId={companyData?._id}
-          companyData={companyData}
-          onEdit={() => setIsCompanyProfileFormOpen(true)}
-        />
-      </div>
+      <CompanyProfile
+        companyId={companyData?._id}
+        companyData={companyData}
+        onEdit={() => setIsCompanyProfileFormOpen(true)}
+      />
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-y-3 md:grid-cols-3 md:gap-6">
         {/* Left sidebar - Job descriptions */}
-        <div className="border-border bg-card rounded-lg border p-4 shadow-sm">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-xl font-semibold">
+        <div className="border-border bg-card flex flex-col gap-3 rounded-lg border p-4 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="flex-1 text-xl font-semibold">
               {t("dashboard.hr.jobDescriptions.title")}
             </h2>
 
@@ -109,10 +107,11 @@ export function HRDashboard() {
         <div className="border-border bg-card col-span-2 rounded-lg border p-4 shadow-sm">
           {selectedJobId ? (
             <>
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-xl font-semibold">
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                <h2 className="flex-1 text-xl font-semibold">
                   {t("dashboard.hr.interviewQuestions.title")}
                 </h2>
+
                 <Button
                   onClick={handleGenerateQuestions}
                   variant="default"
@@ -127,7 +126,7 @@ export function HRDashboard() {
               {questions && questions.length > 0 ? (
                 <QuestionsList questions={questions} />
               ) : (
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground text-sm md:text-base">
                   {t("dashboard.hr.interviewQuestions.noQuestions")}
                 </p>
               )}
@@ -143,13 +142,12 @@ export function HRDashboard() {
       </div>
 
       {/* Company profile form modal */}
-      {isCompanyProfileFormOpen && (
-        <CompanyProfileForm
-          companyId={companyData?._id}
-          companyData={companyData}
-          onClose={() => setIsCompanyProfileFormOpen(false)}
-        />
-      )}
+      <CompanyProfileForm
+        companyId={companyData?._id}
+        companyData={companyData}
+        open={isCompanyProfileFormOpen}
+        setOpen={setIsCompanyProfileFormOpen}
+      />
     </div>
   );
 }

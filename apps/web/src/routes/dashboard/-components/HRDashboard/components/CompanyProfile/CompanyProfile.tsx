@@ -53,7 +53,7 @@ export function CompanyProfile({ companyData, onEdit }: CompanyProfileProps) {
         <div className="flex flex-col gap-1">
           <h2 className="text-2xl font-bold">{companyData.name}</h2>
 
-          <p className="text-muted-foreground m-0 leading-relaxed">
+          <p className="text-muted-foreground m-0 line-clamp-5 text-sm leading-relaxed md:line-clamp-none md:text-base">
             {companyData.description}
           </p>
         </div>
