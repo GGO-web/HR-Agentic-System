@@ -142,13 +142,12 @@ export function HRDashboard() {
       </div>
 
       {/* Company profile form modal */}
-      {isCompanyProfileFormOpen && (
-        <CompanyProfileForm
-          companyId={companyData?._id}
-          companyData={companyData}
-          onClose={() => setIsCompanyProfileFormOpen(false)}
-        />
-      )}
+      <CompanyProfileForm
+        companyId={companyData?._id}
+        companyData={companyData}
+        open={isCompanyProfileFormOpen}
+        setOpen={setIsCompanyProfileFormOpen}
+      />
     </div>
   );
 }

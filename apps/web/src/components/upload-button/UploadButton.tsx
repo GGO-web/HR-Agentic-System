@@ -22,7 +22,7 @@ interface UploadButtonProps {
   onRemove?: () => void | Promise<void>;
 }
 
-export const UploadButtton: React.FC<UploadButtonProps> = ({
+export const UploadButton: React.FC<UploadButtonProps> = ({
   defaultPreview,
   onUpload,
   onRemove,
