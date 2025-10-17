@@ -2,8 +2,7 @@ import { v } from "convex/values";
 
 import { internal } from "./_generated/api";
 import { type Doc } from "./_generated/dataModel";
-import { action, mutation, query } from "./_generated/server";
-import { questionsService } from "./services/questions/questions.service";
+import { mutation, query } from "./_generated/server";
 
 // Create a new interview question
 export const create = mutation({
@@ -71,42 +70,6 @@ export const remove = mutation({
   args: { id: v.id("interviewQuestions") },
   handler: async (ctx, args) => {
     await ctx.db.delete(args.id);
-  },
-});
-
-export const actionGenerateAndSaveAIQuestions = action({
-  args: {
-    jobDescriptionId: v.id("jobDescriptions"),
-    title: v.string(),
-    description: v.string(),
-  },
-  handler: async (ctx, args) => {
-    // 1. Call API
-    const response = await questionsService.generateQuestions(
-      args.title,
-      args.description,
-    );
-
-    if (!response.ok) {
-      throw new Error(`Error generating AI questions: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    const aiQuestions = data.questions; // assuming returns array
-
-    // 2. Save to Convex DB inside the action using a mutation
-    const questionIds = await Promise.all(
-      aiQuestions.map((question: string) =>
-        ctx.runMutation(internal.interviewQuestions.create, {
-          jobDescriptionId: args.jobDescriptionId,
-          question,
-          order: 0,
-          isAIGenerated: true,
-        }),
-      ),
-    );
-
-    return questionIds;
   },
 });
 
