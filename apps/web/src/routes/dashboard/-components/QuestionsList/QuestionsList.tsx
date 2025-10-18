@@ -46,42 +46,54 @@ export function QuestionsList({ questions }: QuestionsListProps) {
   const sortedQuestions = [...questions].sort((a, b) => a.order - b.order);
 
   return (
-    <div className="space-y-4">
+    <div className="-mx-4 flex flex-col gap-2 md:m-0 md:gap-4 md:border-solid">
       {sortedQuestions.map((question) => (
         <div
           key={question._id}
-          className="border-border bg-background rounded-md border p-4 shadow-sm"
+          className="bg-background md:border-border m-0 rounded-md border border-none p-4 py-2 md:py-4 md:shadow-sm"
         >
           {editingId === question._id ? (
             <div className="space-y-2">
               <textarea
                 value={editText}
                 onChange={(e) => setEditText(e.target.value)}
-                className="border-input bg-background w-full rounded-md border p-2"
+                className="border-input bg-background w-full rounded-md border p-2 text-sm md:text-base"
                 rows={3}
               />
-              <div className="flex justify-end gap-2">
-                <Button onClick={() => setEditingId(null)} variant="outline">
+              <div className="flex w-full justify-end gap-2 sm:w-auto">
+                <Button
+                  className="flex-1"
+                  onClick={() => setEditingId(null)}
+                  variant="outline"
+                >
                   {t("common.cancel")}
                 </Button>
-                <Button onClick={() => handleSave(question._id)}>
+                <Button
+                  className="flex-1"
+                  onClick={() => handleSave(question._id)}
+                >
                   {t("common.save")}
                 </Button>
               </div>
             </div>
           ) : (
             <>
-              <div className="flex items-start justify-between">
-                <p className="text-lg">{question.question}</p>
-                <div className="flex gap-2">
+              <div className="flex flex-col items-start justify-between gap-4 sm:flex-row">
+                <p className="flex-1 text-sm md:text-base">
+                  {question.question}
+                </p>
+
+                <div className="flex w-full justify-end gap-2 sm:w-auto">
                   <Button
                     variant="outline"
+                    className="flex-1"
                     onClick={() => handleEdit(question)}
                     disabled={isUpdating}
                   >
                     {t("common.edit")}
                   </Button>
                   <Button
+                    className="flex-1"
                     onClick={() => handleDelete(question._id)}
                     disabled={isDeleting}
                   >
