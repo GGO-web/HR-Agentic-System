@@ -20,18 +20,13 @@ export function QuestionDisplay({
       const availableVoices = window.speechSynthesis.getVoices();
       if (availableVoices.length > 0) {
         setVoices(availableVoices.filter((voice) => voice.lang === "en-US"));
-        // Optional: Log voices to the console to see what's available
-        // console.log("Available voices:", availableVoices);
       }
     };
 
-    // The 'voiceschanged' event fires when the list of voices is ready
     window.speechSynthesis.onvoiceschanged = getVoices;
 
-    // Call it once initially in case the voices are already loaded
     getVoices();
 
-    // Cleanup the event listener when the component unmounts
     return () => {
       window.speechSynthesis.onvoiceschanged = null;
     };
