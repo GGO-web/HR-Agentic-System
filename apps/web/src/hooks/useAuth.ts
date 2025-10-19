@@ -22,7 +22,7 @@ interface AuthReturn {
 export function useAuth(): AuthReturn {
   const { isLoading: isConvexLoading, isAuthenticated: isSignedIn } =
     useConvexAuth();
-  const { user } = useUser();
+  const { user, isLoaded: isClerkLoaded } = useUser();
 
   // Get user data from Convex if authenticated
   const userData = useQuery(
@@ -38,6 +38,10 @@ export function useAuth(): AuthReturn {
       : "skip",
   );
 
+  // Determine if we're still loading
+  const isLoading =
+    isConvexLoading || !isClerkLoaded || (isSignedIn && userData === undefined);
+
   // Determine role and permissions
   const role = userData?.role || null;
   const isHRManager =
@@ -47,7 +51,7 @@ export function useAuth(): AuthReturn {
 
   return {
     isSignedIn,
-    isLoading: isConvexLoading,
+    isLoading,
     user,
     userData,
     companyData,

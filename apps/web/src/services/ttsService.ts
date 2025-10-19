@@ -1,12 +1,4 @@
-export interface TTSOptions {
-  cfgValue?: number;
-  inferenceTimesteps?: number;
-  normalize?: boolean;
-  denoise?: boolean;
-  retryBadcase?: boolean;
-  retryBadcaseMaxTimes?: number;
-  retryBadcaseRatioThreshold?: number;
-}
+// TTS options are now handled entirely on the backend
 
 export interface TTSResponse {
   audioBlob: Blob;
@@ -26,12 +18,9 @@ export class TTSService {
     return TTSService.instance;
   }
 
-  async generateSpeech(
-    text: string,
-    options: TTSOptions = {},
-  ): Promise<TTSResponse> {
+  async generateSpeech(text: string): Promise<TTSResponse> {
     // Check cache first
-    const cacheKey = this.getCacheKey(text, options);
+    const cacheKey = text; // Simple cache key based on text only
     if (this.audioCache.has(cacheKey)) {
       const cachedUrl = this.audioCache.get(cacheKey)!;
       return {
@@ -46,15 +35,7 @@ export class TTSService {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        text,
-        cfg_value: options.cfgValue ?? 2.0,
-        inference_timesteps: options.inferenceTimesteps ?? 10,
-        normalize: options.normalize ?? true,
-        denoise: options.denoise ?? true,
-        retry_badcase: options.retryBadcase ?? true,
-        retry_badcase_max_times: options.retryBadcaseMaxTimes ?? 3,
-        retry_badcase_ratio_threshold:
-          options.retryBadcaseRatioThreshold ?? 6.0,
+        text, // Only send text, let backend handle all configuration
       }),
     });
 
@@ -74,12 +55,7 @@ export class TTSService {
     return { audioBlob, audioUrl };
   }
 
-  private getCacheKey(text: string, options: TTSOptions): string {
-    const sortedOptions = Object.keys(options).sort((a, b) =>
-      a.localeCompare(b),
-    );
-    return `${text}-${JSON.stringify(sortedOptions)}`;
-  }
+  // Cache key is now just the text since all options are handled on backend
 
   private async urlToBlob(url: string): Promise<Blob> {
     const response = await fetch(url);
@@ -91,6 +67,8 @@ export class TTSService {
     this.audioCache.forEach((url) => URL.revokeObjectURL(url));
     this.audioCache.clear();
   }
+
+  // All TTS configuration is now handled on the backend
 }
 
 export const ttsService = TTSService.getInstance();
