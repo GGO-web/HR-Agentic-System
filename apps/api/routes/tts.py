@@ -12,25 +12,14 @@ router = APIRouter(prefix="/tts", tags=["Text-to-Speech"])
 
 class TTSRequest(BaseModel):
     text: str
-    cfg_value: Optional[float] = 2.0
-    inference_timesteps: Optional[int] = 10
+    cfg_value: Optional[float] = 2  # Higher for better quality
+    inference_timesteps: Optional[int] = 10  # Higher for better voice quality
     normalize: Optional[bool] = True
     denoise: Optional[bool] = True
     retry_badcase: Optional[bool] = True
-    retry_badcase_max_times: Optional[int] = 3
-    retry_badcase_ratio_threshold: Optional[float] = 6.0
-
-
-class VoiceCloneRequest(BaseModel):
-    text: str
-    prompt_text: str
-    cfg_value: Optional[float] = 2.0
-    inference_timesteps: Optional[int] = 10
-    normalize: Optional[bool] = True
-    denoise: Optional[bool] = True
-    retry_badcase: Optional[bool] = True
-    retry_badcase_max_times: Optional[int] = 3
-    retry_badcase_ratio_threshold: Optional[float] = 6.0
+    retry_badcase_max_times: Optional[int] = 3  # More retries for quality
+    # Lower threshold for better quality
+    retry_badcase_ratio_threshold: Optional[float] = 6
 
 
 @router.post("/generate")
