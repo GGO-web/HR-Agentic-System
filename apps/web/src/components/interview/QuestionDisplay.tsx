@@ -32,6 +32,19 @@ export function QuestionDisplay({
     };
   }, [currentAudioUrl]);
 
+  // Reset audio state when question changes
+  useEffect(() => {
+    // Clean up previous audio URL
+    if (currentAudioUrl) {
+      URL.revokeObjectURL(currentAudioUrl);
+    }
+
+    // Reset state for new question
+    setCurrentAudioUrl(null);
+    setIsPlaying(false);
+    setError(null);
+  }, [question]);
+
   // Function to speak the question using VoxCPM TTS
   const speakQuestion = async () => {
     setError(null);
