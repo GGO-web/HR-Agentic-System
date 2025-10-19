@@ -1,6 +1,6 @@
 import { Button } from "@workspace/ui/components/button";
 import { Volume2, VolumeX, Loader2, AlertCircle } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { useGenerateSpeech } from "../../hooks/useTTSMutations";
@@ -32,8 +32,7 @@ export function QuestionDisplay({
     };
   }, [currentAudioUrl]);
 
-  // Reset audio state when question changes
-  useEffect(() => {
+  const resetAudioState = useEffectEvent(() => {
     if (currentAudioUrl) {
       URL.revokeObjectURL(currentAudioUrl);
     }
@@ -41,6 +40,11 @@ export function QuestionDisplay({
     setCurrentAudioUrl(null);
     setIsPlaying(false);
     setError(null);
+  });
+
+  // Reset audio state when question changes
+  useEffect(() => {
+    resetAudioState();
   }, [question]);
 
   // Function to speak the question using VoxCPM TTS
