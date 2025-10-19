@@ -226,7 +226,15 @@
       "speaking": "Speaking...",
       "generating": "Generating Speech...",
       "stop": "Stop",
-      "clickToReveal": "Click \"Show Text\" to reveal the question or \"Play Question\" to hear it."
+      "clickToReveal": "Click \"Show Text\" to reveal the question or \"Play Question\" to hear it.",
+      "errors": {
+        "generateFailed": "Failed to generate speech",
+        "ttsUnavailable": "VoxCPM TTS unavailable, falling back to browser TTS",
+        "browserTTSFailed": "Browser TTS also failed. Please check your audio settings.",
+        "unsupported": "Text-to-speech is not supported in this browser.",
+        "playFailed": "Failed to play audio",
+        "playbackFailed": "Playback failed: {{error}}"
+      }
     },
     "audioRecorder": {
       "microphoneAccessDenied": "Microphone access denied",

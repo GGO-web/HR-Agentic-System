@@ -34,12 +34,10 @@ export function QuestionDisplay({
 
   // Reset audio state when question changes
   useEffect(() => {
-    // Clean up previous audio URL
     if (currentAudioUrl) {
       URL.revokeObjectURL(currentAudioUrl);
     }
 
-    // Reset state for new question
     setCurrentAudioUrl(null);
     setIsPlaying(false);
     setError(null);
@@ -71,18 +69,23 @@ export function QuestionDisplay({
       playAudio(result.audioUrl);
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : "Failed to generate speech";
+        err instanceof Error
+          ? err.message
+          : t("interview.questionDisplay.errors.generateFailed");
 
       // If VoxCPM fails, fall back to browser TTS
       if (
         errorMessage.includes("503") ||
         errorMessage.includes("TTS service is not available")
       ) {
-        console.warn("VoxCPM TTS unavailable, falling back to browser TTS");
+        console.warn(t("interview.questionDisplay.errors.ttsUnavailable"));
         fallbackToBrowserTTS();
       } else {
         setError(errorMessage);
-        console.error("Failed to generate speech:", err);
+        console.error(
+          t("interview.questionDisplay.errors.generateFailed"),
+          err,
+        );
       }
     }
   };
@@ -108,13 +111,13 @@ export function QuestionDisplay({
       speech.onend = () => setIsPlaying(false);
       speech.onerror = () => {
         setIsPlaying(false);
-        setError("Browser TTS also failed. Please check your audio settings.");
+        setError(t("interview.questionDisplay.errors.browserTTSFailed"));
       };
 
       window.speechSynthesis.cancel();
       window.speechSynthesis.speak(speech);
     } else {
-      setError("Text-to-speech is not supported in this browser.");
+      setError(t("interview.questionDisplay.errors.unsupported"));
     }
   };
 
@@ -130,12 +133,16 @@ export function QuestionDisplay({
 
     audioElement.current.onerror = () => {
       setIsPlaying(false);
-      setError("Failed to play audio");
+      setError(t("interview.questionDisplay.errors.playFailed"));
     };
 
     audioElement.current.play().catch((error) => {
       setIsPlaying(false);
-      setError(`Playback failed: ${error.message}`);
+      setError(
+        t("interview.questionDisplay.errors.playbackFailed", {
+          error: error.message,
+        }),
+      );
     });
   };
 
