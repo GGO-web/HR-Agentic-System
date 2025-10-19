@@ -157,11 +157,7 @@ export function AudioRecorder({
 
       <Button
         onClick={isRecording ? onStopRecording : onStartRecording}
-        className={`rounded-md px-6 py-3 text-lg font-medium ${
-          isRecording
-            ? "bg-destructive text-destructive-foreground"
-            : "bg-primary text-primary-foreground"
-        }`}
+        variant={isRecording ? "destructive" : "default"}
         disabled={recordingPermission === null}
       >
         {isRecording
