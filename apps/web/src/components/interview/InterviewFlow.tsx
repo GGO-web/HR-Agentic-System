@@ -149,7 +149,7 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
               />
             ) : (
               <div className="flex flex-col items-center">
-                <div className="bg-muted mb-4 rounded-lg p-4">
+                <div className="bg-muted mb-4 w-full rounded-lg p-4">
                   <p className="text-center">
                     {t("interview.flow.recordingComplete")}
                   </p>
@@ -163,14 +163,15 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
                 <div className="flex gap-4">
                   <Button
                     onClick={() => setAudioBlob(null)}
-                    className="border-input bg-background rounded-md border px-4 py-2"
+                    variant="outline"
                     disabled={isSubmitting}
                   >
                     {t("interview.flow.recordAgain")}
                   </Button>
+
                   <Button
                     onClick={handleSubmitResponse}
-                    className="bg-primary text-primary-foreground rounded-md px-4 py-2"
+                    variant="default"
                     disabled={isSubmitting}
                   >
                     {isSubmitting
