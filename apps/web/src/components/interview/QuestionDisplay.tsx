@@ -58,15 +58,9 @@ export function QuestionDisplay({
         return;
       }
 
-      // Generate new audio using VoxCPM
+      // Generate new audio using VoxCPM (backend handles all configuration)
       const result = await generateSpeechMutation.mutateAsync({
         text: question,
-        options: {
-          cfgValue: 2.0,
-          inferenceTimesteps: 10,
-          normalize: true,
-          denoise: true,
-        },
       });
 
       setCurrentAudioUrl(result.audioUrl);
