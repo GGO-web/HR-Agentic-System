@@ -220,30 +220,6 @@
       "submitAnswer": "Submit Answer",
       "submitting": "Submitting..."
     },
-    "questionDisplay": {
-      "question": "Question",
-      "playQuestion": "Play Question",
-      "speaking": "Speaking...",
-      "generating": "Generating Speech...",
-      "stop": "Stop",
-      "clickToReveal": "Click \"Show Text\" to reveal the question or \"Play Question\" to hear it.",
-      "errors": {
-        "generateFailed": "Failed to generate speech",
-        "ttsUnavailable": "VoxCPM TTS unavailable, falling back to browser TTS",
-        "browserTTSFailed": "Browser TTS also failed. Please check your audio settings.",
-        "unsupported": "Text-to-speech is not supported in this browser.",
-        "playFailed": "Failed to play audio",
-        "playbackFailed": "Playback failed: {{error}}"
-      }
-    },
-    "audioRecorder": {
-      "microphoneAccessDenied": "Microphone access denied",
-      "enableMicrophone": "Please enable microphone access in your browser settings to continue.",
-      "ready": "Ready",
-      "startRecording": "Start Recording",
-      "stopRecording": "Stop Recording",
-      "stopRecordingHint": "Click \"Stop Recording\" when you've finished your answer."
-    },
     "elevenlabs": {
       "readyToStart": "Ready to Start Your Interview",
       "description": "Your AI interviewer is ready to conduct your interview. Click below to begin the conversation.",

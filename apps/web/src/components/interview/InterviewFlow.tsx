@@ -6,12 +6,9 @@ import { Button } from "@workspace/ui/components/button";
 import { LoadingSpinner } from "@workspace/ui/components/shared/loading-spinner";
 import { useQuery, useMutation } from "convex/react";
 import { Mic, Volume2, Phone, PhoneOff } from "lucide-react";
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-
-import { AudioRecorder } from "./AudioRecorder";
-import { QuestionDisplay } from "./QuestionDisplay";
 
 interface InterviewFlowProps {
   sessionId: Id<"interviewSessions">;
@@ -21,12 +18,6 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
   const navigate = useNavigate();
   const router = useRouter();
   const { t } = useTranslation();
-
-  // Manual interview state
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [isRecording, setIsRecording] = useState(false);
-  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // ElevenLabs state
   const [isConnected, setIsConnected] = useState(false);
@@ -50,12 +41,6 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
   // Mutations
   const startSession = useMutation(api.interviewSessions.startSession);
   const completeSession = useMutation(api.interviewSessions.completeSession);
-  const createResponse = useMutation(api.interviewResponses.create);
-
-  // Sort questions by order
-  const sortedQuestions = useMemo(() => {
-    return questions ? [...questions].sort((a, b) => a.order - b.order) : [];
-  }, [questions]);
 
   // Initialize ElevenLabs conversation
   const conversation = useConversation({
@@ -129,61 +114,10 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
     }
   }, [conversation, sessionId, completeSession, navigate, router, t]);
 
-  // Current question for manual mode
-  const currentQuestion = sortedQuestions[currentQuestionIndex];
-
-  // Handle recording complete
-  const handleRecordingComplete = (blob: Blob) => {
-    setAudioBlob(blob);
-    setIsRecording(false);
-  };
-
-  // Handle submitting the response
-  const handleSubmitResponse = async () => {
-    if (!audioBlob || !currentQuestion) return;
-
-    setIsSubmitting(true);
-
-    try {
-      // TODO: Implement actual audio upload to cloud storage
-      // For now, we'll just use a placeholder URL
-      const audioUrl = `mock-audio-url-${Date.now()}`;
-
-      await createResponse({
-        interviewSessionId: sessionId,
-        questionId: currentQuestion._id,
-        audioUrl,
-        transcription: undefined, // Will be processed asynchronously
-        aiAnalysis: undefined, // Will be processed asynchronously
-      });
-
-      // Move to next question or complete the interview
-      if (currentQuestionIndex < sortedQuestions.length - 1) {
-        setCurrentQuestionIndex(currentQuestionIndex + 1);
-      } else {
-        await completeSession({ id: sessionId });
-        await navigate({ to: router.routesByPath["/dashboard"].fullPath });
-      }
-
-      // Reset audio blob
-      setAudioBlob(null);
-    } catch (error) {
-      console.error("Failed to submit response:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   // Loading state
   if (!session || !jobDescription || !questions) {
     return <LoadingSpinner fullScreen text={t("interview.flow.loading")} />;
   }
-
-  // Calculate progress
-  const progress = ((currentQuestionIndex + 1) / sortedQuestions.length) * 100;
-
-  // Use ElevenLabs if configured, otherwise use manual mode
-  const useElevenLabs = !!import.meta.env.VITE_ELEVENLABS_AGENT_ID;
 
   return (
     <div className="container mx-auto flex min-h-screen flex-col p-6">
@@ -191,152 +125,80 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
         <h1 className="text-3xl font-bold">
           {jobDescription.title} {t("interview.flow.interview")}
         </h1>
-
-        <div className="bg-muted mt-4 h-2 w-full rounded-full">
-          <div
-            className="bg-primary h-2 rounded-full transition-all"
-            style={{ width: `${progress}%` }}
-          ></div>
-        </div>
-        <div className="text-muted-foreground mt-2 flex justify-between text-sm">
-          <span>
-            {t("interview.flow.question")} {currentQuestionIndex + 1}{" "}
-            {t("interview.flow.of")} {sortedQuestions.length}
-          </span>
-          <span>
-            {Math.round(progress)}% {t("interview.flow.complete")}
-          </span>
-        </div>
       </div>
 
-      {/* ElevenLabs Interview Mode */}
-      {useElevenLabs && (
-        <div className="flex flex-1 flex-col items-center justify-center">
-          {!isConnected && !isConnecting && (
-            <div className="text-center">
-              <h2 className="mb-4 text-2xl font-semibold">
-                {t("interview.elevenlabs.readyToStart")}
-              </h2>
-              <p className="text-muted-foreground mb-6">
-                {t("interview.elevenlabs.description")}
-              </p>
-              <Button
-                onClick={startElevenLabsConversation}
-                size="lg"
-                className="bg-primary hover:bg-primary/90"
-              >
-                <Phone className="mr-2 h-5 w-5" />
-                {t("interview.elevenlabs.startInterview")}
-              </Button>
-            </div>
-          )}
-
-          {isConnecting && (
-            <div className="text-center">
-              <LoadingSpinner text={t("interview.elevenlabs.connecting")} />
-              <p className="text-muted-foreground mt-4">
-                {t("interview.elevenlabs.connectingDescription")}
-              </p>
-            </div>
-          )}
-
-          {isConnected && (
-            <div className="w-full max-w-md text-center">
-              {/* Status Indicator */}
-              <div className="mb-6">
-                <div className="inline-flex items-center rounded-full bg-green-100 px-4 py-2 text-green-800">
-                  <div className="mr-2 h-2 w-2 animate-pulse rounded-full bg-green-500"></div>
-                  {t("interview.elevenlabs.connected")}
-                </div>
-              </div>
-
-              {/* Agent Status */}
-              <div className="mb-6">
-                {conversation.isSpeaking ? (
-                  <div className="flex items-center justify-center text-blue-600">
-                    <Volume2 className="mr-2 h-5 w-5 animate-pulse" />
-                    {t("interview.elevenlabs.agentSpeaking")}
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center text-green-600">
-                    <Mic className="mr-2 h-5 w-5" />
-                    {t("interview.elevenlabs.listening")}
-                  </div>
-                )}
-              </div>
-
-              {/* End Interview Button */}
-              <Button
-                onClick={endElevenLabsConversation}
-                variant="destructive"
-                size="lg"
-              >
-                <PhoneOff className="mr-2 h-5 w-5" />
-                {t("interview.elevenlabs.endInterview")}
-              </Button>
-
-              {/* Instructions */}
-              <div className="text-muted-foreground mt-6 text-sm">
-                <p>{t("interview.elevenlabs.instructions")}</p>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Manual Interview Mode */}
-      {!useElevenLabs && currentQuestion && (
-        <div className="flex-1">
-          <QuestionDisplay
-            question={currentQuestion.question}
-            questionNumber={currentQuestionIndex + 1}
-          />
-
-          <div className="mt-8">
-            {!audioBlob ? (
-              <AudioRecorder
-                isRecording={isRecording}
-                onStartRecording={() => setIsRecording(true)}
-                onStopRecording={() => setIsRecording(false)}
-                onRecordingComplete={handleRecordingComplete}
-              />
-            ) : (
-              <div className="flex flex-col items-center">
-                <div className="bg-muted mb-4 w-full rounded-lg p-4">
-                  <p className="text-center">
-                    {t("interview.flow.recordingComplete")}
-                  </p>
-                  <audio
-                    className="mt-2 w-full"
-                    controls
-                    src={URL.createObjectURL(audioBlob)}
-                  />
-                </div>
-
-                <div className="flex gap-4">
-                  <Button
-                    onClick={() => setAudioBlob(null)}
-                    variant="outline"
-                    disabled={isSubmitting}
-                  >
-                    {t("interview.flow.recordAgain")}
-                  </Button>
-
-                  <Button
-                    onClick={handleSubmitResponse}
-                    variant="default"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting
-                      ? t("interview.flow.submitting")
-                      : t("interview.flow.submitAnswer")}
-                  </Button>
-                </div>
-              </div>
-            )}
+      {/* ElevenLabs Interview Interface */}
+      <div className="flex flex-1 flex-col items-center justify-center">
+        {!isConnected && !isConnecting && (
+          <div className="text-center">
+            <h2 className="mb-4 text-2xl font-semibold">
+              {t("interview.elevenlabs.readyToStart")}
+            </h2>
+            <p className="text-muted-foreground mb-6">
+              {t("interview.elevenlabs.description")}
+            </p>
+            <Button
+              onClick={startElevenLabsConversation}
+              size="lg"
+              className="bg-primary hover:bg-primary/90"
+            >
+              <Phone className="mr-2 h-5 w-5" />
+              {t("interview.elevenlabs.startInterview")}
+            </Button>
           </div>
-        </div>
-      )}
+        )}
+
+        {isConnecting && (
+          <div className="text-center">
+            <LoadingSpinner text={t("interview.elevenlabs.connecting")} />
+            <p className="text-muted-foreground mt-4">
+              {t("interview.elevenlabs.connectingDescription")}
+            </p>
+          </div>
+        )}
+
+        {isConnected && (
+          <div className="w-full max-w-md text-center">
+            {/* Status Indicator */}
+            <div className="mb-6">
+              <div className="inline-flex items-center rounded-full bg-green-100 px-4 py-2 text-green-800">
+                <div className="mr-2 h-2 w-2 animate-pulse rounded-full bg-green-500"></div>
+                {t("interview.elevenlabs.connected")}
+              </div>
+            </div>
+
+            {/* Agent Status */}
+            <div className="mb-6">
+              {conversation.isSpeaking ? (
+                <div className="flex items-center justify-center text-blue-600">
+                  <Volume2 className="mr-2 h-5 w-5 animate-pulse" />
+                  {t("interview.elevenlabs.agentSpeaking")}
+                </div>
+              ) : (
+                <div className="flex items-center justify-center text-green-600">
+                  <Mic className="mr-2 h-5 w-5" />
+                  {t("interview.elevenlabs.listening")}
+                </div>
+              )}
+            </div>
+
+            {/* End Interview Button */}
+            <Button
+              onClick={endElevenLabsConversation}
+              variant="destructive"
+              size="lg"
+            >
+              <PhoneOff className="mr-2 h-5 w-5" />
+              {t("interview.elevenlabs.endInterview")}
+            </Button>
+
+            {/* Instructions */}
+            <div className="text-muted-foreground mt-6 text-sm">
+              <p>{t("interview.elevenlabs.instructions")}</p>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
