@@ -75,7 +75,10 @@ export class TTSService {
   }
 
   private getCacheKey(text: string, options: TTSOptions): string {
-    return `${text}-${JSON.stringify(options)}`;
+    const sortedOptions = Object.keys(options).sort((a, b) =>
+      a.localeCompare(b),
+    );
+    return `${text}-${JSON.stringify(sortedOptions)}`;
   }
 
   private async urlToBlob(url: string): Promise<Blob> {
