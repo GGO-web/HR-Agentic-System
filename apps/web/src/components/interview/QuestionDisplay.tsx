@@ -1,6 +1,6 @@
 import { Button } from "@workspace/ui/components/button";
 import { Volume2, VolumeX, Loader2, AlertCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { useGenerateSpeech } from "../../hooks/useTTSMutations";
@@ -18,6 +18,8 @@ export function QuestionDisplay({
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentAudioUrl, setCurrentAudioUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const audioElement = useRef<HTMLAudioElement>(null);
 
   const generateSpeechMutation = useGenerateSpeech();
 
@@ -105,20 +107,20 @@ export function QuestionDisplay({
 
   // Function to play audio
   const playAudio = (audioUrl: string) => {
-    const audio = new Audio(audioUrl);
+    audioElement.current = new Audio(audioUrl);
 
     setIsPlaying(true);
 
-    audio.onended = () => {
+    audioElement.current.onended = () => {
       setIsPlaying(false);
     };
 
-    audio.onerror = () => {
+    audioElement.current.onerror = () => {
       setIsPlaying(false);
       setError("Failed to play audio");
     };
 
-    audio.play().catch((error) => {
+    audioElement.current.play().catch((error) => {
       setIsPlaying(false);
       setError(`Playback failed: ${error.message}`);
     });
@@ -127,11 +129,10 @@ export function QuestionDisplay({
   // Function to stop audio playback
   const handleStopAudio = () => {
     // Stop all audio elements
-    const audioElements = document.querySelectorAll("audio");
-    audioElements.forEach((audio) => {
-      audio.pause();
-      audio.currentTime = 0;
-    });
+    if (audioElement.current) {
+      audioElement.current.pause();
+      audioElement.current.currentTime = 0;
+    }
 
     setIsPlaying(false);
   };
@@ -193,19 +194,6 @@ export function QuestionDisplay({
       <div className="bg-muted rounded-md p-4">
         <p className="text-lg">{question}</p>
       </div>
-
-      {/* Audio player for generated speech */}
-      {currentAudioUrl && (
-        <div className="mt-4">
-          <audio
-            controls
-            src={currentAudioUrl}
-            className="w-full"
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
-          />
-        </div>
-      )}
     </div>
   );
 }
