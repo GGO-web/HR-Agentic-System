@@ -243,6 +243,24 @@
       "startRecording": "Start Recording",
       "stopRecording": "Stop Recording",
       "stopRecordingHint": "Click \"Stop Recording\" when you've finished your answer."
+    },
+    "elevenlabs": {
+      "readyToStart": "Ready to Start Your Interview",
+      "description": "Your AI interviewer is ready to conduct your interview. Click below to begin the conversation.",
+      "startInterview": "Start Interview",
+      "connecting": "Connecting to AI Interviewer...",
+      "connectingDescription": "Please wait while we establish the connection and prepare your interview.",
+      "connected": "Connected",
+      "disconnected": "Disconnected",
+      "agentSpeaking": "AI Interviewer is speaking...",
+      "listening": "Listening for your response...",
+      "endInterview": "End Interview",
+      "instructions": "Speak clearly and naturally. The AI will ask questions and listen to your responses.",
+      "error": "An error occurred during the interview",
+      "noAgentId": "ElevenLabs Agent ID not configured",
+      "startFailed": "Failed to start the interview",
+      "endFailed": "Failed to end the interview",
+      "completed": "Interview completed successfully!"
     }
   },
   "invitation": {
