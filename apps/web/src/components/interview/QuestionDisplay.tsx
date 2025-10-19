@@ -125,8 +125,22 @@ export function QuestionDisplay({
     }
   };
 
+  // Function to stop audio playback
+  const handleStopAudio = () => {
+    // Stop all audio elements
+    if (audioElement.current) {
+      audioElement.current.pause();
+      audioElement.current.currentTime = 0;
+
+      setIsPlaying(false);
+    }
+  };
+
   // Function to play audio
   const playAudio = (audioUrl: string) => {
+    // Stop any playing audio if exists
+    handleStopAudio();
+
     audioElement.current = new Audio(audioUrl);
 
     setIsPlaying(true);
@@ -148,17 +162,6 @@ export function QuestionDisplay({
         }),
       );
     });
-  };
-
-  // Function to stop audio playback
-  const handleStopAudio = () => {
-    // Stop all audio elements
-    if (audioElement.current) {
-      audioElement.current.pause();
-      audioElement.current.currentTime = 0;
-    }
-
-    setIsPlaying(false);
   };
 
   const clearError = () => {
