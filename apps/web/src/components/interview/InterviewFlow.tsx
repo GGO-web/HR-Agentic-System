@@ -38,6 +38,34 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
   const completeSession = useMutation(api.interviewSessions.completeSession);
 
   const conversation = useConversation({
+    overrides: {
+      agent: {
+        prompt: {
+          prompt: `You are conducting a professional interview for the position: ${jobDescription?.title}.
+            Hello ${session?.candidateEmail?.split("@")[0]}! I'm your AI interviewer for the ${jobDescription?.title} position. 
+            I'll be asking you several specific questions today. Please speak clearly and take your time with each response.
+
+            IMPORTANT: You must ask ONLY these specific questions in order. Do NOT ask about resume, experience, or any other topics not listed below. Do NOT make assumptions about the candidate's background.
+
+            Here are the exact questions you must ask:
+
+            ${questions
+              ?.sort((a, b) => a.order - b.order)
+              .map((q) => `${q.question}`)
+              .join("\n")},
+
+            Instructions:
+            - Ask each question one at a time
+            - Wait for the candidates complete response before moving to the next question
+            - Do not ask follow-up questions unless the candidates response is unclear
+            - Keep the interview focused and professional
+            - Do not ask about resume, previous jobs, or experience unless specifically mentioned in the questions above`,
+        },
+        firstMessage: `Hello ${session?.candidateEmail?.split("@")[0]}! I'm your AI interviewer for the ${jobDescription?.title} position. 
+I'll be asking you several specific questions today. Please speak clearly and take your time with each response. Let's begin with the first question!`,
+        language: "en",
+      },
+    },
     onConnect: () => {
       setIsConnected(true);
       setIsConnecting(false);
@@ -47,8 +75,7 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
       setIsConnected(false);
       toast.info(t("interview.elevenlabs.disconnected"));
     },
-    onError: (error) => {
-      console.error("ElevenLabs conversation error:", error);
+    onError: () => {
       toast.error(t("interview.elevenlabs.error"));
       setIsConnecting(false);
     },
