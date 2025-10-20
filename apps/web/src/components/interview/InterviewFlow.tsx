@@ -10,6 +10,8 @@ import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
+import { END_INTERVIEW_MARKER } from "@/components/interview/-constants";
+
 interface InterviewFlowProps {
   sessionId: Id<"interviewSessions">;
 }
@@ -21,6 +23,7 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
 
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [endRequested, setEndRequested] = useState(false);
 
   const session = useQuery(api.interviewSessions.getById, { id: sessionId });
 
@@ -59,7 +62,10 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
             - Wait for the candidates complete response before moving to the next question
             - Do not ask follow-up questions unless the candidates response is unclear
             - Keep the interview focused and professional
-            - Do not ask about resume, previous jobs, or experience unless specifically mentioned in the questions above`,
+            - Do not ask about resume, previous jobs, or experience unless specifically mentioned in the questions above
+
+            When you have asked the LAST question and acknowledged the candidate's final response and user have no other questions for the conversation, end with exactly this marker on a new line: ${END_INTERVIEW_MARKER}
+            `,
         },
         firstMessage: `Hello ${session?.candidateEmail?.split("@")[0]}! I'm your AI interviewer for the ${jobDescription?.title} position. 
 I'll be asking you several specific questions today. Please speak clearly and take your time with each response. Let's begin with the first question!`,
@@ -88,6 +94,15 @@ I'll be asking you several specific questions today. Please speak clearly and ta
         setIsConnecting(false);
       } else if (status.status === "disconnecting") {
         setIsConnected(false);
+      }
+    },
+    onMessage: (message) => {
+      if (endRequested) return;
+      if (message.source !== "user" && typeof message.message === "string") {
+        if (message.message.includes(END_INTERVIEW_MARKER)) {
+          setEndRequested(true);
+          void disconnectConversation();
+        }
       }
     },
     serverLocation: "us",
