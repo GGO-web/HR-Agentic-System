@@ -205,9 +205,47 @@ I'll be asking you several specific questions today. Please speak clearly and ta
     }
   }, [session, sessionId, startSession]);
 
+  // Redirect to results if interview is completed or in review
+  useEffect(() => {
+    if (
+      session &&
+      (session.status === "completed" || session.status === "in_review")
+    ) {
+      void navigate({
+        to: `/interview/${sessionId}/results`,
+      });
+    }
+  }, [session, sessionId, navigate]);
+
   // Loading state
   if (!session || !jobDescription || !questions) {
     return <LoadingSpinner fullScreen text={t("interview.flow.loading")} />;
+  }
+
+  // Show message if interview is already completed or in review
+  if (session.status === "completed" || session.status === "in_review") {
+    return (
+      <div className="container mx-auto flex flex-1 flex-col items-center justify-center p-6">
+        <div className="text-center">
+          <h2 className="mb-4 text-2xl font-semibold">
+            {session.status === "completed"
+              ? t("interview.flow.alreadyCompleted")
+              : t("interview.flow.inReview")}
+          </h2>
+          <p className="text-muted-foreground mb-6">
+            {session.status === "completed"
+              ? t("interview.flow.alreadyCompletedDescription")
+              : t("interview.flow.inReviewDescription")}
+          </p>
+          <Button
+            onClick={() => navigate({ to: `/interview/${sessionId}/results` })}
+            size="lg"
+          >
+            {t("interview.flow.viewResults")}
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (

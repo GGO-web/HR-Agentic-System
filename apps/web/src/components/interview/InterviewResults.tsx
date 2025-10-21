@@ -51,10 +51,22 @@ export function InterviewResults({ sessionId }: InterviewResultsProps) {
           <h1 className="text-3xl font-bold">
             {jobDescription.title} Interview Results
           </h1>
-          <p className="text-muted-foreground mt-2">
-            Completed on{" "}
-            {new Date(session.completedAt || 0).toLocaleDateString()}
-          </p>
+          <div className="mt-2 flex items-center gap-4">
+            <p className="text-muted-foreground">
+              Completed on{" "}
+              {new Date(session.completedAt || 0).toLocaleDateString()}
+            </p>
+            {session.status === "in_review" && (
+              <span className="bg-yellow-100 text-yellow-800 rounded-full px-3 py-1 text-sm font-medium">
+                In Review
+              </span>
+            )}
+            {session.status === "completed" && (
+              <span className="bg-green-100 text-green-800 rounded-full px-3 py-1 text-sm font-medium">
+                Completed
+              </span>
+            )}
+          </div>
         </div>
 
         <Link
@@ -64,6 +76,21 @@ export function InterviewResults({ sessionId }: InterviewResultsProps) {
           Back to Dashboard
         </Link>
       </div>
+
+      {session.status === "in_review" && (
+        <div className="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+          <div className="flex items-center">
+            <div className="mr-3 h-5 w-5 animate-spin rounded-full border-2 border-yellow-600 border-t-transparent"></div>
+            <div>
+              <h3 className="text-yellow-800 font-medium">AI Analysis in Progress</h3>
+              <p className="text-yellow-700 text-sm">
+                Your interview responses are being analyzed by our AI system. 
+                Detailed feedback and analysis will be available once the review is complete.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="space-y-6">
         {sortedQuestions.map((question, index) => {

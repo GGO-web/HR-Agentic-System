@@ -158,7 +158,14 @@
         "description": "You've been invited to interview for these positions",
         "invited": "Invited",
         "viewDetails": "View Details",
-        "sessionNotCreated": "Session not created yet"
+        "viewResults": "View Results",
+        "sessionNotCreated": "Session not created yet",
+        "status": {
+          "scheduled": "Scheduled",
+          "inProgress": "In Progress",
+          "inReview": "In Review",
+          "completed": "Completed"
+        }
       }
     },
     "questionsList": {
@@ -218,7 +225,12 @@
       "recordingComplete": "Recording complete!",
       "recordAgain": "Record Again",
       "submitAnswer": "Submit Answer",
-      "submitting": "Submitting..."
+      "submitting": "Submitting...",
+      "alreadyCompleted": "Interview Already Completed",
+      "alreadyCompletedDescription": "This interview has already been completed and cannot be retaken.",
+      "inReview": "Interview Under Review",
+      "inReviewDescription": "This interview is currently being analyzed by our AI system. Results will be available soon.",
+      "viewResults": "View Results"
     },
     "elevenlabs": {
       "readyToStart": "Ready to Start Your Interview",

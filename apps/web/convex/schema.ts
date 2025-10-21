@@ -73,7 +73,8 @@ export default defineSchema({
       v.literal("scheduled"),
       v.literal("in_progress"),
       v.literal("completed"),
-    ), // "scheduled", "in_progress", "completed"
+      v.literal("in_review"),
+    ), // "scheduled", "in_progress", "completed", "in_review"
     scheduledAt: v.optional(v.number()),
     startedAt: v.optional(v.number()),
     completedAt: v.optional(v.number()),

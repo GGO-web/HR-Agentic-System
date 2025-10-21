@@ -76,7 +76,7 @@ export const completeSession = mutation({
   args: { id: v.id("interviewSessions") },
   handler: async (ctx, args) => {
     await ctx.db.patch(args.id, {
-      status: "completed",
+      status: "in_review",
       completedAt: Date.now(),
       updatedAt: Date.now(),
     });
