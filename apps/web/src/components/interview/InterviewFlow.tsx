@@ -6,11 +6,12 @@ import { Button } from "@workspace/ui/components/button";
 import { LoadingSpinner } from "@workspace/ui/components/shared/loading-spinner";
 import { useQuery, useMutation } from "convex/react";
 import { Mic, Volume2, Phone, PhoneOff } from "lucide-react";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
 import { END_INTERVIEW_MARKER } from "@/components/interview/-constants";
+import { uploadFileToS3 } from "@/services/s3Service";
 
 interface InterviewFlowProps {
   sessionId: Id<"interviewSessions">;
@@ -24,6 +25,9 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [endRequested, setEndRequested] = useState(false);
+  const messagesRef = useRef<
+    Array<{ source: string; message: string; at: string }>
+  >(new Array<{ source: string; message: string; at: string }>());
 
   const session = useQuery(api.interviewSessions.getById, { id: sessionId });
 
@@ -54,6 +58,7 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
 
             ${questions
               ?.sort((a, b) => a.order - b.order)
+              .slice(0, 1)
               .map((q) => `${q.question}`)
               .join("\n")},
 
@@ -62,6 +67,8 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
             - Wait for the candidates complete response before moving to the next question
             - Do not ask follow-up questions unless the candidates response is unclear
             - Keep the interview focused and professional
+            - Do not ask more than 1 question at a time
+            - Do not repeat the same question if candidate answers it
             - Do not ask about resume, previous jobs, or experience unless specifically mentioned in the questions above
 
             When you have asked the LAST question and acknowledged the candidate's final response and user have no other questions for the conversation, end with exactly this marker on a new line: ${END_INTERVIEW_MARKER}
@@ -97,6 +104,14 @@ I'll be asking you several specific questions today. Please speak clearly and ta
       }
     },
     onMessage: (message) => {
+      if (typeof message.message === "string") {
+        messagesRef.current.push({
+          source: String(message.source),
+          message: message.message,
+          at: new Date().toISOString(),
+        });
+      }
+
       if (endRequested) return;
       if (message.source !== "user" && typeof message.message === "string") {
         if (message.message.includes(END_INTERVIEW_MARKER)) {
@@ -130,7 +145,38 @@ I'll be asking you several specific questions today. Please speak clearly and ta
   const disconnectConversation = useCallback(async () => {
     try {
       await conversation.endSession();
+      // Upload transcript to S3 (best-effort)
+      try {
+        const payload = {
+          sessionId,
+          candidateEmail: session?.candidateEmail,
+          jobTitle: jobDescription?.title,
+          questions:
+            questions
+              ?.map((q) => ({
+                id: q._id,
+                order: q.order,
+                question: q.question,
+              }))
+              .slice(0, 1) ?? [],
+          messages: messagesRef.current,
+          endedAt: new Date().toISOString(),
+        };
+        console.log("payload", payload);
+        const blob = new Blob([JSON.stringify(payload, null, 2)], {
+          type: "application/json",
+        });
+        const fileName = `interviews/${String(sessionId)}-${Date.now()}.json`;
+        const file = new File([blob], fileName, { type: "application/json" });
+        const upload = await uploadFileToS3(file);
+        if (!upload.success) {
+          console.error("Failed to upload interview transcript:", upload.error);
+        }
+      } catch (e) {
+        console.error("Transcript upload error:", e);
+      }
 
+      // Mark only this interview session as completed
       await completeSession({ id: sessionId });
       toast.success(t("interview.elevenlabs.completed"));
 
@@ -141,7 +187,17 @@ I'll be asking you several specific questions today. Please speak clearly and ta
     } finally {
       setIsConnected(false);
     }
-  }, [conversation, sessionId, completeSession, navigate, router, t]);
+  }, [
+    conversation,
+    sessionId,
+    completeSession,
+    navigate,
+    router,
+    t,
+    questions,
+    jobDescription?.title,
+    session?.candidateEmail,
+  ]);
 
   useEffect(() => {
     if (session && session.status === "scheduled") {
