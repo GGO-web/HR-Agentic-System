@@ -59,30 +59,86 @@ export const InvitedJobDescriptions = () => {
                     {item.description}
                   </p>
 
-                  <div className="flex flex-wrap items-center justify-between gap-4">
-                    <div className="text-muted-foreground flex flex-2 shrink-0 items-center gap-1 text-xs whitespace-nowrap">
-                      <Calendar className="h-3 w-3" />
-                      {t(
-                        "dashboard.candidate.invitedJobDescriptions.invited",
-                      )}{" "}
-                      {new Date(item.invitation.createdAt).toLocaleDateString()}
+                  <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-2">
+                      <div className="text-muted-foreground flex flex-2 shrink-0 items-center gap-1 text-xs whitespace-nowrap">
+                        <Calendar className="h-3 w-3" />
+                        {t(
+                          "dashboard.candidate.invitedJobDescriptions.invited",
+                        )}{" "}
+                        {new Date(
+                          item.invitation.createdAt,
+                        ).toLocaleDateString()}
+                      </div>
+
+                      {/* Status Badge */}
+                      {item.interviewSession && (
+                        <div className="flex items-center gap-2">
+                          {item.interviewSession.status === "in_review" && (
+                            <span className="rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800">
+                              {t(
+                                "dashboard.candidate.invitedJobDescriptions.status.inReview",
+                              )}
+                            </span>
+                          )}
+                          {item.interviewSession.status === "completed" && (
+                            <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
+                              {t(
+                                "dashboard.candidate.invitedJobDescriptions.status.completed",
+                              )}
+                            </span>
+                          )}
+                          {item.interviewSession.status === "in_progress" && (
+                            <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
+                              {t(
+                                "dashboard.candidate.invitedJobDescriptions.status.inProgress",
+                              )}
+                            </span>
+                          )}
+                          {item.interviewSession.status === "scheduled" && (
+                            <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-800">
+                              {t(
+                                "dashboard.candidate.invitedJobDescriptions.status.scheduled",
+                              )}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     {item.interviewSession ? (
                       <Button
                         className="flex-1 shrink grow"
                         onClick={() => {
-                          void router.navigate({
-                            to: "/interview/$sessionId",
-                            params: {
-                              sessionId: item.interviewSession?._id ?? "",
-                            },
-                          });
+                          // Navigate to results if completed or in review, otherwise to interview
+                          if (
+                            item.interviewSession?.status === "completed" ||
+                            item.interviewSession?.status === "in_review"
+                          ) {
+                            void router.navigate({
+                              to: "/interview/$sessionId/results",
+                              params: {
+                                sessionId: item.interviewSession?._id ?? "",
+                              },
+                            });
+                          } else {
+                            void router.navigate({
+                              to: "/interview/$sessionId",
+                              params: {
+                                sessionId: item.interviewSession?._id ?? "",
+                              },
+                            });
+                          }
                         }}
                       >
-                        {t(
-                          "dashboard.candidate.invitedJobDescriptions.viewDetails",
-                        )}
+                        {item.interviewSession?.status === "completed" ||
+                        item.interviewSession?.status === "in_review"
+                          ? t(
+                              "dashboard.candidate.invitedJobDescriptions.viewResults",
+                            )
+                          : t(
+                              "dashboard.candidate.invitedJobDescriptions.viewDetails",
+                            )}
                       </Button>
                     ) : (
                       <span className="text-muted-foreground text-sm">

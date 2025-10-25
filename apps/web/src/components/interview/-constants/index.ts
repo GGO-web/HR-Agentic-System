@@ -1,0 +1,1 @@
+export const END_INTERVIEW_MARKER = "[END_OF_INTERVIEW]";

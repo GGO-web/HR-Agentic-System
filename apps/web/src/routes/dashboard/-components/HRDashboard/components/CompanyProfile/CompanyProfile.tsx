@@ -43,7 +43,7 @@ export function CompanyProfile({ companyData, onEdit }: CompanyProfileProps) {
             <img
               src={companyData.logoUrl}
               alt={`${companyData.name} logo`}
-              className="h-full w-full object-cover"
+              className="w-full object-cover"
             />
           ) : (
             <Building2 className="text-muted-foreground h-8 w-8" />
