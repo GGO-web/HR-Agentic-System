@@ -73,12 +73,16 @@ export const startSession = mutation({
 
 // Send an interview session for review
 export const sendSessionForReview = mutation({
-  args: { id: v.id("interviewSessions") },
+  args: {
+    id: v.id("interviewSessions"),
+    transcriptUrl: v.optional(v.string()),
+  },
   handler: async (ctx, args) => {
     await ctx.db.patch(args.id, {
       status: "in_review",
       completedAt: Date.now(),
       updatedAt: Date.now(),
+      ...(args.transcriptUrl && { transcriptUrl: args.transcriptUrl }),
     });
 
     return args.id;

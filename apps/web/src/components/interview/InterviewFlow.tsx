@@ -147,6 +147,7 @@ I'll be asking you several specific questions today. Please speak clearly and ta
     try {
       await conversation.endSession();
       // Upload transcript to S3 (best-effort)
+      let transcriptUrl: string | undefined;
       try {
         const payload = {
           sessionId,
@@ -168,7 +169,9 @@ I'll be asking you several specific questions today. Please speak clearly and ta
         const fileName = `interviews/${String(sessionId)}-${Date.now()}.json`;
         const file = new File([blob], fileName, { type: "application/json" });
         const upload = await uploadFileToS3(file);
-        if (!upload.success) {
+        if (upload.success && upload.url) {
+          transcriptUrl = upload.url;
+        } else {
           console.error("Failed to upload interview transcript:", upload.error);
         }
       } catch (e) {
@@ -176,7 +179,7 @@ I'll be asking you several specific questions today. Please speak clearly and ta
       }
 
       // Send this interview session for review
-      await sendSessionForReview({ id: sessionId });
+      await sendSessionForReview({ id: sessionId, transcriptUrl });
       toast.success(t("interview.elevenlabs.completed"));
 
       await navigate({ to: router.routesByPath["/dashboard"].fullPath });

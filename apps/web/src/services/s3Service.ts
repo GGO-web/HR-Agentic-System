@@ -2,6 +2,7 @@ import {
   S3Client,
   PutObjectCommand,
   DeleteObjectCommand,
+  GetObjectCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
@@ -243,6 +244,70 @@ export async function deleteFileFromS3(fileUrl: string): Promise<DeleteResult> {
     return {
       success: false,
       error: error instanceof Error ? error.message : "Delete failed",
+    };
+  }
+}
+
+export interface InterviewTranscript {
+  sessionId: string;
+  candidateEmail?: string;
+  jobTitle?: string;
+  questions?: Array<{ id: string; order: number; question: string }>;
+  messages?: Array<{ source: string; message: string; at: string }>;
+  endedAt: string;
+}
+
+export interface GetTranscriptResult {
+  success: boolean;
+  transcript?: InterviewTranscript;
+  error?: string;
+}
+
+/**
+ * Get interview transcript from S3 by URL
+ */
+export async function getInterviewTranscriptFromS3(
+  transcriptUrl: string,
+): Promise<GetTranscriptResult> {
+  try {
+    if (!BUCKET_NAME) {
+      throw new Error("S3 bucket name not configured");
+    }
+
+    // Extract the key from the URL
+    // URL format: https://bucket-name.s3.region.amazonaws.com/files/interviews/sessionId-timestamp.json
+    const key = transcriptUrl.replace(`${bucketUrl}/`, "");
+
+    if (!key) {
+      throw new Error("Invalid transcript URL");
+    }
+
+    const command = new GetObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+    });
+
+    const response = await s3Client.send(command);
+
+    // Read the response body as text
+    const transcriptText = await response.Body?.transformToString();
+
+    if (!transcriptText) {
+      throw new Error("Empty transcript file");
+    }
+
+    const transcript: InterviewTranscript = JSON.parse(transcriptText);
+
+    return {
+      success: true,
+      transcript,
+    };
+  } catch (error) {
+    console.error("Error fetching transcript from S3:", error);
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "Failed to fetch transcript",
     };
   }
 }
