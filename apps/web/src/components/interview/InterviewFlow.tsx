@@ -58,7 +58,6 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
 
             ${questions
               ?.sort((a, b) => a.order - b.order)
-              .slice(0, 1)
               .map((q) => `${q.question}`)
               .join("\n")},
 
@@ -152,13 +151,11 @@ I'll be asking you several specific questions today. Please speak clearly and ta
           candidateEmail: session?.candidateEmail,
           jobTitle: jobDescription?.title,
           questions:
-            questions
-              ?.map((q) => ({
-                id: q._id,
-                order: q.order,
-                question: q.question,
-              }))
-              .slice(0, 1) ?? [],
+            questions?.map((q) => ({
+              id: q._id,
+              order: q.order,
+              question: q.question,
+            })) ?? [],
           messages: messagesRef.current,
           endedAt: new Date().toISOString(),
         };
