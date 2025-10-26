@@ -112,8 +112,8 @@ export function InterviewResults({ sessionId }: InterviewResultsProps) {
           </h1>
           <div className="mt-2 flex items-center gap-4">
             <p className="text-muted-foreground">
-              {t("interview.results.completed")} on{" "}
-              {new Date(session.completedAt || 0).toLocaleDateString()}
+              {t("interview.results.completed")}{" "}
+              {new Date(session.submittedAt || 0).toLocaleDateString()}
             </p>
             {session.status === "in_review" && (
               <span className="rounded-full bg-yellow-100 px-3 py-1 text-sm font-medium text-yellow-800">

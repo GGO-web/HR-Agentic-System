@@ -77,6 +77,7 @@ export default defineSchema({
     ), // "scheduled", "in_progress", "completed", "in_review"
     scheduledAt: v.optional(v.number()),
     startedAt: v.optional(v.number()),
+    submittedAt: v.optional(v.number()),
     completedAt: v.optional(v.number()),
     transcriptUrl: v.optional(v.string()), // URL to the interview transcript in S3
     createdAt: v.number(),

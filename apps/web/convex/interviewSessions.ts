@@ -80,7 +80,7 @@ export const sendSessionForReview = mutation({
   handler: async (ctx, args) => {
     await ctx.db.patch(args.id, {
       status: "in_review",
-      completedAt: Date.now(),
+      submittedAt: Date.now(),
       updatedAt: Date.now(),
       ...(args.transcriptUrl && { transcriptUrl: args.transcriptUrl }),
     });

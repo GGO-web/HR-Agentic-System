@@ -65,7 +65,7 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
 
             Instructions:
             - Ask each question one at a time
-            - Wait for the candidates complete response before moving to the next question
+            - Wait for the candidate's complete response before moving to the next question
             - Do not ask follow-up questions unless the candidates response is unclear
             - Keep the interview focused and professional
             - Do not ask more than 1 question at a time
