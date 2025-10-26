@@ -162,13 +162,15 @@ I'll be asking you several specific questions today. Please speak clearly and ta
           messages: messagesRef.current,
           endedAt: new Date().toISOString(),
         };
-        console.log("payload", payload);
+
         const blob = new Blob([JSON.stringify(payload, null, 2)], {
           type: "application/json",
         });
+
         const fileName = `interviews/${String(sessionId)}-${Date.now()}.json`;
         const file = new File([blob], fileName, { type: "application/json" });
         const upload = await uploadFileToS3(file);
+
         if (upload.success && upload.url) {
           transcriptUrl = upload.url;
         } else {

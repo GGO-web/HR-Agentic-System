@@ -249,6 +249,25 @@
       "startFailed": "Failed to start the interview",
       "endFailed": "Failed to end the interview",
       "completed": "Interview completed successfully!"
+    },
+    "results": {
+      "title": "Interview Results",
+      "completed": "Completed on",
+      "inReview": "Interview Under Review",
+      "inReviewDescription": "This interview is currently being analyzed by our AI system. Results will be available soon.",
+      "viewResults": "View Results",
+      "status": {
+        "completed": "Completed",
+        "inReview": "In Review"
+      },
+      "buttons": {
+        "backToDashboard": "Back to Dashboard"
+      },
+      "aiAnalysis": {
+        "title": "AI Analysis in Progress",
+        "description": "This interview is currently being analyzed by our AI system. Results will be available soon.",
+        "progress": "Your interview responses are being analyzed by our AI system. Detailed feedback and analysis will be available once the review is complete."
+      }
     }
   },
   "invitation": {

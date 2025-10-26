@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, useRouter } from "@tanstack/react-router";
 import { LoadingSpinner } from "@workspace/ui/components/shared/loading-spinner";
 import { useQuery as useConvexQuery } from "convex/react";
+import { useTranslation } from "react-i18next";
 
 import { getInterviewTranscriptFromS3 } from "@/services/s3Service";
 
@@ -16,6 +17,8 @@ export function InterviewResults({ sessionId }: InterviewResultsProps) {
   const session = useConvexQuery(api.interviewSessions.getById, {
     id: sessionId,
   });
+
+  const { t } = useTranslation();
 
   const router = useRouter();
 
@@ -109,17 +112,17 @@ export function InterviewResults({ sessionId }: InterviewResultsProps) {
           </h1>
           <div className="mt-2 flex items-center gap-4">
             <p className="text-muted-foreground">
-              Completed on{" "}
+              {t("interview.results.completed")} on{" "}
               {new Date(session.completedAt || 0).toLocaleDateString()}
             </p>
             {session.status === "in_review" && (
               <span className="rounded-full bg-yellow-100 px-3 py-1 text-sm font-medium text-yellow-800">
-                In Review
+                {t("interview.results.status.inReview")}
               </span>
             )}
             {session.status === "completed" && (
               <span className="rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800">
-                Completed
+                {t("interview.results.status.completed")}
               </span>
             )}
           </div>
@@ -129,7 +132,7 @@ export function InterviewResults({ sessionId }: InterviewResultsProps) {
           to={router.routesByPath["/dashboard"].fullPath}
           className="bg-primary text-primary-foreground rounded-md px-4 py-2 text-sm"
         >
-          Back to Dashboard
+          {t("interview.results.buttons.backToDashboard")}
         </Link>
       </div>
 
@@ -139,12 +142,10 @@ export function InterviewResults({ sessionId }: InterviewResultsProps) {
             <div className="mr-3 h-5 w-5 animate-spin rounded-full border-2 border-yellow-600 border-t-transparent"></div>
             <div>
               <h3 className="font-medium text-yellow-800">
-                AI Analysis in Progress
+                {t("interview.results.aiAnalysis.title")}
               </h3>
               <p className="text-sm text-yellow-700">
-                Your interview responses are being analyzed by our AI system.
-                Detailed feedback and analysis will be available once the review
-                is complete.
+                {t("interview.results.aiAnalysis.progress")}
               </p>
             </div>
           </div>
