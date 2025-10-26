@@ -267,7 +267,9 @@
         "title": "AI Analysis in Progress",
         "description": "This interview is currently being analyzed by our AI system. Results will be available soon.",
         "progress": "Your interview responses are being analyzed by our AI system. Detailed feedback and analysis will be available once the review is complete."
-      }
+      },
+      "question": "Question {{index}}",
+      "yourAnswer": "Your Answer:"
     }
   },
   "invitation": {

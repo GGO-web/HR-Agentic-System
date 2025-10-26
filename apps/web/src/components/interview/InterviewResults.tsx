@@ -169,11 +169,15 @@ export function InterviewResults({ sessionId }: InterviewResultsProps) {
               key={question._id}
               className="border-border bg-card rounded-lg border p-6 shadow-sm"
             >
-              <h3 className="text-lg font-medium">Question {index + 1}</h3>
+              <h3 className="text-lg font-medium">
+                {t("interview.results.question", { index: index + 1 })}
+              </h3>
               <p className="mt-2">{question.question}</p>
 
               <div className="my-4">
-                <h4 className="mb-2 font-medium">Your Answer:</h4>
+                <h4 className="mb-2 font-medium">
+                  {t("interview.results.yourAnswer")}
+                </h4>
                 <div className="bg-muted rounded-md p-4">
                   {isLoadingTranscript ? (
                     <LoadingSpinner text="Loading transcription..." />
