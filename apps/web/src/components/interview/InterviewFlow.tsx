@@ -42,7 +42,9 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
   );
 
   const startSession = useMutation(api.interviewSessions.startSession);
-  const completeSession = useMutation(api.interviewSessions.completeSession);
+  const sendSessionForReview = useMutation(
+    api.interviewSessions.sendSessionForReview,
+  );
 
   const conversation = useConversation({
     overrides: {
@@ -173,8 +175,8 @@ I'll be asking you several specific questions today. Please speak clearly and ta
         console.error("Transcript upload error:", e);
       }
 
-      // Mark only this interview session as completed
-      await completeSession({ id: sessionId });
+      // Send this interview session for review
+      await sendSessionForReview({ id: sessionId });
       toast.success(t("interview.elevenlabs.completed"));
 
       await navigate({ to: router.routesByPath["/dashboard"].fullPath });
@@ -187,7 +189,7 @@ I'll be asking you several specific questions today. Please speak clearly and ta
   }, [
     conversation,
     sessionId,
-    completeSession,
+    sendSessionForReview,
     navigate,
     router,
     t,

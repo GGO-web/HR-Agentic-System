@@ -71,8 +71,8 @@ export const startSession = mutation({
   },
 });
 
-// Complete an interview session
-export const completeSession = mutation({
+// Send an interview session for review
+export const sendSessionForReview = mutation({
   args: { id: v.id("interviewSessions") },
   handler: async (ctx, args) => {
     await ctx.db.patch(args.id, {
