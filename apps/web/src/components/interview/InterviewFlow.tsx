@@ -1,14 +1,17 @@
 import { api } from "@convex/_generated/api";
 import { type Id } from "@convex/_generated/dataModel";
+import { useConversation } from "@elevenlabs/react";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import { Button } from "@workspace/ui/components/button";
 import { LoadingSpinner } from "@workspace/ui/components/shared/loading-spinner";
 import { useQuery, useMutation } from "convex/react";
-import { useState, useEffect } from "react";
+import { Mic, Volume2, Phone, PhoneOff } from "lucide-react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
 
-import { AudioRecorder } from "./AudioRecorder";
-import { QuestionDisplay } from "./QuestionDisplay";
+import { END_INTERVIEW_MARKER } from "@/components/interview/-constants";
+import { uploadFileToS3 } from "@/services/s3Service";
 
 interface InterviewFlowProps {
   sessionId: Id<"interviewSessions">;
@@ -16,174 +19,313 @@ interface InterviewFlowProps {
 
 export function InterviewFlow({ sessionId }: InterviewFlowProps) {
   const navigate = useNavigate();
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [isRecording, setIsRecording] = useState(false);
-  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
   const { t } = useTranslation();
 
-  const router = useRouter();
+  const [isConnected, setIsConnected] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [endRequested, setEndRequested] = useState(false);
+  const messagesRef = useRef<
+    Array<{ source: string; message: string; at: string }>
+  >(new Array<{ source: string; message: string; at: string }>());
 
-  // Fetch interview session
   const session = useQuery(api.interviewSessions.getById, { id: sessionId });
 
-  // Fetch job description
   const jobDescription = useQuery(
     api.jobDescriptions.getById,
     session ? { id: session.jobDescriptionId } : "skip",
   );
 
-  // Fetch questions for the job description
   const questions = useQuery(
     api.interviewQuestions.getByJobDescription,
     session ? { jobDescriptionId: session.jobDescriptionId } : "skip",
   );
 
-  // Mutations
   const startSession = useMutation(api.interviewSessions.startSession);
-  const completeSession = useMutation(api.interviewSessions.completeSession);
-  const createResponse = useMutation(api.interviewResponses.create);
+  const sendSessionForReview = useMutation(
+    api.interviewSessions.sendSessionForReview,
+  );
 
-  // Start the session if it's not already started
+  const conversation = useConversation({
+    overrides: {
+      agent: {
+        prompt: {
+          prompt: `You are conducting a professional interview for the position: ${jobDescription?.title}.
+            Hello ${session?.candidateEmail?.split("@")[0]}! I'm your AI interviewer for the ${jobDescription?.title} position. 
+            I'll be asking you several specific questions today. Please speak clearly and take your time with each response.
+
+            IMPORTANT: You must ask ONLY these specific questions in order. Do NOT ask about resume, experience, or any other topics not listed below. Do NOT make assumptions about the candidate's background.
+
+            Here are the exact questions you must ask:
+
+            ${questions
+              ?.sort((a, b) => a.order - b.order)
+              .map((q) => `${q.question}`)
+              .join("\n")},
+
+            Instructions:
+            - Ask each question one at a time
+            - Wait for the candidate's complete response before moving to the next question
+            - Do not ask follow-up questions unless the candidates response is unclear
+            - Keep the interview focused and professional
+            - Do not ask more than 1 question at a time
+            - Do not repeat the same question if candidate answers it
+            - Do not ask about resume, previous jobs, or experience unless specifically mentioned in the questions above
+
+            When you have asked the LAST question and acknowledged the candidate's final response and user have no other questions for the conversation, end with exactly this marker on a new line: ${END_INTERVIEW_MARKER}
+            `,
+        },
+        firstMessage: `Hello ${session?.candidateEmail?.split("@")[0]}! I'm your AI interviewer for the ${jobDescription?.title} position. 
+I'll be asking you several specific questions today. Please speak clearly and take your time with each response. Let's begin with the first question!`,
+        language: "en",
+      },
+    },
+    onConnect: () => {
+      setIsConnected(true);
+      setIsConnecting(false);
+      toast.success(t("interview.elevenlabs.connected"));
+    },
+    onDisconnect: () => {
+      setIsConnected(false);
+      toast.info(t("interview.elevenlabs.disconnected"));
+    },
+    onError: () => {
+      toast.error(t("interview.elevenlabs.error"));
+      setIsConnecting(false);
+    },
+    onStatusChange: (status) => {
+      if (status.status === "connected") {
+        setIsConnected(true);
+        setIsConnecting(false);
+      } else if (status.status === "disconnected") {
+        setIsConnected(false);
+        setIsConnecting(false);
+      } else if (status.status === "disconnecting") {
+        setIsConnected(false);
+      }
+    },
+    onMessage: (message) => {
+      if (typeof message.message === "string") {
+        messagesRef.current.push({
+          source: String(message.source),
+          message: message.message,
+          at: new Date().toISOString(),
+        });
+      }
+
+      if (endRequested) return;
+      if (message.source !== "user" && typeof message.message === "string") {
+        if (message.message.includes(END_INTERVIEW_MARKER)) {
+          setEndRequested(true);
+          void disconnectConversation();
+        }
+      }
+    },
+    serverLocation: "us",
+  });
+
+  const startConversation = useCallback(async () => {
+    try {
+      setIsConnecting(true);
+
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      await conversation.startSession({
+        agentId: import.meta.env.VITE_ELEVENLABS_AGENT_ID,
+        connectionType: "websocket",
+        userId: session?.candidateEmail || "anonymous",
+      });
+    } catch (error) {
+      console.error("Failed to start conversation:", error);
+      toast.error(t("interview.elevenlabs.startFailed"));
+    } finally {
+      setIsConnecting(false);
+    }
+  }, [conversation, session, t]);
+
+  const disconnectConversation = useCallback(async () => {
+    try {
+      await conversation.endSession();
+      // Upload transcript to S3 (best-effort)
+      let transcriptUrl: string | undefined;
+      try {
+        const payload = {
+          sessionId,
+          candidateEmail: session?.candidateEmail,
+          jobTitle: jobDescription?.title,
+          questions:
+            questions?.map((q) => ({
+              id: q._id,
+              order: q.order,
+              question: q.question,
+            })) ?? [],
+          messages: messagesRef.current,
+          endedAt: new Date().toISOString(),
+        };
+
+        const blob = new Blob([JSON.stringify(payload, null, 2)], {
+          type: "application/json",
+        });
+
+        const fileName = `interviews/${String(sessionId)}-${Date.now()}.json`;
+        const file = new File([blob], fileName, { type: "application/json" });
+        const upload = await uploadFileToS3(file);
+
+        if (upload.success && upload.url) {
+          transcriptUrl = upload.url;
+        } else {
+          console.error("Failed to upload interview transcript:", upload.error);
+        }
+      } catch (e) {
+        console.error("Transcript upload error:", e);
+      }
+
+      // Send this interview session for review
+      await sendSessionForReview({ id: sessionId, transcriptUrl });
+      toast.success(t("interview.elevenlabs.completed"));
+
+      await navigate({ to: router.routesByPath["/dashboard"].fullPath });
+    } catch (error) {
+      console.error("Failed to end conversation:", error);
+      toast.error(t("interview.elevenlabs.endFailed"));
+    } finally {
+      setIsConnected(false);
+    }
+  }, [
+    conversation,
+    sessionId,
+    sendSessionForReview,
+    navigate,
+    router,
+    t,
+    questions,
+    jobDescription?.title,
+    session?.candidateEmail,
+  ]);
+
   useEffect(() => {
     if (session && session.status === "scheduled") {
       void startSession({ id: sessionId });
     }
   }, [session, sessionId, startSession]);
 
-  // Sort questions by order
-  const sortedQuestions = questions
-    ? [...questions].sort((a, b) => a.order - b.order)
-    : [];
-
-  // Current question
-  const currentQuestion = sortedQuestions[currentQuestionIndex];
-
-  // Handle recording complete
-  const handleRecordingComplete = (blob: Blob) => {
-    setAudioBlob(blob);
-    setIsRecording(false);
-  };
-
-  // Handle submitting the response
-  const handleSubmitResponse = async () => {
-    if (!audioBlob || !currentQuestion) return;
-
-    setIsSubmitting(true);
-
-    try {
-      // TODO: Implement actual audio upload to cloud storage
-      // For now, we'll just use a placeholder URL
-      const audioUrl = `mock-audio-url-${Date.now()}`;
-
-      await createResponse({
-        interviewSessionId: sessionId,
-        questionId: currentQuestion._id,
-        audioUrl,
-        transcription: undefined, // Will be processed asynchronously
-        aiAnalysis: undefined, // Will be processed asynchronously
+  // Redirect to results if interview is completed or in review
+  useEffect(() => {
+    if (
+      session &&
+      (session.status === "completed" || session.status === "in_review")
+    ) {
+      void navigate({
+        to: `/interview/${sessionId}/results`,
       });
-
-      // Move to next question or complete the interview
-      if (currentQuestionIndex < sortedQuestions.length - 1) {
-        setCurrentQuestionIndex(currentQuestionIndex + 1);
-      } else {
-        await completeSession({ id: sessionId });
-        await navigate({ to: router.routesByPath["/dashboard"].fullPath });
-      }
-
-      // Reset audio blob
-      setAudioBlob(null);
-    } catch (error) {
-      console.error("Failed to submit response:", error);
-    } finally {
-      setIsSubmitting(false);
     }
-  };
+  }, [session, sessionId, navigate]);
 
   // Loading state
   if (!session || !jobDescription || !questions) {
     return <LoadingSpinner fullScreen text={t("interview.flow.loading")} />;
   }
 
-  // Calculate progress
-  const progress = ((currentQuestionIndex + 1) / sortedQuestions.length) * 100;
+  // Show message if interview is already completed or in review
+  if (session.status === "completed" || session.status === "in_review") {
+    return (
+      <div className="container mx-auto flex flex-1 flex-col items-center justify-center p-6">
+        <div className="text-center">
+          <h2 className="mb-4 text-2xl font-semibold">
+            {session.status === "completed"
+              ? t("interview.flow.alreadyCompleted")
+              : t("interview.flow.inReview")}
+          </h2>
+          <p className="text-muted-foreground mb-6">
+            {session.status === "completed"
+              ? t("interview.flow.alreadyCompletedDescription")
+              : t("interview.flow.inReviewDescription")}
+          </p>
+          <Button
+            onClick={() => navigate({ to: `/interview/${sessionId}/results` })}
+            size="lg"
+          >
+            {t("interview.flow.viewResults")}
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="container mx-auto flex min-h-screen flex-col p-6">
+    <div className="container mx-auto flex flex-1 flex-col p-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold">
           {jobDescription.title} {t("interview.flow.interview")}
         </h1>
-        <div className="bg-muted mt-4 h-2 w-full rounded-full">
-          <div
-            className="bg-primary h-2 rounded-full transition-all"
-            style={{ width: `${progress}%` }}
-          ></div>
-        </div>
-        <div className="text-muted-foreground mt-2 flex justify-between text-sm">
-          <span>
-            {t("interview.flow.question")} {currentQuestionIndex + 1}{" "}
-            {t("interview.flow.of")} {sortedQuestions.length}
-          </span>
-          <span>
-            {Math.round(progress)}% {t("interview.flow.complete")}
-          </span>
-        </div>
       </div>
 
-      {currentQuestion && (
-        <div className="flex-1">
-          <QuestionDisplay
-            question={currentQuestion.question}
-            questionNumber={currentQuestionIndex + 1}
-          />
+      <div className="flex flex-1 flex-col items-center justify-center">
+        {!isConnected && !isConnecting && (
+          <div className="text-center">
+            <h2 className="mb-4 text-2xl font-semibold">
+              {t("interview.elevenlabs.readyToStart")}
+            </h2>
 
-          <div className="mt-8">
-            {!audioBlob ? (
-              <AudioRecorder
-                isRecording={isRecording}
-                onStartRecording={() => setIsRecording(true)}
-                onStopRecording={() => setIsRecording(false)}
-                onRecordingComplete={handleRecordingComplete}
-              />
-            ) : (
-              <div className="flex flex-col items-center">
-                <div className="bg-muted mb-4 w-full rounded-lg p-4">
-                  <p className="text-center">
-                    {t("interview.flow.recordingComplete")}
-                  </p>
-                  <audio
-                    className="mt-2 w-full"
-                    controls
-                    src={URL.createObjectURL(audioBlob)}
-                  />
-                </div>
+            <p className="text-muted-foreground mb-6">
+              {t("interview.elevenlabs.description")}
+            </p>
 
-                <div className="flex gap-4">
-                  <Button
-                    onClick={() => setAudioBlob(null)}
-                    variant="outline"
-                    disabled={isSubmitting}
-                  >
-                    {t("interview.flow.recordAgain")}
-                  </Button>
-
-                  <Button
-                    onClick={handleSubmitResponse}
-                    variant="default"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting
-                      ? t("interview.flow.submitting")
-                      : t("interview.flow.submitAnswer")}
-                  </Button>
-                </div>
-              </div>
-            )}
+            <Button onClick={startConversation} size="lg">
+              <Phone className="mr-2 h-5 w-5" />
+              {t("interview.elevenlabs.startInterview")}
+            </Button>
           </div>
-        </div>
-      )}
+        )}
+
+        {isConnecting && (
+          <div className="text-center">
+            <LoadingSpinner text={t("interview.elevenlabs.connecting")} />
+
+            <p className="text-muted-foreground mt-4">
+              {t("interview.elevenlabs.connectingDescription")}
+            </p>
+          </div>
+        )}
+
+        {isConnected && (
+          <div className="w-full max-w-md text-center">
+            <div className="mb-6">
+              <div className="inline-flex items-center rounded-full bg-green-100 px-4 py-2 text-green-800">
+                <div className="mr-2 h-2 w-2 animate-pulse rounded-full bg-green-500"></div>
+                {t("interview.elevenlabs.connected")}
+              </div>
+            </div>
+
+            <div className="mb-6">
+              {conversation.isSpeaking ? (
+                <div className="flex items-center justify-center text-blue-600">
+                  <Volume2 className="mr-2 h-5 w-5 animate-pulse" />
+                  {t("interview.elevenlabs.agentSpeaking")}
+                </div>
+              ) : (
+                <div className="flex items-center justify-center text-green-600">
+                  <Mic className="mr-2 h-5 w-5" />
+                  {t("interview.elevenlabs.listening")}
+                </div>
+              )}
+            </div>
+
+            <Button
+              onClick={disconnectConversation}
+              variant="destructive"
+              size="lg"
+            >
+              <PhoneOff className="mr-2 h-5 w-5" />
+              {t("interview.elevenlabs.endInterview")}
+            </Button>
+
+            <div className="text-muted-foreground mt-6 text-sm">
+              <p>{t("interview.elevenlabs.instructions")}</p>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

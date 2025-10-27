@@ -46,5 +46,5 @@ export function UserCreationHandler({ children }: UserCreationHandlerProps) {
     void handleUserCreation();
   }, [user, userData, isLoading, isCreating, createUser]);
 
-  return <>{children}</>;
+  return <div className="flex min-h-screen flex-1 flex-col">{children}</div>;
 }

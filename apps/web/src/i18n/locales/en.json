@@ -158,7 +158,14 @@
         "description": "You've been invited to interview for these positions",
         "invited": "Invited",
         "viewDetails": "View Details",
-        "sessionNotCreated": "Session not created yet"
+        "viewResults": "View Results",
+        "sessionNotCreated": "Session not created yet",
+        "status": {
+          "scheduled": "Scheduled",
+          "inProgress": "In Progress",
+          "inReview": "In Review",
+          "completed": "Completed"
+        }
       }
     },
     "questionsList": {
@@ -218,31 +225,51 @@
       "recordingComplete": "Recording complete!",
       "recordAgain": "Record Again",
       "submitAnswer": "Submit Answer",
-      "submitting": "Submitting..."
+      "submitting": "Submitting...",
+      "alreadyCompleted": "Interview Already Completed",
+      "alreadyCompletedDescription": "This interview has already been completed and cannot be retaken.",
+      "inReview": "Interview Under Review",
+      "inReviewDescription": "This interview is currently being analyzed by our AI system. Results will be available soon.",
+      "viewResults": "View Results"
     },
-    "questionDisplay": {
-      "question": "Question",
-      "playQuestion": "Play Question",
-      "speaking": "Speaking...",
-      "generating": "Generating Speech...",
-      "stop": "Stop",
-      "clickToReveal": "Click \"Show Text\" to reveal the question or \"Play Question\" to hear it.",
-      "errors": {
-        "generateFailed": "Failed to generate speech",
-        "ttsUnavailable": "VoxCPM TTS unavailable, falling back to browser TTS",
-        "browserTTSFailed": "Browser TTS also failed. Please check your audio settings.",
-        "unsupported": "Text-to-speech is not supported in this browser.",
-        "playFailed": "Failed to play audio",
-        "playbackFailed": "Playback failed: {{error}}"
-      }
+    "elevenlabs": {
+      "readyToStart": "Ready to Start Your Interview",
+      "description": "Your AI interviewer is ready to conduct your interview. Click below to begin the conversation.",
+      "startInterview": "Start Interview",
+      "connecting": "Connecting to AI Interviewer...",
+      "connectingDescription": "Please wait while we establish the connection and prepare your interview.",
+      "connected": "Connected",
+      "disconnected": "Disconnected",
+      "agentSpeaking": "AI Interviewer is speaking...",
+      "listening": "Listening for your response...",
+      "endInterview": "End Interview",
+      "instructions": "Speak clearly and naturally. The AI will ask questions and listen to your responses.",
+      "error": "An error occurred during the interview",
+      "noAgentId": "ElevenLabs Agent ID not configured",
+      "startFailed": "Failed to start the interview",
+      "endFailed": "Failed to end the interview",
+      "completed": "Interview completed successfully!"
     },
-    "audioRecorder": {
-      "microphoneAccessDenied": "Microphone access denied",
-      "enableMicrophone": "Please enable microphone access in your browser settings to continue.",
-      "ready": "Ready",
-      "startRecording": "Start Recording",
-      "stopRecording": "Stop Recording",
-      "stopRecordingHint": "Click \"Stop Recording\" when you've finished your answer."
+    "results": {
+      "title": "Interview Results",
+      "completed": "Completed on",
+      "inReview": "Interview Under Review",
+      "inReviewDescription": "This interview is currently being analyzed by our AI system. Results will be available soon.",
+      "viewResults": "View Results",
+      "status": {
+        "completed": "Completed",
+        "inReview": "In Review"
+      },
+      "buttons": {
+        "backToDashboard": "Back to Dashboard"
+      },
+      "aiAnalysis": {
+        "title": "AI Analysis in Progress",
+        "description": "This interview is currently being analyzed by our AI system. Results will be available soon.",
+        "progress": "Your interview responses are being analyzed by our AI system. Detailed feedback and analysis will be available once the review is complete."
+      },
+      "question": "Question {{index}}",
+      "yourAnswer": "Your Answer:"
     }
   },
   "invitation": {

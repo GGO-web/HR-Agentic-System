@@ -73,10 +73,13 @@ export default defineSchema({
       v.literal("scheduled"),
       v.literal("in_progress"),
       v.literal("completed"),
-    ), // "scheduled", "in_progress", "completed"
+      v.literal("in_review"),
+    ), // "scheduled", "in_progress", "completed", "in_review"
     scheduledAt: v.optional(v.number()),
     startedAt: v.optional(v.number()),
+    submittedAt: v.optional(v.number()),
     completedAt: v.optional(v.number()),
+    transcriptUrl: v.optional(v.string()), // URL to the interview transcript in S3
     createdAt: v.number(),
     updatedAt: v.number(),
   })
@@ -89,7 +92,6 @@ export default defineSchema({
     questionId: v.id("interviewQuestions"),
     audioUrl: v.string(), // URL to the stored audio file
     transcription: v.optional(v.string()),
-    aiAnalysis: v.optional(v.string()),
     createdAt: v.number(),
   })
     .index("by_interview_session", ["interviewSessionId"])

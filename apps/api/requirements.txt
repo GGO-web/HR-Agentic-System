@@ -5,7 +5,3 @@ python-dotenv==1.0.1
 google-genai==1.32.0
 python-multipart==0.0.20
 httpx==0.28.1
-voxcpm==1.0.5
-soundfile==0.12.1
-numpy>=1.26.0
-setuptools==78.1.1

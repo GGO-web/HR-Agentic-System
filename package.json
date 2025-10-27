@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "turbo build",
-    "dev": "turbo dev",
+    "dev": "turbo ui",
     "dev:web": "turbo dev --filter=web",
     "dev:api": "turbo dev --filter=api",
     "dev:convex": "turbo convex --filter=web",

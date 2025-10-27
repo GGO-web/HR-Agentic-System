@@ -71,14 +71,18 @@ export const startSession = mutation({
   },
 });
 
-// Complete an interview session
-export const completeSession = mutation({
-  args: { id: v.id("interviewSessions") },
+// Send an interview session for review
+export const sendSessionForReview = mutation({
+  args: {
+    id: v.id("interviewSessions"),
+    transcriptUrl: v.optional(v.string()),
+  },
   handler: async (ctx, args) => {
     await ctx.db.patch(args.id, {
-      status: "completed",
-      completedAt: Date.now(),
+      status: "in_review",
+      submittedAt: Date.now(),
       updatedAt: Date.now(),
+      ...(args.transcriptUrl && { transcriptUrl: args.transcriptUrl }),
     });
 
     return args.id;
