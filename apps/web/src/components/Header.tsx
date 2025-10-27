@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function Header() {
-  const { isSignedIn, isHRManager, role } = useAuth();
+  const { isSignedIn, isHRManager, role, isCandidate } = useAuth();
   const { signOut } = useClerkAuth();
   const router = useRouter();
   const { t } = useTranslation();
@@ -25,9 +25,17 @@ export default function Header() {
         </Link>
 
         {isSignedIn && (
-          <Link to={router.routesByPath["/dashboard"].fullPath}>
-            {t("navigation.dashboard")}
-          </Link>
+          <>
+            <Link to={router.routesByPath["/dashboard"].fullPath}>
+              {t("navigation.dashboard")}
+            </Link>
+
+            {isCandidate && (
+              <Link to={router.routesByPath["/profile"].fullPath}>
+                {t("navigation.profile")}
+              </Link>
+            )}
+          </>
         )}
       </nav>
 

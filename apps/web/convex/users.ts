@@ -1,3 +1,4 @@
+import { type Id } from "@convex/_generated/dataModel";
 import { v } from "convex/values";
 
 import { mutation, query } from "./_generated/server";
@@ -98,6 +99,7 @@ export const update = mutation({
       v.union(v.literal(UserRole.HR_MANAGER), v.literal(UserRole.CANDIDATE)),
     ),
     companyId: v.optional(v.id("companies")),
+    resumeAttachmentId: v.optional(v.id("attachments")),
     isActive: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
@@ -108,6 +110,46 @@ export const update = mutation({
 
     await ctx.db.patch(id, fieldsToUpdate);
     return id;
+  },
+});
+
+// Update candidate profile (simplified mutation for candidates)
+// Note: Profile picture is managed by Clerk and accessed via user.imageUrl
+export const updateCandidateProfile = mutation({
+  args: {
+    userId: v.id("users"),
+    name: v.optional(v.string()),
+    resumeAttachmentId: v.optional(v.id("attachments")),
+  },
+  handler: async (ctx, args) => {
+    const { userId, ...updates } = args;
+
+    // Verify the user exists and is a candidate
+    const user = await ctx.db.get(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (user.role !== UserRole.CANDIDATE) {
+      throw new Error("Only candidates can update their profile");
+    }
+
+    // Only include fields that were provided
+    const fieldsToUpdate: {
+      name?: string;
+      resumeAttachmentId?: Id<"attachments">;
+      updatedAt: number;
+    } = {
+      updatedAt: Date.now(),
+      resumeAttachmentId: updates.resumeAttachmentId,
+    };
+
+    if (updates.name !== undefined) {
+      fieldsToUpdate.name = updates.name;
+    }
+
+    await ctx.db.patch(userId, fieldsToUpdate);
+    return userId;
   },
 });
 

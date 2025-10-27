@@ -24,6 +24,7 @@ export default defineSchema({
       v.literal(UserRole.CANDIDATE),
     ), // Strict role validation
     companyId: v.optional(v.id("companies")),
+    resumeAttachmentId: v.optional(v.id("attachments")), // Resume file attachment
     createdAt: v.number(),
     updatedAt: v.number(),
     clerkId: v.string(), // Clerk user ID

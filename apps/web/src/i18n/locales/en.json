@@ -17,8 +17,15 @@
       "error": "Failed to remove image. Please try again."
     }
   },
+  "resumeUploadButton": {
+    "clickHereOrDragResume": "<b>Click here</b> or <b>drag</b> a resume to upload it",
+    "dropResume": "<b>Drop the resume!</b>",
+    "removeSuccess": "Resume removed successfully",
+    "removeError": "Failed to remove resume. Please try again."
+  },
   "navigation": {
     "dashboard": "Dashboard",
+    "profile": "Profile",
     "signIn": "Sign In",
     "signUp": "Sign Up",
     "signOut": "Sign Out",
@@ -306,6 +313,29 @@
       "acceptError": "Failed to accept invitation. Please try again.",
       "declineError": "Failed to decline invitation. Please try again."
     }
+  },
+  "profile": {
+    "title": "Profile",
+    "profilePicture": "Profile Picture",
+    "profilePictureHint": "Update your profile picture through Clerk",
+    "changeProfilePicture": "Change Profile Picture",
+    "basicInformation": "Basic Information",
+    "name": "Name",
+    "namePlaceholder": "Enter your name",
+    "resume": {
+      "title": "Resume",
+      "upload": "Upload Resume",
+      "remove": "Remove",
+      "clear": "Clear",
+      "hint": "Upload your resume (PDF, DOC, or DOCX, max 10MB)",
+      "removed": "Resume removed successfully",
+      "removeError": "Failed to remove resume",
+      "uploadError": "Failed to upload resume"
+    },
+    "save": "Save",
+    "saving": "Saving...",
+    "updateSuccess": "Profile updated successfully",
+    "updateError": "Failed to update profile"
   },
   "protectedRoute": {
     "accessDenied": "Access Denied",

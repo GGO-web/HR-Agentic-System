@@ -1,3 +1,5 @@
+import { type Accept } from "react-dropzone";
+
 export const ALLOWED_IMAGE_TYPES = [
   "image/png",
   "image/jpg",
@@ -6,3 +8,9 @@ export const ALLOWED_IMAGE_TYPES = [
 ];
 
 export const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+
+export const MAX_RESUME_SIZE = 10 * 1024 * 1024; // 10MB
+
+export const ACCEPTED_RESUME_TYPES: Accept = {
+  "application/pdf": [".pdf"],
+};

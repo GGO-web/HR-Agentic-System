@@ -248,6 +248,121 @@ export async function deleteFileFromS3(fileUrl: string): Promise<DeleteResult> {
   }
 }
 
+/**
+ * Generate a unique filename for resume
+ */
+function generateResumeFilename(userId: string, originalName: string): string {
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const extension = originalName.split(".").pop()?.toLowerCase() || "pdf";
+  return `resume-${userId}-${timestamp}.${extension}`;
+}
+
+/**
+ * Get the S3 key for a resume
+ */
+function getResumeKey(userId: string, filename: string): string {
+  return `${FILES_FOLDER}/resumes/${userId}/${filename}`;
+}
+
+/**
+ * Upload resume to S3
+ */
+export async function uploadResumeToS3(
+  file: File,
+  userId: string,
+): Promise<UploadResult> {
+  try {
+    if (!BUCKET_NAME) {
+      throw new Error("S3 bucket name not configured");
+    }
+
+    // Validate file type (PDF, DOC, DOCX)
+    const allowedTypes = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
+    if (!allowedTypes.includes(file.type)) {
+      throw new Error(
+        "Invalid file type. Only PDF, DOC, and DOCX files are allowed.",
+      );
+    }
+
+    // Validate file size (max 10MB)
+    const MAX_RESUME_SIZE = 10 * 1024 * 1024; // 10MB
+    if (file.size > MAX_RESUME_SIZE) {
+      throw new Error("File size too large. Maximum size is 10MB.");
+    }
+
+    const filename = generateResumeFilename(userId, file.name);
+    const key = getResumeKey(userId, filename);
+
+    // Convert file to buffer
+    const buffer = await file.arrayBuffer();
+
+    // Upload to S3
+    const command = new PutObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+      Body: new Uint8Array(buffer),
+      ContentType: file.type,
+    });
+
+    await s3Client.send(command);
+
+    // Return the public URL
+    const publicUrl = `${bucketUrl}/${key}`;
+
+    return {
+      success: true,
+      url: publicUrl,
+    };
+  } catch (error) {
+    console.error("Error uploading resume to S3:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Upload failed",
+    };
+  }
+}
+
+/**
+ * Delete a resume from S3
+ */
+export async function deleteResumeFromS3(
+  resumeUrl: string,
+): Promise<DeleteResult> {
+  try {
+    if (!BUCKET_NAME) {
+      throw new Error("S3 bucket name not configured");
+    }
+
+    // Extract the key from the URL
+    const key = resumeUrl.replace(`${bucketUrl}/`, "");
+
+    if (!key.startsWith(`${FILES_FOLDER}/resumes`)) {
+      throw new Error("Invalid resume URL");
+    }
+
+    const command = new DeleteObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+    });
+
+    await s3Client.send(command);
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error("Error deleting resume from S3:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Delete failed",
+    };
+  }
+}
+
 export interface InterviewTranscript {
   sessionId: string;
   candidateEmail?: string;
