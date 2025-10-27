@@ -316,9 +316,13 @@
   },
   "profile": {
     "title": "Profile",
-    "profilePicture": "Profile Picture",
-    "profilePictureHint": "Update your profile picture through Clerk",
-    "changeProfilePicture": "Change Profile Picture",
+    "profilePicture": {
+      "title": "Profile Picture",
+      "hint": "Update your profile picture",
+      "changeProfilePicture": "Change Profile Picture",
+      "updateSuccess": "Profile picture updated successfully",
+      "updateError": "Failed to update profile picture"
+    },
     "basicInformation": "Basic Information",
     "name": "Name",
     "namePlaceholder": "Enter your name",

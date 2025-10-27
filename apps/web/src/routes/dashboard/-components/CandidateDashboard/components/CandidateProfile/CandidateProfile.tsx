@@ -1,15 +1,13 @@
+import { useUser } from "@clerk/clerk-react";
 import { api } from "@convex/_generated/api";
 import { type Id } from "@convex/_generated/dataModel";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@workspace/ui/components/avatar";
 import { Button } from "@workspace/ui/components/button";
 import { Card } from "@workspace/ui/components/card";
+import { AvatarUpload } from "@workspace/ui/components/file-upload/avatar-upload";
 import { Input } from "@workspace/ui/components/input";
 import { Label } from "@workspace/ui/components/label";
+import { type FileWithPreview } from "@workspace/ui/hooks/use-file-upload";
 import { useMutation, useQuery } from "convex/react";
 import { Loader2, User } from "lucide-react";
 import { useState } from "react";
@@ -35,6 +33,7 @@ interface CandidateProfileProps {
 export function CandidateProfile({ userId }: CandidateProfileProps) {
   const { t } = useTranslation();
   const { user, userData } = useAuth();
+  const { user: clerkUser } = useUser(); // Get Clerk user for updating profile
 
   const [resumeFile, setResumeFile] = useState<File | null>(null);
 
@@ -63,6 +62,21 @@ export function CandidateProfile({ userId }: CandidateProfileProps) {
 
   const handleResumeUpload = async (file: File) => {
     setResumeFile(file);
+  };
+
+  const handleImageFileChange = async (file: FileWithPreview | null) => {
+    if (file && clerkUser) {
+      try {
+        // Update Clerk profile picture
+        await clerkUser.setProfileImage({ file: file.file as File });
+      } catch (error) {
+        console.error("Error updating profile picture:", error);
+        toast.error(t("profile.profilePicture.updateError"));
+      }
+    } else {
+      // remove the profile picture from the user
+      await clerkUser?.setProfileImage({ file: null });
+    }
   };
 
   const handleResumeRemove = async () => {
@@ -125,10 +139,6 @@ export function CandidateProfile({ userId }: CandidateProfileProps) {
         }
       }
 
-      console.log("newResumeAttachmentId", newResumeAttachmentId);
-      console.log("resumeAttachmentId", resumeAttachmentId);
-      console.log("data.name", data.name);
-
       // Update the user profile
       await updateCandidateProfile({
         userId,
@@ -156,15 +166,10 @@ export function CandidateProfile({ userId }: CandidateProfileProps) {
             {/* Profile Picture Section */}
             <div className="space-y-4">
               <div className="flex items-center gap-4">
-                <Avatar className="h-20 w-20">
-                  <AvatarImage
-                    src={user?.imageUrl}
-                    alt={userData?.name || "Profile"}
-                  />
-                  <AvatarFallback>
-                    {userData?.name?.charAt(0).toUpperCase() || "U"}
-                  </AvatarFallback>
-                </Avatar>
+                <AvatarUpload
+                  defaultAvatar={user?.imageUrl}
+                  onFileChange={handleImageFileChange}
+                />
               </div>
             </div>
 
