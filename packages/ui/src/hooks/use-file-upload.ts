@@ -43,7 +43,7 @@ export type FileUploadState = {
 };
 
 export type FileUploadActions = {
-  addFiles: (files: FileList | File[]) => void;
+  addFiles: (files: FileList | File[], triggerOnFilesChange?: boolean) => void;
   removeFile: (id: string) => void;
   clearFiles: () => void;
   clearErrors: () => void;
@@ -181,7 +181,7 @@ export const useFileUpload = (
   }, [onFilesChange]);
 
   const addFiles = useCallback(
-    (newFiles: FileList | File[]) => {
+    (newFiles: FileList | File[], triggerOnFilesChange = true) => {
       if (!newFiles || newFiles.length === 0) return;
 
       const newFilesArray = Array.from(newFiles);
@@ -272,7 +272,9 @@ export const useFileUpload = (
             ? validFiles
             : [...prev.files, ...validFiles];
 
-          onFilesChange?.(newFiles);
+          if (triggerOnFilesChange) {
+            onFilesChange?.(newFiles);
+          }
 
           return {
             ...prev,

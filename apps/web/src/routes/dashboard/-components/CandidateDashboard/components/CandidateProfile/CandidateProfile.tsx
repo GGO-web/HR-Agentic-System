@@ -73,9 +73,12 @@ export function CandidateProfile({ userId }: CandidateProfileProps) {
         console.error("Error updating profile picture:", error);
         toast.error(t("profile.profilePicture.updateError"));
       }
-    } else {
-      // remove the profile picture from the user
-      await clerkUser?.setProfileImage({ file: null });
+    }
+  };
+
+  const handleImageRemove = async () => {
+    if (clerkUser?.hasImage) {
+      await clerkUser.setProfileImage({ file: null });
     }
   };
 
@@ -165,10 +168,12 @@ export function CandidateProfile({ userId }: CandidateProfileProps) {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Profile Picture Section */}
             <div className="space-y-4">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center justify-center gap-4">
                 <AvatarUpload
+                  isDefaultAvatar={!user?.hasImage}
                   defaultAvatar={user?.imageUrl}
                   onFileChange={handleImageFileChange}
+                  onRemove={handleImageRemove}
                 />
               </div>
             </div>

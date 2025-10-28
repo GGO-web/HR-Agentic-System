@@ -1,6 +1,7 @@
 "use client";
 
 import { TriangleAlert, User, X } from "lucide-react";
+import { useEffect } from "react";
 
 import {
   Alert,
@@ -22,6 +23,8 @@ interface AvatarUploadProps {
   className?: string;
   onFileChange?: (file: FileWithPreview | null) => void;
   defaultAvatar?: string;
+  isDefaultAvatar?: boolean;
+  onRemove?: () => void;
 }
 
 export function AvatarUpload({
@@ -29,10 +32,13 @@ export function AvatarUpload({
   className,
   onFileChange,
   defaultAvatar,
+  isDefaultAvatar,
+  onRemove,
 }: AvatarUploadProps) {
   const [
     { files, isDragging, errors },
     {
+      addFiles,
       removeFile,
       handleDragEnter,
       handleDragLeave,
@@ -58,7 +64,25 @@ export function AvatarUpload({
     if (currentFile) {
       removeFile(currentFile.id);
     }
+
+    onRemove?.();
   };
+
+  const addDefaultAvatar = async () => {
+    if (defaultAvatar) {
+      const response = await fetch(defaultAvatar);
+      const arrayBuffer = await response.arrayBuffer();
+      const blob = new Blob([new Uint8Array(arrayBuffer)], {
+        type: "image/jpeg",
+      });
+      const file = new File([blob], "avatar.jpeg", { type: "image/jpeg" });
+      addFiles([file], false);
+    }
+  };
+
+  useEffect(() => {
+    void addDefaultAvatar();
+  }, []);
 
   return (
     <div className={cn("flex flex-col items-center gap-4", className)}>
@@ -94,11 +118,15 @@ export function AvatarUpload({
         </div>
 
         {/* Remove Button - only show when file is uploaded */}
-        {currentFile && (
+        {currentFile && !isDefaultAvatar && (
           <Button
             size="icon"
             variant="outline"
-            onClick={handleRemove}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRemove();
+            }}
+            type="button"
             className="absolute end-0 top-0 size-6 rounded-full"
             aria-label="Remove avatar"
           >
@@ -110,7 +138,9 @@ export function AvatarUpload({
       {/* Upload Instructions */}
       <div className="space-y-0.5 text-center">
         <p className="text-sm font-medium">
-          {currentFile ? "Avatar uploaded" : "Upload avatar"}
+          {currentFile && !isDefaultAvatar
+            ? "Avatar uploaded"
+            : "Upload avatar"}
         </p>
         <p className="text-muted-foreground text-xs">
           PNG, JPG up to {formatBytes(maxSize)}
