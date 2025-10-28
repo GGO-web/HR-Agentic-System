@@ -1,14 +1,13 @@
 import { SignOutButton, useAuth as useClerkAuth } from "@clerk/clerk-react";
 import { Link, useRouter } from "@tanstack/react-router";
-import { Badge } from "@workspace/ui/components/badge";
-import { Button } from "@workspace/ui/components/button";
+import { Button, buttonVariants } from "@workspace/ui/components/button";
 import { User, Building2, LogOut, LogIn, UserPlus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { useAuth } from "@/hooks/useAuth";
 
 export default function Header() {
-  const { isSignedIn, isHRManager, role, isCandidate } = useAuth();
+  const { isSignedIn, isHRManager, role } = useAuth();
   const { signOut } = useClerkAuth();
   const router = useRouter();
   const { t } = useTranslation();
@@ -29,29 +28,23 @@ export default function Header() {
             <Link to={router.routesByPath["/dashboard"].fullPath}>
               {t("navigation.dashboard")}
             </Link>
-
-            {isCandidate && (
-              <Link to={router.routesByPath["/profile"].fullPath}>
-                {t("navigation.profile")}
-              </Link>
-            )}
           </>
         )}
       </nav>
 
       <div className="flex items-center gap-4">
         {isSignedIn && role && (
-          <div className="text-deep-blue hidden items-center gap-2 md:flex">
+          <Link
+            to={router.routesByPath["/profile"].fullPath}
+            className={buttonVariants({ variant: "outline", size: "sm" })}
+          >
             {isHRManager ? (
               <Building2 className="size-4" />
             ) : (
               <User className="size-4" />
             )}
-
-            <Badge variant="secondary" className="text-xs">
-              {isHRManager ? t("header.hrManager") : t("header.candidate")}
-            </Badge>
-          </div>
+            {t("header.profile")}
+          </Link>
         )}
 
         {isSignedIn ? (

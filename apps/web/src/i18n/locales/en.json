@@ -34,7 +34,8 @@
   "header": {
     "logoAlt": "HR Agentic System",
     "hrManager": "HR Manager",
-    "candidate": "Candidate"
+    "candidate": "Candidate",
+    "profile": "Profile"
   },
   "home": {
     "title": "AI-Powered HR Interview Platform",
