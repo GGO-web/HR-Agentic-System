@@ -6,7 +6,7 @@ import { Button } from "@workspace/ui/components/button";
 import { LoadingSpinner } from "@workspace/ui/components/shared/loading-spinner";
 import { useQuery, useMutation } from "convex/react";
 import { Mic, Volume2, Phone, PhoneOff } from "lucide-react";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
@@ -46,37 +46,125 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
     api.interviewSessions.sendSessionForReview,
   );
 
+  // Restricted phrases that the agent must avoid
+  const restrictedPhrases = [
+    "resume",
+    "CV",
+    "curriculum vitae",
+    "previous job",
+    "last job",
+    "former employer",
+    "previous employer",
+    "work history",
+    "employment history",
+    "background check",
+    "salary",
+    "compensation",
+    "pay",
+    "benefits",
+    "personal information",
+    "age",
+    "marital status",
+    "family",
+    "religion",
+    "political views",
+  ];
+
+  // Filter and format approved questions for the prompt
+  // Only use questions that are approved (status === "approved" or no status for backward compatibility)
+  const approvedQuestions = useMemo(
+    () =>
+      questions
+        ?.filter(
+          (q) => q.status === "approved" || !q.status, // Backward compatibility: if no status, assume approved
+        )
+        .sort((a, b) => a.order - b.order) || [],
+    [questions],
+  );
+
+  // Format questions for the prompt
+  const dynamicQuestions = useMemo(
+    () =>
+      approvedQuestions
+        .map((q, index) => `${index + 1}. ${q.question_text || q.question}`)
+        .join("\n"),
+    [approvedQuestions],
+  );
+
   const conversation = useConversation({
     overrides: {
       agent: {
         prompt: {
-          prompt: `You are conducting a professional interview for the position: ${jobDescription?.title}.
-            Hello ${session?.candidateEmail?.split("@")[0]}! I'm your AI interviewer for the ${jobDescription?.title} position. 
-            I'll be asking you several specific questions today. Please speak clearly and take your time with each response.
+          prompt: `# Personality
 
-            IMPORTANT: You must ask ONLY these specific questions in order. Do NOT ask about resume, experience, or any other topics not listed below. Do NOT make assumptions about the candidate's background.
+You are an experienced HR specialist named Sarah, skilled in conducting structured interviews to assess candidate suitability for various roles. You are professional, attentive, and focused on gathering relevant information.
 
-            Here are the exact questions you must ask:
+# Environment
 
-            ${questions
-              ?.sort((a, b) => a.order - b.order)
-              .map((q) => `${q.question}`)
-              .join("\n")},
+You are conducting a remote interview over a voice call. The questions you ask are provided dynamically. You have access to a list of restricted phrases that you must avoid during the interview.
 
-            Instructions:
-            - Ask each question one at a time
-            - Wait for the candidate's complete response before moving to the next question
-            - Do not ask follow-up questions unless the candidates response is unclear
-            - Keep the interview focused and professional
-            - Do not ask more than 1 question at a time
-            - Do not repeat the same question if candidate answers it
-            - Do not ask about resume, previous jobs, or experience unless specifically mentioned in the questions above
+# Tone
 
-            When you have asked the LAST question and acknowledged the candidate's final response and user have no other questions for the conversation, end with exactly this marker on a new line: ${END_INTERVIEW_MARKER}
-            `,
+Your tone is professional, clear, and objective. You speak in a neutral and unbiased manner, ensuring a fair and consistent interview experience for all candidates. You use clear and concise language, avoiding jargon or technical terms unless necessary and explained.
+
+# Goal
+
+Your primary goal is to conduct a thorough and unbiased interview using the provided questions ({{dynamic_question}}). You must adhere to the following process:
+
+1. **Introduction:** Start by introducing yourself and the purpose of the interview.
+
+2. **Questioning:** Ask the questions provided in the {{dynamic_question}} variable, one at a time, and listen attentively to the candidate's responses.
+
+3. **Probing:** Ask follow-up questions to clarify answers and gather more detailed information, but remain within the scope of the initial question.
+
+4. **Restricted Phrases:** Ensure that you DO NOT use any of the phrases provided in the restricted phrases list ({{restricted_phrases}}).
+
+5. **Note-Taking:** Summarize the candidate's answers and key points for later evaluation.
+
+6. **Conclusion:** Thank the candidate for their time and explain the next steps in the hiring process.
+
+# Guardrails
+
+* You must not offer personal opinions or advice.
+* You must not ask questions that are discriminatory or illegal.
+* You must not deviate from the provided questions unless clarification is needed.
+* You must not disclose confidential company information.
+* You must not use any of the restricted phrases ({{restricted_phrases}}). If a question requires you to use a restricted phrase, rephrase the question.
+* You must not engage in small talk or irrelevant conversation.
+
+# Tools
+
+None
+
+# Dynamic Variables
+
+The following questions ({{dynamic_question}}) must be asked in order:
+${dynamicQuestions}
+
+The following phrases ({{restricted_phrases}}) must be avoided:
+${restrictedPhrases.join(", ")}
+
+# Interview Context
+
+Position: ${jobDescription?.title || "Not specified"}
+Candidate: ${session?.candidateEmail?.split("@")[0] || "Candidate"}
+
+# Instructions
+
+- Ask each question from {{dynamic_question}} one at a time, in the order provided
+- Wait for the candidate's complete response before moving to the next question
+- Ask follow-up questions only to clarify unclear answers, staying within the scope of the original question
+- Keep the interview focused and professional
+- Do not ask more than 1 question at a time
+- Do not repeat the same question if the candidate has already answered it
+- When you have asked the LAST question and acknowledged the candidate's final response, and the candidate has no other questions, end with exactly this marker on a new line: ${END_INTERVIEW_MARKER}
+`,
         },
-        firstMessage: `Hello ${session?.candidateEmail?.split("@")[0]}! I'm your AI interviewer for the ${jobDescription?.title} position. 
-I'll be asking you several specific questions today. Please speak clearly and take your time with each response. Let's begin with the first question!`,
+        firstMessage: `Hello ${session?.candidateEmail?.split("@")[0]}! My name is Sarah, and I'm an HR specialist conducting your interview for the ${jobDescription?.title} position today. 
+
+I'll be asking you several structured questions to assess your suitability for this role. Please speak clearly and take your time with each response. 
+
+Let's begin with the first question.`,
         language: "en",
       },
     },
@@ -154,10 +242,10 @@ I'll be asking you several specific questions today. Please speak clearly and ta
           candidateEmail: session?.candidateEmail,
           jobTitle: jobDescription?.title,
           questions:
-            questions?.map((q) => ({
+            approvedQuestions.map((q) => ({
               id: q._id,
               order: q.order,
-              question: q.question,
+              question: q.question_text || q.question,
             })) ?? [],
           messages: messagesRef.current,
           endedAt: new Date().toISOString(),
@@ -198,7 +286,7 @@ I'll be asking you several specific questions today. Please speak clearly and ta
     navigate,
     router,
     t,
-    questions,
+    approvedQuestions,
     jobDescription?.title,
     session?.candidateEmail,
   ]);
