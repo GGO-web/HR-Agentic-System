@@ -73,7 +73,19 @@ class HybridMatcher:
             documents: List of LangChain Document objects to index
         """
         # Split documents into chunks
+        # RecursiveCharacterTextSplitter preserves metadata automatically
         chunks = self.text_splitter.split_documents(documents)
+        
+        # Verify metadata is preserved in chunks
+        if documents and documents[0].metadata:
+            # Ensure all chunks have the same metadata as the original document
+            for chunk in chunks:
+                if not chunk.metadata:
+                    chunk.metadata = {}
+                # Copy metadata from original document if not present
+                for key, value in documents[0].metadata.items():
+                    if key not in chunk.metadata:
+                        chunk.metadata[key] = value
 
         # If vector store already exists, add to it; otherwise create new
         if self.vector_store is not None:
@@ -103,6 +115,19 @@ class HybridMatcher:
                 # If we can't load existing, just use new chunks
                 all_chunks = chunks
 
+            # Ensure all NEW chunks have metadata before recreating vector store
+            # Don't modify existing_chunks metadata, only new chunks
+            if documents and chunks:
+                original_metadata = documents[0].metadata if documents else {}
+                # Only update metadata for new chunks (from current documents)
+                for chunk in chunks:  # Only new chunks, not existing_chunks
+                    if not chunk.metadata:
+                        chunk.metadata = {}
+                    # Ensure all metadata from original document is in new chunk
+                    for key, value in original_metadata.items():
+                        if key not in chunk.metadata:
+                            chunk.metadata[key] = value
+            
             # Recreate vector store with all chunks
             self.vector_store = Chroma.from_documents(
                 documents=all_chunks,
@@ -117,6 +142,16 @@ class HybridMatcher:
                 self.documents = all_chunks
         else:
             # Create new vector store
+            # Verify chunks have metadata before indexing
+            if chunks and documents:
+                for chunk in chunks:
+                    if not chunk.metadata:
+                        chunk.metadata = {}
+                    # Ensure all metadata from original document is in chunk
+                    for key, value in documents[0].metadata.items():
+                        if key not in chunk.metadata:
+                            chunk.metadata[key] = value
+            
             self.vector_store = Chroma.from_documents(
                 documents=chunks,
                 embedding=self.embeddings,
@@ -127,7 +162,17 @@ class HybridMatcher:
         # Persist ChromaDB (if persist method exists)
         if hasattr(self.vector_store, 'persist'):
             self.vector_store.persist()
-
+        
+        # Verify metadata was saved in ChromaDB
+        if self.vector_store and self.vector_store._collection:
+            try:
+                sample = self.vector_store._collection.get(limit=1)
+                if sample and 'metadatas' in sample and len(sample['metadatas']) > 0:
+                    sample_metadata = sample['metadatas'][0]
+                    print(f"DEBUG: Sample metadata in ChromaDB: {sample_metadata}")
+            except Exception as e:
+                print(f"DEBUG: Error checking ChromaDB metadata: {e}")
+        
         # Recreate BM25 retriever with all chunks
         self.bm25_retriever = BM25Retriever.from_documents(self.documents)
         self.bm25_retriever.k = 10  # Retrieve top 10 for ensemble
