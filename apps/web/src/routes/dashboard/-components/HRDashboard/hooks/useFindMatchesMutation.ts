@@ -4,24 +4,32 @@ import { toast } from "react-toastify";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
-export interface SearchResult {
-  content: string;
-  score: number;
-  search_type: string;
-  metadata: Record<string, unknown>;
+export interface ScoreReasoning {
+  technical_skills: string;
+  experience: string;
+  overall_match: string;
+}
+
+export interface HybridScores {
+  vector_score: number;
+  bm25_score: number;
+  hybrid_score: number;
+}
+
+export interface CandidateMatchResult {
+  candidate_id: string;
+  scores: HybridScores;
 }
 
 interface FindMatchesRequest {
   job_description: string;
   k?: number;
-  search_type?: "hybrid" | "vector" | "keyword";
 }
 
 interface FindMatchesResponse {
-  results: SearchResult[];
+  results: CandidateMatchResult[];
   query: string;
-  search_type: string;
-  k: number;
+  total_candidates: number;
 }
 
 export const useFindMatchesMutation = () => {
@@ -40,8 +48,7 @@ export const useFindMatchesMutation = () => {
           },
           body: JSON.stringify({
             job_description: request.job_description,
-            k: request.k || 5,
-            search_type: request.search_type || "hybrid",
+            k: request.k || 10,
           }),
         },
       );

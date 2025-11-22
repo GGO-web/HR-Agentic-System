@@ -3,32 +3,17 @@ import { type Id } from "@convex/_generated/dataModel";
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { Card } from "@workspace/ui/components/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@workspace/ui/components/dialog";
 import { Label } from "@workspace/ui/components/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@workspace/ui/components/select";
 import { Textarea } from "@workspace/ui/components/textarea";
 import { useQuery } from "convex/react";
-import { Search, Sparkles, User, FileText, Download, Eye } from "lucide-react";
+import { Search, Sparkles, User } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 import {
   useFindMatchesMutation,
-  type SearchResult,
+  type CandidateMatchResult,
 } from "../../hooks/useFindMatchesMutation";
-import { useGetSanitizedResumeQuery } from "../../hooks/useGetSanitizedResumeQuery";
 
 interface ResumeMatchSearchProps {
   jobId: Id<"jobDescriptions">;
@@ -43,10 +28,7 @@ export function ResumeMatchSearch({
 }: ResumeMatchSearchProps) {
   const { t } = useTranslation();
   const [query, setQuery] = useState(jobDescription);
-  const [searchType, setSearchType] = useState<"hybrid" | "vector" | "keyword">(
-    "hybrid",
-  );
-  const [results, setResults] = useState<SearchResult[] | null>(null);
+  const [results, setResults] = useState<CandidateMatchResult[] | null>(null);
   const [selectedCandidateId, setSelectedCandidateId] =
     useState<Id<"users"> | null>(null);
 
@@ -60,45 +42,6 @@ export function ResumeMatchSearch({
 
   const { mutateAsync: findMatches, isPending: isSearching } =
     useFindMatchesMutation();
-
-  // Component for viewing sanitized resume
-  const SanitizedResumeView = ({
-    candidateId,
-  }: {
-    candidateId: Id<"users">;
-  }) => {
-    const { data: sanitizedResume, isLoading: isLoadingSanitized } =
-      useGetSanitizedResumeQuery(String(candidateId));
-
-    if (isLoadingSanitized) {
-      return (
-        <p className="text-muted-foreground">
-          {t("dashboard.hr.resumeMatching.sanitizedResume.loading")}
-        </p>
-      );
-    }
-
-    if (!sanitizedResume) {
-      return (
-        <p className="text-muted-foreground">
-          {t("dashboard.hr.resumeMatching.sanitizedResume.notFound")}
-        </p>
-      );
-    }
-
-    return (
-      <div className="space-y-4">
-        <div className="bg-muted rounded-lg p-4">
-          <p className="text-muted-foreground mb-2 text-sm">
-            {t("dashboard.hr.resumeMatching.sanitizedResume.description")}
-          </p>
-          <pre className="font-mono text-sm whitespace-pre-wrap">
-            {sanitizedResume.sanitized_content}
-          </pre>
-        </div>
-      </div>
-    );
-  };
 
   // Update query when job description changes
   useEffect(() => {
@@ -116,25 +59,11 @@ export function ResumeMatchSearch({
       const response = await findMatches({
         job_description: query,
         k: 10,
-        search_type: searchType,
       });
       setResults(response.results);
     } catch (error) {
       console.error("Failed to find matches:", error);
       setResults([]);
-    }
-  };
-
-  const getSearchTypeLabel = (type: string) => {
-    switch (type) {
-      case "hybrid":
-        return t("dashboard.hr.resumeMatching.searchTypes.hybrid");
-      case "vector":
-        return t("dashboard.hr.resumeMatching.searchTypes.vector");
-      case "keyword":
-        return t("dashboard.hr.resumeMatching.searchTypes.keyword");
-      default:
-        return type;
     }
   };
 
@@ -181,48 +110,6 @@ export function ResumeMatchSearch({
                       </p>
                     </div>
                   </div>
-                  {item.resumeAttachment && (
-                    <div className="flex items-center gap-2">
-                      <FileText className="text-muted-foreground h-4 w-4" />
-                      <a
-                        href={item.resumeAttachment.fileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        className="text-primary text-sm hover:underline"
-                        title="Download original resume"
-                      >
-                        <Download className="h-4 w-4" />
-                      </a>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedCandidateId(item.candidate._id);
-                            }}
-                            className="text-primary text-sm hover:underline"
-                            title="View sanitized resume"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </button>
-                        </DialogTrigger>
-                        <DialogContent className="h-[80vh] max-w-4xl overflow-y-auto">
-                          <DialogHeader>
-                            <DialogTitle>
-                              {t(
-                                "dashboard.hr.resumeMatching.sanitizedResume.title",
-                              )}{" "}
-                              - {item.candidate.name}
-                            </DialogTitle>
-                          </DialogHeader>
-                          <SanitizedResumeView
-                            candidateId={item.candidate._id}
-                          />
-                        </DialogContent>
-                      </Dialog>
-                    </div>
-                  )}
                 </div>
               </Card>
             ))}
@@ -257,31 +144,6 @@ export function ResumeMatchSearch({
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="search-type">Search Type</Label>
-            <Select
-              value={searchType}
-              onValueChange={(value) =>
-                setSearchType(value as "hybrid" | "vector" | "keyword")
-              }
-            >
-              <SelectTrigger id="search-type">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="hybrid">
-                  {t("dashboard.hr.resumeMatching.searchTypes.hybrid")}
-                </SelectItem>
-                <SelectItem value="vector">
-                  {t("dashboard.hr.resumeMatching.searchTypes.vector")}
-                </SelectItem>
-                <SelectItem value="keyword">
-                  {t("dashboard.hr.resumeMatching.searchTypes.keyword")}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
           <Button
             onClick={handleSearch}
             disabled={!query.trim() || isSearching}
@@ -314,46 +176,69 @@ export function ResumeMatchSearch({
               </p>
             ) : (
               <div className="space-y-4">
-                {results.map((result, index) => (
-                  <Card
-                    key={index}
-                    className="border-border bg-muted/50 rounded-lg border p-4"
-                  >
-                    <div className="mb-2 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary">
-                          {t(
-                            "dashboard.hr.resumeMatching.findMatches.results.score",
-                          )}
-                          : {(result.score * 100).toFixed(1)}%
-                        </Badge>
-                        <Badge variant="outline">
-                          {getSearchTypeLabel(result.search_type)}
-                        </Badge>
-                      </div>
-                    </div>
+                {results.map((result) => {
+                  // Find candidate info from candidatesWithResumes
+                  const candidateInfo = candidatesWithResumes?.find(
+                    (item) => item.candidate._id === result.candidate_id,
+                  );
 
-                    <p className="text-muted-foreground mb-2 text-sm">
-                      {result.content.substring(0, 300)}
-                      {result.content.length > 300 ? "..." : ""}
-                    </p>
-
-                    {result.metadata &&
-                      Object.keys(result.metadata).length > 0 && (
-                        <div className="mt-2 text-xs">
-                          <span className="text-muted-foreground font-medium">
-                            {t(
-                              "dashboard.hr.resumeMatching.findMatches.results.metadata",
-                            )}
-                            :
-                          </span>
-                          <pre className="text-muted-foreground mt-1 break-words whitespace-pre-wrap">
-                            {JSON.stringify(result.metadata, null, 2)}
-                          </pre>
+                  return (
+                    <Card
+                      key={result.candidate_id}
+                      className="border-border bg-muted/50 rounded-lg border p-4"
+                    >
+                      <div className="mb-4 space-y-3">
+                        {/* Candidate Info */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <User className="text-muted-foreground h-5 w-5" />
+                            <div>
+                              <h5 className="font-semibold">
+                                {candidateInfo?.candidate.name ||
+                                  "Unknown Candidate"}
+                              </h5>
+                              <p className="text-muted-foreground text-xs">
+                                Candidate ID: {result.candidate_id}
+                              </p>
+                            </div>
+                          </div>
+                          <Badge variant="secondary">
+                            Hybrid Score:{" "}
+                            {(result.scores.hybrid_score * 100).toFixed(1)}%
+                          </Badge>
                         </div>
-                      )}
-                  </Card>
-                ))}
+
+                        {/* Three hybrid search scores */}
+                        <div className="grid grid-cols-3 gap-2">
+                          <div className="bg-background rounded-md border p-3">
+                            <div className="text-muted-foreground mb-1 text-xs font-medium">
+                              Vector Score
+                            </div>
+                            <div className="mb-2 text-2xl font-bold">
+                              {(result.scores.vector_score * 100).toFixed(1)}%
+                            </div>
+                          </div>
+                          <div className="bg-background rounded-md border p-3">
+                            <div className="text-muted-foreground mb-1 text-xs font-medium">
+                              BM25 Score
+                            </div>
+                            <div className="mb-2 text-2xl font-bold">
+                              {(result.scores.bm25_score * 100).toFixed(1)}%
+                            </div>
+                          </div>
+                          <div className="bg-background rounded-md border p-3">
+                            <div className="text-muted-foreground mb-1 text-xs font-medium">
+                              Final Hybrid Score
+                            </div>
+                            <div className="mb-2 text-2xl font-bold">
+                              {(result.scores.hybrid_score * 100).toFixed(1)}%
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </Card>
+                  );
+                })}
               </div>
             )}
           </div>

@@ -11,7 +11,7 @@ from langchain_core.documents import Document
 from services.document_loader import DocumentLoader
 from services.text_sanitizer import TextSanitizer
 from services.hybrid_matcher import HybridMatcher
-from models.hybrid_search import CandidateDocument, SearchResult
+from models.hybrid_search import CandidateDocument, SearchResult, CandidateMatchResult, ResumeScores, HybridScores
 
 
 class HybridSearchService:
@@ -68,31 +68,80 @@ class HybridSearchService:
     async def find_matches(
         self,
         job_description: str,
-        k: int = 5,
-        search_type: str = "hybrid"
-    ) -> List[SearchResult]:
+        k: int = 10  # Number of candidates to return
+    ) -> List[CandidateMatchResult]:
         """
-        Find matching resume chunks for a job description.
+        Find matching candidates for a job description.
+        Groups chunks by candidate_id and evaluates each candidate's full resume.
 
         Args:
             job_description: Job description text to search against
-            k: Number of results to return (default 5)
+            k: Number of chunks to retrieve (default 10, will be grouped by candidate)
             search_type: Type of search - "hybrid" (default), "vector", or "keyword"
 
         Returns:
-            List of SearchResult objects with matching content
+            List of CandidateMatchResult objects - one per candidate with three evaluation scores
         """
         # Sanitize job description
         sanitized_query = self.text_sanitizer.clean_text(job_description)
 
-        # Find matches using hybrid search
-        results = await self.hybrid_matcher.find_matches(
+        # Find matching chunks using hybrid search (always uses hybrid)
+        chunk_results = await self.hybrid_matcher.find_matches(
             query=sanitized_query,
-            k=k,
-            search_type=search_type
+            k=k * 3,  # Get more chunks to ensure we capture all candidates
+            search_type="hybrid",  # Always use hybrid search
+            job_description=job_description  # Pass original for evaluation
         )
 
-        return results
+        # Group chunks by candidate_id
+        candidates_chunks: Dict[str, List[SearchResult]] = {}
+        for chunk_result in chunk_results:
+            candidate_id = chunk_result.metadata.get('candidate_id')
+            if candidate_id:
+                candidate_id_str = str(candidate_id)
+                if candidate_id_str not in candidates_chunks:
+                    candidates_chunks[candidate_id_str] = []
+                candidates_chunks[candidate_id_str].append(chunk_result)
+
+        # For each candidate, aggregate hybrid scores from chunks
+        candidate_results: List[CandidateMatchResult] = []
+        
+        for candidate_id, chunks in candidates_chunks.items():
+            # Aggregate scores from all chunks for this candidate
+            vector_scores = []
+            bm25_scores = []
+            hybrid_scores_list = []
+            
+            for chunk in chunks:
+                # Get hybrid scores from metadata
+                hybrid_scores_data = chunk.metadata.get('hybrid_scores')
+                if hybrid_scores_data:
+                    vector_scores.append(hybrid_scores_data.get('vector_score', 0.0))
+                    bm25_scores.append(hybrid_scores_data.get('bm25_score', 0.0))
+                    hybrid_scores_list.append(hybrid_scores_data.get('hybrid_score', 0.0))
+            
+            # Calculate average scores for the candidate
+            avg_vector_score = sum(vector_scores) / len(vector_scores) if vector_scores else 0.0
+            avg_bm25_score = sum(bm25_scores) / len(bm25_scores) if bm25_scores else 0.0
+            avg_hybrid_score = sum(hybrid_scores_list) / len(hybrid_scores_list) if hybrid_scores_list else 0.0
+            
+            # Create HybridScores object
+            scores = HybridScores(
+                vector_score=round(avg_vector_score, 3),
+                bm25_score=round(avg_bm25_score, 3),
+                hybrid_score=round(avg_hybrid_score, 3)
+            )
+            
+            candidate_results.append(CandidateMatchResult(
+                candidate_id=candidate_id,
+                scores=scores
+            ))
+        
+        # Sort by hybrid score (descending)
+        candidate_results.sort(key=lambda x: x.scores.hybrid_score, reverse=True)
+        
+        # Limit to top k candidates
+        return candidate_results[:k]
 
     async def add_documents(
         self,
@@ -147,21 +196,19 @@ async def process_resume(
 
 async def find_matches(
     job_description: str,
-    k: int = 5,
-    search_type: str = "hybrid",
+    k: int = 10,
     persist_directory: str = "./chroma_db"
-) -> List[SearchResult]:
+) -> List[CandidateMatchResult]:
     """
-    Find matching resume chunks for a job description.
+    Find matching candidates for a job description.
 
     Args:
         job_description: Job description text to search against
-        k: Number of results to return (default 5)
-        search_type: Type of search - "hybrid" (default), "vector", or "keyword"
+        k: Number of candidates to return (default 10)
         persist_directory: Directory where ChromaDB is persisted
 
     Returns:
-        List of SearchResult objects with matching content
+        List of CandidateMatchResult objects - one per candidate with three AI evaluation scores
     """
     service = HybridSearchService(persist_directory=persist_directory)
 
@@ -169,8 +216,7 @@ async def find_matches(
     index_loaded = service.load_existing_index()
 
     if not index_loaded:
-        # If no index exists, return empty results with a helpful message
-        # This should not happen in normal flow, but handle gracefully
+        # If no index exists, return empty results
         return []
 
-    return await service.find_matches(job_description, k, search_type)
+    return await service.find_matches(job_description, k)

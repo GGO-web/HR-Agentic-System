@@ -6,7 +6,7 @@ from typing import List, Optional
 from pydantic import BaseModel, Field
 
 from services.hybrid_search_service import HybridSearchService, process_resume, find_matches
-from models.hybrid_search import SearchResult
+from models.hybrid_search import SearchResult, CandidateMatchResult
 
 router = APIRouter(prefix="/hybrid-search", tags=["hybrid-search"])
 
@@ -21,12 +21,11 @@ class JobDescriptionRequest(BaseModel):
         default="hybrid", description="Search type: hybrid, vector, or keyword")
 
 
-class SearchResponse(BaseModel):
-    """Response model for search results."""
-    results: List[SearchResult]
+class CandidateMatchResponse(BaseModel):
+    """Response model for candidate match results."""
+    results: List[CandidateMatchResult]
     query: str
-    search_type: str
-    k: int
+    total_candidates: int
 
 
 class SanitizedResumeResponse(BaseModel):
@@ -339,35 +338,28 @@ async def delete_resume(candidate_id: str):
         )
 
 
-@router.post("/find-matches", response_model=SearchResponse, summary="Find matching resume chunks")
-async def find_matching_chunks(request: JobDescriptionRequest):
+@router.post("/find-matches", response_model=CandidateMatchResponse, summary="Find matching candidates")
+async def find_matching_candidates(request: JobDescriptionRequest):
     """
-    Find matching resume chunks for a job description using hybrid search.
+    Find matching candidates for a job description using AI-powered evaluation.
+    Returns one result per candidate with three evaluation scores.
 
     Args:
         request: Job description search request
 
     Returns:
-        List of matching SearchResult objects
+        List of CandidateMatchResult objects - one per candidate with three AI evaluation scores
     """
     try:
-        if request.search_type not in ["hybrid", "vector", "keyword"]:
-            raise HTTPException(
-                status_code=400,
-                detail="Invalid search_type. Must be 'hybrid', 'vector', or 'keyword'"
-            )
-
         results = await find_matches(
             job_description=request.job_description,
-            k=request.k,
-            search_type=request.search_type
+            k=request.k
         )
 
-        return SearchResponse(
+        return CandidateMatchResponse(
             results=results,
             query=request.job_description,
-            search_type=request.search_type,
-            k=request.k
+            total_candidates=len(results)
         )
 
     except ValueError as e:

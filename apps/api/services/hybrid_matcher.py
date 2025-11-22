@@ -8,9 +8,15 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain_community.retrievers import BM25Retriever
-from langchain.retrievers import EnsembleRetriever
+try:
+    from langchain.retrievers import EnsembleRetriever
+except ImportError:
+    # Fallback for langchain 0.3.0+
+    from langchain_community.retrievers import EnsembleRetriever
 
-from models.hybrid_search import SearchResult
+from models.hybrid_search import SearchResult, ResumeScores
+from services.resume_evaluator import ResumeEvaluatorAgent
+from services.resume_evaluator import ResumeEvaluator
 
 
 class HybridMatcher:
@@ -75,7 +81,7 @@ class HybridMatcher:
         # Split documents into chunks
         # RecursiveCharacterTextSplitter preserves metadata automatically
         chunks = self.text_splitter.split_documents(documents)
-        
+
         # Verify metadata is preserved in chunks
         if documents and documents[0].metadata:
             # Ensure all chunks have the same metadata as the original document
@@ -127,7 +133,7 @@ class HybridMatcher:
                     for key, value in original_metadata.items():
                         if key not in chunk.metadata:
                             chunk.metadata[key] = value
-            
+
             # Recreate vector store with all chunks
             self.vector_store = Chroma.from_documents(
                 documents=all_chunks,
@@ -151,7 +157,7 @@ class HybridMatcher:
                     for key, value in documents[0].metadata.items():
                         if key not in chunk.metadata:
                             chunk.metadata[key] = value
-            
+
             self.vector_store = Chroma.from_documents(
                 documents=chunks,
                 embedding=self.embeddings,
@@ -162,17 +168,18 @@ class HybridMatcher:
         # Persist ChromaDB (if persist method exists)
         if hasattr(self.vector_store, 'persist'):
             self.vector_store.persist()
-        
+
         # Verify metadata was saved in ChromaDB
         if self.vector_store and self.vector_store._collection:
             try:
                 sample = self.vector_store._collection.get(limit=1)
                 if sample and 'metadatas' in sample and len(sample['metadatas']) > 0:
                     sample_metadata = sample['metadatas'][0]
-                    print(f"DEBUG: Sample metadata in ChromaDB: {sample_metadata}")
+                    print(
+                        f"DEBUG: Sample metadata in ChromaDB: {sample_metadata}")
             except Exception as e:
                 print(f"DEBUG: Error checking ChromaDB metadata: {e}")
-        
+
         # Recreate BM25 retriever with all chunks
         self.bm25_retriever = BM25Retriever.from_documents(self.documents)
         self.bm25_retriever.k = 10  # Retrieve top 10 for ensemble
@@ -193,7 +200,8 @@ class HybridMatcher:
         self,
         query: str,
         k: int = 5,
-        search_type: str = "hybrid"
+        search_type: str = "hybrid",
+        job_description: str = ""
     ) -> List[SearchResult]:
         """
         Find matching documents using hybrid search.
@@ -215,29 +223,89 @@ class HybridMatcher:
                     raise ValueError(
                         "Documents must be indexed before searching. Call index_documents() first or ensure resumes have been uploaded.")
 
-            # Use ensemble retriever (run in thread if async method not available)
+            # Get results from both retrievers separately to calculate individual scores
+            # Vector retriever
+            vector_retriever = self.vector_store.as_retriever(
+                search_type="similarity",
+                search_kwargs={"k": k}
+            )
             try:
-                docs = await self.ensemble_retriever.aget_relevant_documents(query)
+                vector_docs = await vector_retriever.aget_relevant_documents(query)
             except AttributeError:
-                # Fallback to sync method in thread pool
-                docs = await asyncio.to_thread(
+                vector_docs = await asyncio.to_thread(
+                    vector_retriever.get_relevant_documents,
+                    query
+                )
+
+            # BM25 retriever
+            self.bm25_retriever.k = k
+            try:
+                bm25_docs = await self.bm25_retriever.aget_relevant_documents(query)
+            except AttributeError:
+                bm25_docs = await asyncio.to_thread(
+                    self.bm25_retriever.get_relevant_documents,
+                    query
+                )
+
+            # Use ensemble retriever for final ranking
+            try:
+                ensemble_docs = await self.ensemble_retriever.aget_relevant_documents(query)
+            except AttributeError:
+                ensemble_docs = await asyncio.to_thread(
                     self.ensemble_retriever.get_relevant_documents,
                     query
                 )
 
             # Limit to k results
-            docs = docs[:k]
+            ensemble_docs = ensemble_docs[:k]
 
-            # Create SearchResult objects with normalized scores
-            for i, doc in enumerate(docs):
-                # Calculate normalized score based on position (higher rank = higher score)
-                score = 1.0 - (i / max(len(docs), 1)) if docs else 0.0
+            # Create a map of document content to scores
+            vector_scores_map = {}
+            for i, doc in enumerate(vector_docs):
+                # Normalize vector score based on position (higher rank = higher score)
+                vector_score = 1.0 - (i / max(len(vector_docs), 1))
+                vector_scores_map[doc.page_content] = vector_score
+
+            bm25_scores_map = {}
+            for i, doc in enumerate(bm25_docs):
+                # Normalize BM25 score based on position
+                bm25_score = 1.0 - (i / max(len(bm25_docs), 1))
+                bm25_scores_map[doc.page_content] = bm25_score
+
+            # Create SearchResult objects with hybrid scores
+            for i, doc in enumerate(ensemble_docs):
+                # Get individual scores
+                vector_score = vector_scores_map.get(doc.page_content, 0.0)
+                bm25_score = bm25_scores_map.get(doc.page_content, 0.0)
+
+                # Calculate hybrid score: alpha * vector_score + (1 - alpha) * bm25_score
+                # alpha = vector_weight
+                alpha = self.vector_weight
+                hybrid_score = (alpha * vector_score) + \
+                    ((1 - alpha) * bm25_score)
+
+                # Store scores in metadata for later use
+                from models.hybrid_search import HybridScores
+                hybrid_scores = HybridScores(
+                    vector_score=round(vector_score, 3),
+                    bm25_score=round(bm25_score, 3),
+                    hybrid_score=round(hybrid_score, 3)
+                )
+
+                # Create a dummy ResumeScores for compatibility (will be replaced)
+                scores = ResumeScores(
+                    technical_skills=hybrid_score,
+                    experience=hybrid_score,
+                    overall_match=hybrid_score
+                )
 
                 results.append(SearchResult(
                     content=doc.page_content,
-                    score=score,
+                    score=round(hybrid_score, 3),
+                    scores=scores,
                     search_type="hybrid",
-                    metadata=doc.metadata
+                    metadata={**doc.metadata,
+                              "hybrid_scores": hybrid_scores.dict()}
                 ))
 
         elif search_type == "vector":
@@ -259,12 +327,28 @@ class HybridMatcher:
                     query
                 )
 
-            # Create SearchResult objects with position-based scores
+            # Create SearchResult objects with three evaluation scores using AI agent
+            evaluator = ResumeEvaluatorAgent()
+            job_desc = job_description if job_description else query
+
             for i, doc in enumerate(docs):
-                score = 1.0 - (i / max(len(docs), 1)) if docs else 0.0
+                # Calculate three separate scores using AI agent
+                scores_dict = await evaluator.evaluate_resume(
+                    job_description=job_desc,
+                    resume_content=doc.page_content,
+                    semantic_similarity=0.0,  # Vector retriever similarity not directly available
+                    position_rank=i,
+                    total_results=len(docs)
+                )
+
+                scores = ResumeScores(**scores_dict)
+                overall_score = (scores.technical_skills +
+                                 scores.experience + scores.overall_match) / 3.0
+
                 results.append(SearchResult(
                     content=doc.page_content,
-                    score=score,
+                    score=round(overall_score, 3),
+                    scores=scores,
                     search_type="vector",
                     metadata=doc.metadata
                 ))
@@ -285,12 +369,28 @@ class HybridMatcher:
                     query
                 )
 
-            # Create SearchResult objects with position-based scores
+            # Create SearchResult objects with three evaluation scores using AI agent
+            evaluator = ResumeEvaluatorAgent()
+            job_desc = job_description if job_description else query
+
             for i, doc in enumerate(docs):
-                score = 1.0 - (i / max(len(docs), 1)) if docs else 0.0
+                # Calculate three separate scores using AI agent
+                scores_dict = await evaluator.evaluate_resume(
+                    job_description=job_desc,
+                    resume_content=doc.page_content,
+                    semantic_similarity=0.0,  # BM25 doesn't provide semantic similarity
+                    position_rank=i,
+                    total_results=len(docs)
+                )
+
+                scores = ResumeScores(**scores_dict)
+                overall_score = (scores.technical_skills +
+                                 scores.experience + scores.overall_match) / 3.0
+
                 results.append(SearchResult(
                     content=doc.page_content,
-                    score=score,
+                    score=round(overall_score, 3),
+                    scores=scores,
                     search_type="keyword",
                     metadata=doc.metadata
                 ))

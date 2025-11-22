@@ -164,7 +164,9 @@
         "candidates": {
           "title": "Candidates with Resumes",
           "description": "Candidates who have uploaded resumes for this position",
-          "noCandidates": "No candidates with resumes yet. Invite candidates and ask them to upload their resumes in their profile."
+          "noCandidates": "No candidates with resumes yet. Invite candidates and ask them to upload their resumes in their profile.",
+          "downloadResume": "Download Resume",
+          "viewSanitized": "View Sanitized Resume"
         },
         "sanitizedResume": {
           "title": "Sanitized Resume",
@@ -179,11 +181,12 @@
           "searching": "Searching...",
           "noResults": "No matching resumes found. Upload resumes first.",
           "results": {
-            "title": "Matching Results",
-            "score": "Match Score",
-            "content": "Relevant Content",
-            "metadata": "Metadata",
-            "searchType": "Search Type"
+            "title": "Matching Candidates",
+            "overallScore": "Overall Score",
+            "technicalSkills": "Technical Skills",
+            "experience": "Experience",
+            "overallMatch": "Overall Match",
+            "resumePreview": "Resume Preview"
           },
           "actions": {
             "success": "Matches found successfully",
