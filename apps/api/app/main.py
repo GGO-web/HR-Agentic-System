@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.questions import router as questions_router
+from routes.hybrid_search import router as hybrid_search_router
 
 app = FastAPI(
     title="HR Interview AI API",
@@ -19,6 +20,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(questions_router, prefix="/api/v1")
+app.include_router(hybrid_search_router, prefix="/api/v1")
 
 
 @app.get("/")
