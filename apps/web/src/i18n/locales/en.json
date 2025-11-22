@@ -166,6 +166,12 @@
           "description": "Candidates who have uploaded resumes for this position",
           "noCandidates": "No candidates with resumes yet. Invite candidates and ask them to upload their resumes in their profile."
         },
+        "sanitizedResume": {
+          "title": "Sanitized Resume",
+          "description": "This is the sanitized version of the resume with PII (Personal Identifiable Information) masked. Emails, phone numbers, and links have been replaced with placeholders.",
+          "loading": "Loading sanitized resume...",
+          "notFound": "Sanitized resume not found. The resume may not have been processed yet."
+        },
         "findMatches": {
           "title": "Find Matches",
           "description": "Search for resumes that match this job description",

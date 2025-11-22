@@ -158,7 +158,7 @@ export function CandidateProfile({ userId }: CandidateProfileProps) {
         try {
           await processResume({
             file: resumeFile,
-            candidateId: userId,
+            candidateId: String(userId), // Ensure it's a string
           });
           toast.success(t("profile.resume.processed"));
         } catch (error) {
