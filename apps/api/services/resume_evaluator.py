@@ -171,6 +171,138 @@ Be precise and analytical. Base scores on actual content comparison, not assumpt
             }
         }
 
+    async def generate_analysis_report(
+        self,
+        job_description: str,
+        resume_content: str,
+        hybrid_score: float
+    ) -> Dict[str, Any]:
+        """
+        Generate detailed analysis report with explainability using Chain-of-Thought approach.
+
+        Args:
+            job_description: Job description text
+            resume_content: Resume content text (sanitized)
+            hybrid_score: Calculated hybrid search score (0.0-1.0)
+
+        Returns:
+            Dictionary with analysis report: fit_category, overall_score, missing_skills, explanation, strengths, weaknesses
+        """
+        try:
+            # Create Chain-of-Thought prompt for analysis
+            prompt = f"""You are an expert HR analyst. Analyze the candidate's resume against the job description and provide a detailed analysis report.
+
+Job Description:
+{job_description}
+
+Resume Content:
+{resume_content}
+
+Hybrid Search Score: {hybrid_score:.3f} (0.0-1.0)
+
+Perform analysis in two steps:
+
+**Step 1: Gap Analysis**
+- Compare the candidate's skills, experience, and qualifications with the job requirements
+- Identify missing skills, technologies, or qualifications
+- Identify candidate's strengths that match the job requirements
+
+**Step 2: Scoring & Reasoning**
+- Determine the overall fit category: "Excellent" (80-100), "Good" (60-79), "Fair" (40-59), or "Poor" (0-39)
+- Calculate an overall score (0-100) based on the hybrid score and your analysis
+- Provide a detailed explanation of why this score was assigned
+- List specific strengths and weaknesses
+
+Return ONLY a valid JSON object with this exact structure:
+{{
+    "fit_category": "<Excellent|Good|Fair|Poor>",
+    "overall_score": <integer between 0 and 100>,
+    "missing_skills": ["skill1", "skill2", ...],
+    "explanation": "<detailed explanation of the match analysis, 2-3 sentences>",
+    "strengths": ["strength1", "strength2", ...],
+    "weaknesses": ["weakness1", "weakness2", ...]
+}}
+
+Be specific and analytical. Base your analysis on actual content comparison."""
+
+            # Call Gemini API
+            response = await asyncio.to_thread(
+                self.client.models.generate_content,
+                model=self.model,
+                contents=prompt
+            )
+
+            # Parse JSON response
+            response_text = response.text.strip()
+
+            # Try to extract JSON from response (might have markdown code blocks)
+            if "```json" in response_text:
+                json_start = response_text.find("```json") + 7
+                json_end = response_text.find("```", json_start)
+                response_text = response_text[json_start:json_end].strip()
+            elif "```" in response_text:
+                json_start = response_text.find("```") + 3
+                json_end = response_text.find("```", json_start)
+                response_text = response_text[json_start:json_end].strip()
+
+            # Parse JSON
+            try:
+                result = json.loads(response_text)
+
+                # Validate and normalize
+                fit_category = result.get("fit_category", "Fair")
+                if fit_category not in ["Excellent", "Good", "Fair", "Poor"]:
+                    fit_category = "Fair"
+
+                overall_score = int(result.get("overall_score", 50))
+                overall_score = max(0, min(100, overall_score))
+
+                missing_skills = result.get("missing_skills", [])
+                if not isinstance(missing_skills, list):
+                    missing_skills = []
+
+                explanation = result.get(
+                    "explanation", "No explanation provided.")
+
+                strengths = result.get("strengths", [])
+                if not isinstance(strengths, list):
+                    strengths = []
+
+                weaknesses = result.get("weaknesses", [])
+                if not isinstance(weaknesses, list):
+                    weaknesses = []
+
+                return {
+                    'fit_category': fit_category,
+                    'overall_score': overall_score,
+                    'missing_skills': missing_skills,
+                    'explanation': explanation,
+                    'strengths': strengths,
+                    'weaknesses': weaknesses
+                }
+
+            except json.JSONDecodeError as e:
+                print(
+                    f"ERROR: Failed to parse JSON from Gemini analysis report: {e}")
+                print(
+                    f"Response text (first 1000 chars): {response_text[:1000]}")
+                return self._get_fallback_report()
+
+        except Exception as e:
+            print(f"Error in generate_analysis_report: {str(e)}")
+            return self._get_fallback_report()
+
+    def _get_fallback_report(self) -> Dict[str, Any]:
+        """Return fallback report if AI generation fails."""
+        return {
+            'fit_category': 'Fair',
+            'overall_score': 50,
+            'missing_skills': [],
+            'explanation': 'AI analysis failed. Unable to generate detailed report.',
+            'strengths': [],
+            'weaknesses': []
+        }
+
 
 # Backward compatibility alias
 ResumeEvaluator = ResumeEvaluatorAgent

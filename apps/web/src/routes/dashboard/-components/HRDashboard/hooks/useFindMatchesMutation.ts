@@ -16,9 +16,19 @@ export interface HybridScores {
   hybrid_score: number;
 }
 
+export interface CandidateAnalysisReport {
+  fit_category: string;
+  overall_score: number;
+  missing_skills: string[];
+  explanation: string;
+  strengths: string[];
+  weaknesses: string[];
+}
+
 export interface CandidateMatchResult {
   candidate_id: string;
   scores: HybridScores;
+  report?: CandidateAnalysisReport;
 }
 
 interface FindMatchesRequest {

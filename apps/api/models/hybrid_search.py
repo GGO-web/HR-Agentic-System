@@ -39,7 +39,18 @@ class HybridScores(BaseModel):
     hybrid_score: float  # 0.0 - 1.0: Final hybrid score calculated with alpha coefficient
 
 
+class CandidateAnalysisReport(BaseModel):
+    """AI-generated analysis report with explainability."""
+    fit_category: str  # "Excellent", "Good", "Fair", "Poor"
+    overall_score: int  # 0-100: Overall match score
+    missing_skills: List[str]  # List of missing skills compared to job requirements
+    explanation: str  # Detailed explanation of the match analysis
+    strengths: List[str]  # Candidate's strengths
+    weaknesses: List[str]  # Candidate's weaknesses or gaps
+
+
 class CandidateMatchResult(BaseModel):
-    """Schema for candidate match result with hybrid search scores."""
+    """Schema for candidate match result with hybrid search scores and analysis report."""
     candidate_id: str
     scores: HybridScores  # Vector, BM25, and hybrid scores
+    report: Optional[CandidateAnalysisReport] = None  # AI-generated analysis report

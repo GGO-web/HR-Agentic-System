@@ -235,6 +235,88 @@ export function ResumeMatchSearch({
                             </div>
                           </div>
                         </div>
+
+                        {/* Analysis Report */}
+                        {result.report && (
+                          <div className="bg-muted/50 space-y-3 rounded-md border p-4">
+                            <div className="flex items-center justify-between">
+                              <h6 className="text-sm font-semibold">
+                                Analysis Report
+                              </h6>
+                              <Badge
+                                variant={
+                                  result.report.fit_category === "Excellent"
+                                    ? "default"
+                                    : result.report.fit_category === "Good"
+                                      ? "secondary"
+                                      : result.report.fit_category === "Fair"
+                                        ? "outline"
+                                        : "destructive"
+                                }
+                              >
+                                {result.report.fit_category} (
+                                {result.report.overall_score}/100)
+                              </Badge>
+                            </div>
+
+                            <div>
+                              <p className="text-sm">
+                                {result.report.explanation}
+                              </p>
+                            </div>
+
+                            {result.report.strengths.length > 0 && (
+                              <div>
+                                <p className="text-muted-foreground mb-1 text-xs font-medium">
+                                  Strengths:
+                                </p>
+                                <ul className="list-inside list-disc space-y-1 text-sm">
+                                  {result.report.strengths.map(
+                                    (strength, idx) => (
+                                      <li key={idx}>{strength}</li>
+                                    ),
+                                  )}
+                                </ul>
+                              </div>
+                            )}
+
+                            {result.report.weaknesses.length > 0 && (
+                              <div>
+                                <p className="text-muted-foreground mb-1 text-xs font-medium">
+                                  Weaknesses:
+                                </p>
+                                <ul className="list-inside list-disc space-y-1 text-sm">
+                                  {result.report.weaknesses.map(
+                                    (weakness, idx) => (
+                                      <li key={idx}>{weakness}</li>
+                                    ),
+                                  )}
+                                </ul>
+                              </div>
+                            )}
+
+                            {result.report.missing_skills.length > 0 && (
+                              <div>
+                                <p className="text-muted-foreground mb-1 text-xs font-medium">
+                                  Missing Skills:
+                                </p>
+                                <div className="flex flex-wrap gap-1">
+                                  {result.report.missing_skills.map(
+                                    (skill, idx) => (
+                                      <Badge
+                                        key={idx}
+                                        variant="outline"
+                                        className="text-xs"
+                                      >
+                                        {skill}
+                                      </Badge>
+                                    ),
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </Card>
                   );

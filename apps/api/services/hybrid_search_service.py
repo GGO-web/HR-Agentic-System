@@ -11,7 +11,7 @@ from langchain_core.documents import Document
 from services.document_loader import DocumentLoader
 from services.text_sanitizer import TextSanitizer
 from services.hybrid_matcher import HybridMatcher
-from models.hybrid_search import CandidateDocument, SearchResult, CandidateMatchResult, ResumeScores, HybridScores
+from models.hybrid_search import CandidateDocument, SearchResult, CandidateMatchResult, ResumeScores, HybridScores, CandidateAnalysisReport
 
 
 class HybridSearchService:
@@ -103,7 +103,10 @@ class HybridSearchService:
                     candidates_chunks[candidate_id_str] = []
                 candidates_chunks[candidate_id_str].append(chunk_result)
 
-        # For each candidate, aggregate hybrid scores from chunks
+        # For each candidate, aggregate hybrid scores from chunks and generate analysis report
+        from services.resume_evaluator import ResumeEvaluatorAgent
+        evaluator = ResumeEvaluatorAgent()
+        
         candidate_results: List[CandidateMatchResult] = []
         
         for candidate_id, chunks in candidates_chunks.items():
@@ -132,9 +135,22 @@ class HybridSearchService:
                 hybrid_score=round(avg_hybrid_score, 3)
             )
             
+            # Generate analysis report using AI
+            # Combine all chunks for full resume content
+            full_resume_content = " ".join([chunk.content for chunk in chunks])
+            
+            report_dict = await evaluator.generate_analysis_report(
+                job_description=job_description,
+                resume_content=full_resume_content,
+                hybrid_score=avg_hybrid_score
+            )
+            
+            report = CandidateAnalysisReport(**report_dict)
+            
             candidate_results.append(CandidateMatchResult(
                 candidate_id=candidate_id,
-                scores=scores
+                scores=scores,
+                report=report
             ))
         
         # Sort by hybrid score (descending)
