@@ -59,9 +59,33 @@ export default defineSchema({
   // Interview questions table
   interviewQuestions: defineTable({
     jobDescriptionId: v.id("jobDescriptions"),
-    question: v.string(),
+    question: v.string(), // Legacy field, kept for backward compatibility
+    question_text: v.optional(v.string()), // New structured field
+    category: v.optional(
+      v.union(
+        v.literal("intro"),
+        v.literal("strengths"),
+        v.literal("weaknesses"),
+        v.literal("motivation"),
+        v.literal("vision"),
+        v.literal("challenge"),
+        v.literal("culture"),
+        v.literal("resilience"),
+        v.literal("achievement"),
+        v.literal("closing"),
+        v.literal("technical"),
+        v.literal("custom"),
+      ),
+    ),
+    difficulty: v.optional(
+      v.union(v.literal("easy"), v.literal("medium"), v.literal("hard")),
+    ),
+    expected_keywords: v.optional(v.array(v.string())), // Expected keywords for answer evaluation
     order: v.number(), // Order of the question in the interview
     isAIGenerated: v.boolean(),
+    status: v.optional(
+      v.union(v.literal("pending"), v.literal("approved")),
+    ), // Human-in-the-loop: approval status
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_job_description", ["jobDescriptionId"]),

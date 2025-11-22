@@ -6,6 +6,7 @@
     "edit": "Edit",
     "delete": "Delete",
     "deleting": "Deleting...",
+    "add": "Add",
     "candidate": "Candidate"
   },
   "uploadButton": {
@@ -137,7 +138,26 @@
         },
         "noQuestions": "No questions yet. Click \"Generate AI Questions\" to create questions based on the job description.",
         "selectJobDescription": "Select a job description to view or generate questions.",
-        "aiGenerated": "AI Generated"
+        "aiGenerated": "AI Generated",
+        "addManual": {
+          "button": "Add Manual Question",
+          "title": "Add Manual Question",
+          "label": "Question Text",
+          "placeholder": "Enter your question...",
+          "success": "Manual question added successfully"
+        },
+        "approve": {
+          "button": "Approve",
+          "success": "Question approved successfully"
+        },
+        "approveAll": {
+          "button": "Approve & Publish All",
+          "success": "All questions approved successfully"
+        },
+        "status": {
+          "pending": "Pending",
+          "approved": "Approved"
+        }
       },
       "inviteCandidate": {
         "title": "Invite Candidate for Interview",

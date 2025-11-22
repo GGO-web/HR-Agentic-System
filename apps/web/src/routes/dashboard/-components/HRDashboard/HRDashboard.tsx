@@ -125,7 +125,10 @@ export function HRDashboard() {
               </div>
 
               {questions && questions.length > 0 ? (
-                <QuestionsList questions={questions} />
+                <QuestionsList
+                  questions={questions}
+                  jobDescriptionId={selectedJobId}
+                />
               ) : (
                 <p className="text-muted-foreground text-sm md:text-base">
                   {t("dashboard.hr.interviewQuestions.noQuestions")}

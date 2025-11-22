@@ -17,10 +17,14 @@ export const useGenerateInterviewQuestionsMutation = () => {
       jobDescriptionId,
       title,
       description,
+      temperature = 0.7,
+      regenerate = false,
     }: {
       jobDescriptionId: Id<"jobDescriptions">;
       title: string;
       description: string;
+      temperature?: number;
+      regenerate?: boolean;
     }) => {
       // 1. Call the API directly from the frontend
       const response = await fetch(`${API_URL}/api/v1/questions/generate`, {
@@ -31,6 +35,8 @@ export const useGenerateInterviewQuestionsMutation = () => {
         body: JSON.stringify({
           title,
           description,
+          temperature,
+          regenerate,
         }),
       });
 
@@ -40,16 +46,21 @@ export const useGenerateInterviewQuestionsMutation = () => {
       }
 
       const data = await response.json();
-      const aiQuestions = data.questions;
+      const aiQuestions = data.questions; // Array of Question objects with question_text, category, difficulty, expected_keywords
 
-      // 2. Save each question to Convex
+      // 2. Save each question to Convex with status "pending"
       const questionIds = await Promise.all(
-        aiQuestions.map((question: string, index: number) =>
+        aiQuestions.map((q: any, index: number) =>
           createQuestion({
             jobDescriptionId,
-            question,
-            order: index + 1,
+            question: q.question_text || q.question || "", // Legacy field
+            question_text: q.question_text || q.question || "",
+            category: q.category,
+            difficulty: q.difficulty || undefined, // Only include if not null/empty
+            expected_keywords: q.expected_keywords || [],
+            order: q.order || index + 1,
             isAIGenerated: true,
+            status: "pending", // All questions start as pending (Human-in-the-loop)
           }),
         ),
       );
