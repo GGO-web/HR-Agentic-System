@@ -3,10 +3,17 @@ import { type Id } from "@convex/_generated/dataModel";
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { Card } from "@workspace/ui/components/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@workspace/ui/components/dialog";
 import { Label } from "@workspace/ui/components/label";
 import { Textarea } from "@workspace/ui/components/textarea";
 import { useQuery } from "convex/react";
-import { Search, Sparkles, User } from "lucide-react";
+import { Search, Sparkles, User, Eye } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -14,6 +21,7 @@ import {
   useFindMatchesMutation,
   type CandidateMatchResult,
 } from "../../hooks/useFindMatchesMutation";
+import { useGetSanitizedResumeQuery } from "../../hooks/useGetSanitizedResumeQuery";
 
 interface ResumeMatchSearchProps {
   jobId: Id<"jobDescriptions">;
@@ -42,6 +50,45 @@ export function ResumeMatchSearch({
 
   const { mutateAsync: findMatches, isPending: isSearching } =
     useFindMatchesMutation();
+
+  // Component for viewing sanitized resume
+  const SanitizedResumeView = ({
+    candidateId,
+  }: {
+    candidateId: Id<"users">;
+  }) => {
+    const { data: sanitizedResume, isLoading: isLoadingSanitized } =
+      useGetSanitizedResumeQuery(String(candidateId));
+
+    if (isLoadingSanitized) {
+      return (
+        <p className="text-muted-foreground">
+          {t("dashboard.hr.resumeMatching.sanitizedResume.loading")}
+        </p>
+      );
+    }
+
+    if (!sanitizedResume) {
+      return (
+        <p className="text-muted-foreground">
+          {t("dashboard.hr.resumeMatching.sanitizedResume.notFound")}
+        </p>
+      );
+    }
+
+    return (
+      <div className="space-y-4">
+        <div className="bg-muted rounded-lg p-4">
+          <p className="text-muted-foreground mb-2 text-sm">
+            {t("dashboard.hr.resumeMatching.sanitizedResume.description")}
+          </p>
+          <pre className="font-mono text-sm whitespace-pre-wrap">
+            {sanitizedResume.sanitized_content}
+          </pre>
+        </div>
+      </div>
+    );
+  };
 
   // Update query when job description changes
   useEffect(() => {
@@ -110,6 +157,40 @@ export function ResumeMatchSearch({
                       </p>
                     </div>
                   </div>
+                  {item.resumeAttachment && (
+                    <div className="mt-3 flex items-center gap-2">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedCandidateId(item.candidate._id);
+                            }}
+                            className="text-primary flex items-center gap-1 text-sm hover:underline"
+                            title="View sanitized resume"
+                          >
+                            <Eye className="h-4 w-4" />
+                            {t(
+                              "dashboard.hr.resumeMatching.candidates.viewSanitized",
+                            )}
+                          </button>
+                        </DialogTrigger>
+                        <DialogContent className="h-[80vh] max-w-4xl overflow-y-auto">
+                          <DialogHeader>
+                            <DialogTitle>
+                              {t(
+                                "dashboard.hr.resumeMatching.sanitizedResume.title",
+                              )}{" "}
+                              - {item.candidate.name}
+                            </DialogTitle>
+                          </DialogHeader>
+                          <SanitizedResumeView
+                            candidateId={item.candidate._id}
+                          />
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  )}
                 </div>
               </Card>
             ))}
