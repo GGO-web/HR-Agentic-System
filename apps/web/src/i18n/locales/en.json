@@ -157,6 +157,38 @@
           "invalidRole": "This email belongs to an HR manager. Only candidates can be invited to interviews.",
           "alreadyInvited": "This candidate has already been invited for this position."
         }
+      },
+      "resumeMatching": {
+        "title": "Resume Matching",
+        "description": "View candidates with resumes and find the best matches for your job descriptions using AI-powered hybrid search.",
+        "candidates": {
+          "title": "Candidates with Resumes",
+          "description": "Candidates who have uploaded resumes for this position",
+          "noCandidates": "No candidates with resumes yet. Invite candidates and ask them to upload their resumes in their profile."
+        },
+        "findMatches": {
+          "title": "Find Matches",
+          "description": "Search for resumes that match this job description",
+          "button": "Find Matches",
+          "searching": "Searching...",
+          "noResults": "No matching resumes found. Upload resumes first.",
+          "results": {
+            "title": "Matching Results",
+            "score": "Match Score",
+            "content": "Relevant Content",
+            "metadata": "Metadata",
+            "searchType": "Search Type"
+          },
+          "actions": {
+            "success": "Matches found successfully",
+            "error": "Failed to find matches. Please try again."
+          }
+        },
+        "searchTypes": {
+          "hybrid": "Hybrid (Vector + Keyword)",
+          "vector": "Vector (Semantic)",
+          "keyword": "Keyword (BM25)"
+        }
       }
     },
     "candidate": {
@@ -335,7 +367,9 @@
       "hint": "Upload your resume (PDF, DOC, or DOCX, max 10MB)",
       "removed": "Resume removed successfully",
       "removeError": "Failed to remove resume",
-      "uploadError": "Failed to upload resume"
+      "uploadError": "Failed to upload resume",
+      "processed": "Resume processed and indexed for matching",
+      "processWarning": "Profile updated, but resume processing failed. You can try again later."
     },
     "save": "Save",
     "saving": "Saving...",

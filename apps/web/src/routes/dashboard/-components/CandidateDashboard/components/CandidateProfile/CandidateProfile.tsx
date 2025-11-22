@@ -19,6 +19,7 @@ import { z } from "zod";
 import { ResumeUploadButton } from "@/components/resume-upload-button/ResumeUploadButton";
 import { useAuth } from "@/hooks/useAuth";
 import { uploadResumeToS3, deleteResumeFromS3 } from "@/services/s3Service";
+import { useProcessResumeMutation } from "@/routes/dashboard/-components/HRDashboard/hooks/useProcessResumeMutation";
 
 const candidateProfileSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -46,6 +47,7 @@ export function CandidateProfile({ userId }: CandidateProfileProps) {
 
   const updateCandidateProfile = useMutation(api.users.updateCandidateProfile);
   const createAttachment = useMutation(api.attachments.create);
+  const { mutateAsync: processResume } = useProcessResumeMutation();
 
   const form = useForm<CandidateProfileFormData>({
     resolver: zodResolver(candidateProfileSchema),
@@ -150,6 +152,21 @@ export function CandidateProfile({ userId }: CandidateProfileProps) {
       });
 
       toast.success(t("profile.updateSuccess"));
+
+      // Process resume through hybrid search API if we have a new resume
+      if (resumeFile && newResumeAttachmentId) {
+        try {
+          await processResume({
+            file: resumeFile,
+            candidateId: userId,
+          });
+          toast.success(t("profile.resume.processed"));
+        } catch (error) {
+          console.error("Error processing resume for hybrid search:", error);
+          // Don't fail the profile update if resume processing fails
+          toast.warning(t("profile.resume.processWarning"));
+        }
+      }
 
       // Reset the form state
       setResumeFile(null);

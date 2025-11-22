@@ -12,6 +12,7 @@ import { JobDescriptionForm } from "./components/JobDescriptionForm/JobDescripti
 import { JobDescriptionList } from "./components/JobDescriptionList/JobDescriptionList";
 import { useGenerateInterviewQuestionsMutation } from "./hooks/useGenerateInterviewQuestionsMutation";
 import { useInterviewQuestionsQuery } from "./hooks/useInterviewQuestionsQuery";
+import { ResumeMatchSearch } from "./components/ResumeMatchSearch/ResumeMatchSearch";
 
 import { useAuth } from "@/hooks/useAuth";
 
@@ -140,6 +141,27 @@ export function HRDashboard() {
           )}
         </div>
       </div>
+
+      {/* Resume Matching Section */}
+      {selectedJobId && (
+        <div className="mt-6">
+          <ResumeMatchSearch
+            jobId={selectedJobId}
+            jobDescription={
+              jobDescriptions
+                ? jobDescriptions.find((job) => job._id === selectedJobId)
+                    ?.description || ""
+                : ""
+            }
+            jobTitle={
+              jobDescriptions
+                ? jobDescriptions.find((job) => job._id === selectedJobId)
+                    ?.title || ""
+                : ""
+            }
+          />
+        </div>
+      )}
 
       {/* Company profile form modal */}
       <CompanyProfileForm
