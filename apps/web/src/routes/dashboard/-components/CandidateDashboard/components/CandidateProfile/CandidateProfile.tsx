@@ -20,6 +20,7 @@ import { ResumeUploadButton } from "@/components/resume-upload-button/ResumeUplo
 import { useAuth } from "@/hooks/useAuth";
 import { uploadResumeToS3, deleteResumeFromS3 } from "@/services/s3Service";
 import { useProcessResumeMutation } from "@/routes/dashboard/-components/HRDashboard/hooks/useProcessResumeMutation";
+import { useDeleteResumeMutation } from "@/routes/dashboard/-components/HRDashboard/hooks/useDeleteResumeMutation";
 
 const candidateProfileSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -48,6 +49,7 @@ export function CandidateProfile({ userId }: CandidateProfileProps) {
   const updateCandidateProfile = useMutation(api.users.updateCandidateProfile);
   const createAttachment = useMutation(api.attachments.create);
   const { mutateAsync: processResume } = useProcessResumeMutation();
+  const { mutateAsync: deleteResumeFromChroma } = useDeleteResumeMutation();
 
   const form = useForm<CandidateProfileFormData>({
     resolver: zodResolver(candidateProfileSchema),
@@ -90,8 +92,18 @@ export function CandidateProfile({ userId }: CandidateProfileProps) {
 
     if (currentResumeUrl) {
       try {
+        // Delete from S3
         const result = await deleteResumeFromS3(currentResumeUrl);
         if (result.success) {
+          // Delete from ChromaDB
+          try {
+            await deleteResumeFromChroma(String(userId));
+          } catch (error) {
+            console.error("Error deleting resume from ChromaDB:", error);
+            // Don't fail the whole operation if ChromaDB deletion fails
+            toast.warning(t("profile.resume.chromaDeleteWarning"));
+          }
+
           // Update the user to remove the resume attachment
           await updateCandidateProfile({
             userId,
@@ -137,6 +149,13 @@ export function CandidateProfile({ userId }: CandidateProfileProps) {
           // Delete old resume if exists
           if (resumeAttachment?.[0]?.fileUrl) {
             await deleteResumeFromS3(resumeAttachment[0].fileUrl);
+            // Also delete from ChromaDB
+            try {
+              await deleteResumeFromChroma(String(userId));
+            } catch (error) {
+              console.error("Error deleting old resume from ChromaDB:", error);
+              // Don't fail the whole operation if ChromaDB deletion fails
+            }
           }
         } else {
           toast.error(uploadResult.error || t("profile.resume.uploadError"));

@@ -373,6 +373,7 @@
       "hint": "Upload your resume (PDF, DOC, or DOCX, max 10MB)",
       "removed": "Resume removed successfully",
       "removeError": "Failed to remove resume",
+      "chromaDeleteWarning": "Resume removed from storage, but there was an issue removing it from search index",
       "uploadError": "Failed to upload resume",
       "processed": "Resume processed and indexed for matching",
       "processWarning": "Profile updated, but resume processing failed. You can try again later."

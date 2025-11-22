@@ -223,6 +223,122 @@ async def get_sanitized_resume(candidate_id: str):
         )
 
 
+@router.delete("/resume/{candidate_id}", summary="Delete resume data from ChromaDB")
+async def delete_resume(candidate_id: str):
+    """
+    Delete all resume data for a specific candidate from ChromaDB.
+
+    Args:
+        candidate_id: Candidate ID (Convex user ID) to delete resume for
+
+    Returns:
+        Success message with count of deleted documents
+    """
+    try:
+        service = HybridSearchService()
+
+        # Load existing index
+        if not service.load_existing_index():
+            raise HTTPException(
+                status_code=404,
+                detail="No indexed resumes found."
+            )
+
+        if not service.hybrid_matcher.vector_store:
+            raise HTTPException(
+                status_code=404,
+                detail="No indexed resumes found."
+            )
+
+        collection = service.hybrid_matcher.vector_store._collection
+        if not collection:
+            raise HTTPException(
+                status_code=404,
+                detail="No indexed resumes found."
+            )
+
+        # Get all documents to find matching candidate_id
+        results = collection.get()
+
+        if not results or 'documents' not in results or len(results['documents']) == 0:
+            raise HTTPException(
+                status_code=404,
+                detail="No indexed resumes found."
+            )
+
+        # Find all document IDs that match this candidate_id
+        ids_to_delete = []
+        for i, metadata in enumerate(results.get('metadatas', [])):
+            if metadata and metadata.get('candidate_id') == candidate_id:
+                # Get the ID for this document
+                if 'ids' in results and i < len(results['ids']):
+                    ids_to_delete.append(results['ids'][i])
+
+        if not ids_to_delete:
+            raise HTTPException(
+                status_code=404,
+                detail=f"No resume found for candidate {candidate_id}"
+            )
+
+        # Delete documents by IDs
+        collection.delete(ids=ids_to_delete)
+
+        # Rebuild the retrievers after deletion
+        # Get remaining documents
+        remaining_results = collection.get()
+        if remaining_results and 'documents' in remaining_results and len(remaining_results['documents']) > 0:
+            # Recreate documents list for BM25
+            remaining_documents = []
+            for i, doc_text in enumerate(remaining_results['documents']):
+                metadata = remaining_results.get('metadatas', [{}])[
+                    i] if remaining_results.get('metadatas') else {}
+                from langchain_core.documents import Document
+                remaining_documents.append(
+                    Document(page_content=doc_text, metadata=metadata)
+                )
+
+            # Recreate BM25 retriever
+            from langchain_community.retrievers import BM25Retriever
+            service.hybrid_matcher.bm25_retriever = BM25Retriever.from_documents(
+                remaining_documents)
+            service.hybrid_matcher.bm25_retriever.k = 10
+
+            # Recreate ensemble retriever
+            vector_retriever = service.hybrid_matcher.vector_store.as_retriever(
+                search_type="similarity",
+                search_kwargs={"k": 10}
+            )
+            from langchain.retrievers import EnsembleRetriever
+            service.hybrid_matcher.ensemble_retriever = EnsembleRetriever(
+                retrievers=[vector_retriever,
+                            service.hybrid_matcher.bm25_retriever],
+                weights=[service.hybrid_matcher.vector_weight,
+                         service.hybrid_matcher.bm25_weight]
+            )
+
+            # Update documents list
+            service.hybrid_matcher.documents = remaining_documents
+        else:
+            # No documents left, reset retrievers
+            service.hybrid_matcher.bm25_retriever = None
+            service.hybrid_matcher.ensemble_retriever = None
+            service.hybrid_matcher.documents = []
+
+        return {
+            "message": "Resume deleted successfully",
+            "deleted_count": len(ids_to_delete),
+            "candidate_id": candidate_id
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error deleting resume: {str(e)}"
+        )
+
+
 @router.post("/find-matches", response_model=SearchResponse, summary="Find matching resume chunks")
 async def find_matching_chunks(request: JobDescriptionRequest):
     """
