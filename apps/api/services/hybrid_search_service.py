@@ -30,7 +30,7 @@ class HybridSearchService:
             embedding_model: HuggingFace model name for embeddings
         """
         self.document_loader = DocumentLoader()
-        self.text_sanitizer = TextSanitizer()
+        self.text_sanitizer = TextSanitizer()  # Now an instance, not static
         self.hybrid_matcher = HybridMatcher(
             persist_directory=persist_directory,
             embedding_model=embedding_model

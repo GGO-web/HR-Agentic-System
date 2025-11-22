@@ -61,9 +61,18 @@ class DocumentLoader:
 
         with pdfplumber.open(file_path) as pdf:
             for page_num, page in enumerate(pdf.pages, start=1):
-                # Extract text preserving layout
+                # Try multiple extraction methods for better text recovery
+                # Method 1: Standard text extraction
                 page_text = page.extract_text()
-                if page_text:
+
+                # Method 2: If standard extraction is poor, try extracting from words
+                if not page_text or len(page_text.strip()) < 50:
+                    words = page.extract_words()
+                    if words:
+                        page_text = ' '.join(
+                            [word.get('text', '') for word in words if word.get('text')])
+
+                if page_text and page_text.strip():
                     text_parts.append(page_text)
 
         return "\n\n".join(text_parts)
