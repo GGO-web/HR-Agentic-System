@@ -63,35 +63,67 @@ export function InterviewResults({ sessionId }: InterviewResultsProps) {
   // Sort questions by order
   const sortedQuestions = [...questions].sort((a, b) => a.order - b.order);
 
-  // Find response for a question
+  // Find response for a question (takes the one with highest finalScore if multiple exist)
   const findResponse = (questionId: string) => {
-    return responses.find((response) => response.questionId === questionId);
+    const questionResponses = responses.filter(
+      (response) => response.questionId === questionId,
+    );
+    if (questionResponses.length === 0) return undefined;
+
+    // If multiple responses exist, return the one with highest finalScore
+    return questionResponses.reduce((best, current) => {
+      const bestScore = best.finalScore ?? 0;
+      const currentScore = current.finalScore ?? 0;
+      return currentScore > bestScore ? current : best;
+    });
   };
 
   // Calculate overall statistics
+  // Groups responses by questionId to avoid duplicates (takes the best score for each question)
   const calculateOverallStats = () => {
+    // First, filter responses with scores
     const responsesWithScores = responses.filter(
       (r) => r.finalScore !== undefined && r.finalScore !== null,
     );
+
     if (responsesWithScores.length === 0) return null;
 
+    // Group by questionId and take the response with the highest finalScore for each question
+    // This handles cases where multiple responses exist for the same question (duplicates from analysis)
+    const bestResponsesByQuestion = new Map<string, (typeof responses)[0]>();
+
+    responsesWithScores.forEach((response) => {
+      const questionId = response.questionId;
+      const existing = bestResponsesByQuestion.get(questionId);
+
+      // Take the response with the highest finalScore for each question
+      if (
+        !existing ||
+        (response.finalScore || 0) > (existing.finalScore || 0)
+      ) {
+        bestResponsesByQuestion.set(questionId, response);
+      }
+    });
+
+    const uniqueResponses = Array.from(bestResponsesByQuestion.values());
+
+    if (uniqueResponses.length === 0) return null;
+
     const avgFinalScore =
-      responsesWithScores.reduce((sum, r) => sum + (r.finalScore || 0), 0) /
-      responsesWithScores.length;
+      uniqueResponses.reduce((sum, r) => sum + (r.finalScore || 0), 0) /
+      uniqueResponses.length;
     const avgContentScore =
-      responsesWithScores.reduce((sum, r) => sum + (r.contentScore || 0), 0) /
-      responsesWithScores.length;
+      uniqueResponses.reduce((sum, r) => sum + (r.contentScore || 0), 0) /
+      uniqueResponses.length;
     const avgConfidenceScore =
-      responsesWithScores.reduce(
-        (sum, r) => sum + (r.confidenceScore || 0),
-        0,
-      ) / responsesWithScores.length;
+      uniqueResponses.reduce((sum, r) => sum + (r.confidenceScore || 0), 0) /
+      uniqueResponses.length;
 
     return {
       avgFinalScore,
       avgContentScore,
       avgConfidenceScore,
-      totalQuestions: responsesWithScores.length,
+      totalQuestions: uniqueResponses.length,
     };
   };
 
