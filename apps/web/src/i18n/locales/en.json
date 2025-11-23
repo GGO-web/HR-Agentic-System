@@ -341,12 +341,27 @@
       "question": "Question {{index}}",
       "yourAnswer": "Your Answer:",
       "analysisScores": "Analysis Scores",
+      "complexity": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+      },
+      "category": {
+        "strongHire": "Strong Hire",
+        "potential": "Potential / Qualified",
+        "rejected": "Weak / Rejected"
+      },
       "overall": {
         "finalScore": "Final Score",
         "contentScore": "Content Score",
         "confidenceScore": "Confidence Score",
         "questionsAnalyzed": "Questions Analyzed",
-        "outOf": "out of"
+        "outOf": "out of",
+        "integratedScore": "Integrated Final Score",
+        "integratedScoreDescription": "Combined resume (30%) and interview (70%) evaluation",
+        "resumeScore": "Resume Score",
+        "interviewScore": "Interview Score",
+        "weightedByComplexity": "Weighted by question complexity"
       },
       "scores": {
         "finalScore": "Final Score",
@@ -355,6 +370,35 @@
         "confidenceScore": "Confidence Level",
         "confidenceDescription": "Measures speech patterns, pace, and linguistic confidence indicators",
         "notAvailable": "Analysis scores are not available yet"
+      },
+      "calculation": {
+        "title": "How Scores Are Calculated",
+        "complexityWeights": {
+          "title": "1. Question Complexity Weights (λ)",
+          "low": "Intro, Motivation questions",
+          "medium": "Standard technical questions",
+          "high": "Problem Solving and Architecture questions"
+        },
+        "interviewScore": {
+          "title": "2. Weighted Interview Score",
+          "description": "Each question's score is multiplied by its complexity weight, then averaged:",
+          "note": "This means a high score on a complex question (λ=3) affects the final rating 3x more than an intro question (λ=1)."
+        },
+        "integratedScore": {
+          "title": "3. Integrated Final Score",
+          "description": "Combines resume evaluation (30%) and interview performance (70%):"
+        },
+        "category": {
+          "title": "4. Candidate Classification",
+          "strongHire": "Candidate demonstrates deep knowledge and high confidence. Recommended for immediate offer or final interview with CTO.",
+          "potential": "Candidate meets basic requirements but has some gaps. Requires additional verification of specific skills.",
+          "rejected": "Knowledge level insufficient for the position or critical mismatches detected (Veto mechanism triggered)."
+        },
+        "veto": {
+          "title": "5. Veto Mechanism (Threshold Logic)",
+          "description": "If content validity score (S_content) is below 0.4, the final score for that question is automatically set to 0, regardless of confidence level:",
+          "note": "This prevents candidates from scoring high on confidence alone when they give incorrect answers."
+        }
       }
     }
   },

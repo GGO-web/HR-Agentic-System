@@ -62,6 +62,17 @@ export const getById = query({
   },
 });
 
+// Get user by email
+export const getByEmail = query({
+  args: { email: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .first();
+  },
+});
+
 // Get users by company ID
 export const getByCompany = query({
   args: { companyId: v.id("companies") },
