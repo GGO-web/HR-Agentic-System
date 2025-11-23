@@ -325,6 +325,7 @@
       "inReview": "Interview Under Review",
       "inReviewDescription": "This interview is currently being analyzed by our AI system. Results will be available soon.",
       "viewResults": "View Results",
+      "noAnswer": "No answer provided",
       "status": {
         "completed": "Completed",
         "inReview": "In Review"
@@ -338,7 +339,23 @@
         "progress": "Your interview responses are being analyzed by our AI system. Detailed feedback and analysis will be available once the review is complete."
       },
       "question": "Question {{index}}",
-      "yourAnswer": "Your Answer:"
+      "yourAnswer": "Your Answer:",
+      "analysisScores": "Analysis Scores",
+      "overall": {
+        "finalScore": "Final Score",
+        "contentScore": "Content Score",
+        "confidenceScore": "Confidence Score",
+        "questionsAnalyzed": "Questions Analyzed",
+        "outOf": "out of"
+      },
+      "scores": {
+        "finalScore": "Final Score",
+        "contentScore": "Content Validity",
+        "contentDescription": "Measures how well the answer matches expected keywords and content",
+        "confidenceScore": "Confidence Level",
+        "confidenceDescription": "Measures speech patterns, pace, and linguistic confidence indicators",
+        "notAvailable": "Analysis scores are not available yet"
+      }
     }
   },
   "invitation": {

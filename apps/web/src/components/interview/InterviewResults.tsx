@@ -2,8 +2,10 @@ import { api } from "@convex/_generated/api";
 import { type Id } from "@convex/_generated/dataModel";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useRouter } from "@tanstack/react-router";
+import { Progress } from "@workspace/ui/components/progress";
 import { LoadingSpinner } from "@workspace/ui/components/shared/loading-spinner";
 import { useQuery as useConvexQuery } from "convex/react";
+import { CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { getInterviewTranscriptFromS3 } from "@/services/s3Service";
@@ -64,6 +66,43 @@ export function InterviewResults({ sessionId }: InterviewResultsProps) {
   // Find response for a question
   const findResponse = (questionId: string) => {
     return responses.find((response) => response.questionId === questionId);
+  };
+
+  // Calculate overall statistics
+  const calculateOverallStats = () => {
+    const responsesWithScores = responses.filter(
+      (r) => r.finalScore !== undefined && r.finalScore !== null,
+    );
+    if (responsesWithScores.length === 0) return null;
+
+    const avgFinalScore =
+      responsesWithScores.reduce((sum, r) => sum + (r.finalScore || 0), 0) /
+      responsesWithScores.length;
+    const avgContentScore =
+      responsesWithScores.reduce((sum, r) => sum + (r.contentScore || 0), 0) /
+      responsesWithScores.length;
+    const avgConfidenceScore =
+      responsesWithScores.reduce(
+        (sum, r) => sum + (r.confidenceScore || 0),
+        0,
+      ) / responsesWithScores.length;
+
+    return {
+      avgFinalScore,
+      avgContentScore,
+      avgConfidenceScore,
+      totalQuestions: responsesWithScores.length,
+    };
+  };
+
+  const overallStats = calculateOverallStats();
+
+  // Helper function to get score color
+  const getScoreColor = (score: number | undefined | null) => {
+    if (score === undefined || score === null) return "text-muted-foreground";
+    if (score >= 0.7) return "text-green-600";
+    if (score >= 0.4) return "text-yellow-600";
+    return "text-red-600";
   };
 
   // Extract candidate messages from transcript for a specific question
@@ -152,6 +191,89 @@ export function InterviewResults({ sessionId }: InterviewResultsProps) {
         </div>
       )}
 
+      {/* Overall Statistics */}
+      {session.status === "completed" && overallStats && (
+        <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
+          <div className="border-border bg-card rounded-lg border p-4">
+            <div className="text-muted-foreground text-sm">
+              {t("interview.results.overall.finalScore") || "Final Score"}
+            </div>
+            <div className="mt-2 text-2xl font-bold">
+              <span className={getScoreColor(overallStats.avgFinalScore)}>
+                {(overallStats.avgFinalScore * 100).toFixed(1)}%
+              </span>
+            </div>
+            <Progress
+              value={overallStats.avgFinalScore * 100}
+              className="mt-2"
+              indicatorClassName={
+                overallStats.avgFinalScore >= 0.7
+                  ? "bg-green-600"
+                  : overallStats.avgFinalScore >= 0.4
+                    ? "bg-yellow-600"
+                    : "bg-red-600"
+              }
+            />
+          </div>
+          <div className="border-border bg-card rounded-lg border p-4">
+            <div className="text-muted-foreground text-sm">
+              {t("interview.results.overall.contentScore") || "Content Score"}
+            </div>
+            <div className="mt-2 text-2xl font-bold">
+              <span className={getScoreColor(overallStats.avgContentScore)}>
+                {(overallStats.avgContentScore * 100).toFixed(1)}%
+              </span>
+            </div>
+            <Progress
+              value={overallStats.avgContentScore * 100}
+              className="mt-2"
+              indicatorClassName={
+                overallStats.avgContentScore >= 0.7
+                  ? "bg-green-600"
+                  : overallStats.avgContentScore >= 0.4
+                    ? "bg-yellow-600"
+                    : "bg-red-600"
+              }
+            />
+          </div>
+          <div className="border-border bg-card rounded-lg border p-4">
+            <div className="text-muted-foreground text-sm">
+              {t("interview.results.overall.confidenceScore") ||
+                "Confidence Score"}
+            </div>
+            <div className="mt-2 text-2xl font-bold">
+              <span className={getScoreColor(overallStats.avgConfidenceScore)}>
+                {(overallStats.avgConfidenceScore * 100).toFixed(1)}%
+              </span>
+            </div>
+            <Progress
+              value={overallStats.avgConfidenceScore * 100}
+              className="mt-2"
+              indicatorClassName={
+                overallStats.avgConfidenceScore >= 0.7
+                  ? "bg-green-600"
+                  : overallStats.avgConfidenceScore >= 0.4
+                    ? "bg-yellow-600"
+                    : "bg-red-600"
+              }
+            />
+          </div>
+          <div className="border-border bg-card rounded-lg border p-4">
+            <div className="text-muted-foreground text-sm">
+              {t("interview.results.overall.questionsAnalyzed") ||
+                "Questions Analyzed"}
+            </div>
+            <div className="mt-2 text-2xl font-bold">
+              {overallStats.totalQuestions}
+            </div>
+            <div className="text-muted-foreground mt-2 text-sm">
+              {t("interview.results.overall.outOf") || "out of"}{" "}
+              {sortedQuestions.length}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="space-y-6">
         {sortedQuestions.map((question, index) => {
           const response = findResponse(question._id);
@@ -183,11 +305,139 @@ export function InterviewResults({ sessionId }: InterviewResultsProps) {
                     <LoadingSpinner text="Loading transcription..." />
                   ) : (
                     <div className="space-y-2">
-                      <p>{candidateAnswer}</p>
+                      <p>
+                        {response.transcription ||
+                          candidateAnswer ||
+                          t("interview.results.noAnswer")}
+                      </p>
                     </div>
                   )}
                 </div>
               </div>
+
+              {/* Analysis Scores */}
+              {session.status === "completed" && (
+                <div className="mt-6 space-y-4 border-t pt-4">
+                  <h4 className="font-medium">
+                    {t("interview.results.analysisScores") || "Analysis Scores"}
+                  </h4>
+
+                  {/* Final Score */}
+                  {response.finalScore !== undefined &&
+                    response.finalScore !== null && (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium">
+                              {t("interview.results.scores.finalScore") ||
+                                "Final Score"}
+                            </span>
+                            {response.finalScore >= 0.7 ? (
+                              <CheckCircle2 className="h-4 w-4 text-green-600" />
+                            ) : response.finalScore >= 0.4 ? (
+                              <AlertCircle className="h-4 w-4 text-yellow-600" />
+                            ) : (
+                              <XCircle className="h-4 w-4 text-red-600" />
+                            )}
+                          </div>
+                          <span
+                            className={`text-lg font-bold ${getScoreColor(response.finalScore)}`}
+                          >
+                            {(response.finalScore * 100).toFixed(1)}%
+                          </span>
+                        </div>
+                        <Progress
+                          value={response.finalScore * 100}
+                          indicatorClassName={
+                            response.finalScore >= 0.7
+                              ? "bg-green-600"
+                              : response.finalScore >= 0.4
+                                ? "bg-yellow-600"
+                                : "bg-red-600"
+                          }
+                        />
+                      </div>
+                    )}
+
+                  {/* Content Score */}
+                  {response.contentScore !== undefined &&
+                    response.contentScore !== null && (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">
+                            {t("interview.results.scores.contentScore") ||
+                              "Content Validity"}
+                          </span>
+                          <span
+                            className={`text-sm font-semibold ${getScoreColor(response.contentScore)}`}
+                          >
+                            {(response.contentScore * 100).toFixed(1)}%
+                          </span>
+                        </div>
+                        <Progress
+                          value={response.contentScore * 100}
+                          className="h-2"
+                          indicatorClassName={
+                            response.contentScore >= 0.7
+                              ? "bg-green-500"
+                              : response.contentScore >= 0.4
+                                ? "bg-yellow-500"
+                                : "bg-red-500"
+                          }
+                        />
+                        <p className="text-muted-foreground text-xs">
+                          {t("interview.results.scores.contentDescription") ||
+                            "Measures how well the answer matches expected keywords and content"}
+                        </p>
+                      </div>
+                    )}
+
+                  {/* Confidence Score */}
+                  {response.confidenceScore !== undefined &&
+                    response.confidenceScore !== null && (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">
+                            {t("interview.results.scores.confidenceScore") ||
+                              "Confidence Level"}
+                          </span>
+                          <span
+                            className={`text-sm font-semibold ${getScoreColor(response.confidenceScore)}`}
+                          >
+                            {(response.confidenceScore * 100).toFixed(1)}%
+                          </span>
+                        </div>
+                        <Progress
+                          value={response.confidenceScore * 100}
+                          className="h-2"
+                          indicatorClassName={
+                            response.confidenceScore >= 0.7
+                              ? "bg-green-500"
+                              : response.confidenceScore >= 0.4
+                                ? "bg-yellow-500"
+                                : "bg-red-500"
+                          }
+                        />
+                        <p className="text-muted-foreground text-xs">
+                          {t(
+                            "interview.results.scores.confidenceDescription",
+                          ) ||
+                            "Measures speech patterns, pace, and linguistic confidence indicators"}
+                        </p>
+                      </div>
+                    )}
+
+                  {/* No scores available */}
+                  {response.finalScore === undefined &&
+                    response.contentScore === undefined &&
+                    response.confidenceScore === undefined && (
+                      <div className="text-muted-foreground text-sm">
+                        {t("interview.results.scores.notAvailable") ||
+                          "Analysis scores are not available yet"}
+                      </div>
+                    )}
+                </div>
+              )}
             </div>
           );
         })}
