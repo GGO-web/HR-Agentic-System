@@ -57,14 +57,33 @@ export const getByJobDescription = query({
   },
 });
 
+// Get interview session by ElevenLabs conversation ID
+export const getByConversationId = query({
+  args: { conversationId: v.string() },
+  handler: async (ctx, args) => {
+    const sessions = await ctx.db.query("interviewSessions").collect();
+    return (
+      sessions.find(
+        (s) => s.elevenlabsConversationId === args.conversationId,
+      ) || null
+    );
+  },
+});
+
 // Start an interview session
 export const startSession = mutation({
-  args: { id: v.id("interviewSessions") },
+  args: {
+    id: v.id("interviewSessions"),
+    elevenlabsConversationId: v.optional(v.string()),
+  },
   handler: async (ctx, args) => {
     await ctx.db.patch(args.id, {
       status: "in_progress",
       startedAt: Date.now(),
       updatedAt: Date.now(),
+      ...(args.elevenlabsConversationId && {
+        elevenlabsConversationId: args.elevenlabsConversationId,
+      }),
     });
 
     return args.id;
@@ -83,6 +102,22 @@ export const sendSessionForReview = mutation({
       submittedAt: Date.now(),
       updatedAt: Date.now(),
       ...(args.transcriptUrl && { transcriptUrl: args.transcriptUrl }),
+    });
+
+    return args.id;
+  },
+});
+
+// Complete an interview session (after analysis is done)
+export const sessionComplete = mutation({
+  args: {
+    id: v.id("interviewSessions"),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.id, {
+      status: "completed",
+      completedAt: Date.now(),
+      updatedAt: Date.now(),
     });
 
     return args.id;

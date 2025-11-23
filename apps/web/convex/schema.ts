@@ -105,6 +105,7 @@ export default defineSchema({
     submittedAt: v.optional(v.number()),
     completedAt: v.optional(v.number()),
     transcriptUrl: v.optional(v.string()), // URL to the interview transcript in S3
+    elevenlabsConversationId: v.optional(v.string()), // ElevenLabs conversation ID for webhook processing
     createdAt: v.number(),
     updatedAt: v.number(),
   })
@@ -117,6 +118,9 @@ export default defineSchema({
     questionId: v.id("interviewQuestions"),
     audioUrl: v.string(), // URL to the stored audio file
     transcription: v.optional(v.string()),
+    contentScore: v.optional(v.number()), // Content validity score (0.0-1.0)
+    confidenceScore: v.optional(v.number()), // Confidence score (0.0-1.0)
+    finalScore: v.optional(v.number()), // Final calculated score (0.0-1.0)
     createdAt: v.number(),
   })
     .index("by_interview_session", ["interviewSessionId"])

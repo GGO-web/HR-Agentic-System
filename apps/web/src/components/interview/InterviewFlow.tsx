@@ -11,6 +11,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
 import { END_INTERVIEW_MARKER } from "@/components/interview/-constants";
+import { useAnalyzeInterviewMutation } from "@/components/interview/hooks/useAnalyzeInterviewMutation";
 import { uploadFileToS3 } from "@/services/s3Service";
 
 interface InterviewFlowProps {
@@ -45,6 +46,7 @@ export function InterviewFlow({ sessionId }: InterviewFlowProps) {
   const sendSessionForReview = useMutation(
     api.interviewSessions.sendSessionForReview,
   );
+  const analyzeInterview = useAnalyzeInterviewMutation();
 
   // Restricted phrases that the agent must avoid
   const restrictedPhrases = [
@@ -218,10 +220,15 @@ Let's begin with the first question.`,
 
       await navigator.mediaDevices.getUserMedia({ audio: true });
 
-      await conversation.startSession({
+      const conversationId = await conversation.startSession({
         agentId: import.meta.env.VITE_ELEVENLABS_AGENT_ID,
         connectionType: "websocket",
         userId: session?.candidateEmail || "anonymous",
+      });
+
+      await startSession({
+        id: sessionId,
+        elevenlabsConversationId: conversationId,
       });
     } catch (error) {
       console.error("Failed to start conversation:", error);
@@ -229,48 +236,71 @@ Let's begin with the first question.`,
     } finally {
       setIsConnecting(false);
     }
-  }, [conversation, session, t]);
+  }, [conversation, session, sessionId, startSession, t]);
+
+  const uploadTranscript = useCallback(async () => {
+    try {
+      const payload = {
+        sessionId,
+        candidateEmail: session?.candidateEmail,
+        jobTitle: jobDescription?.title,
+        questions:
+          approvedQuestions.map((q) => ({
+            id: q._id,
+            order: q.order,
+            question: q.question_text || q.question,
+          })) ?? [],
+        messages: messagesRef.current,
+        endedAt: new Date().toISOString(),
+      };
+
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {
+        type: "application/json",
+      });
+
+      const fileName = `interviews/${String(sessionId)}-${Date.now()}.json`;
+      const file = new File([blob], fileName, { type: "application/json" });
+      const upload = await uploadFileToS3(file);
+
+      return upload.success ? upload.url : undefined;
+    } catch (e) {
+      console.error("Transcript upload error:", e);
+      return undefined;
+    }
+  }, [
+    sessionId,
+    session?.candidateEmail,
+    jobDescription?.title,
+    approvedQuestions,
+  ]);
 
   const disconnectConversation = useCallback(async () => {
     try {
       await conversation.endSession();
+
       // Upload transcript to S3 (best-effort)
-      let transcriptUrl: string | undefined;
-      try {
-        const payload = {
-          sessionId,
-          candidateEmail: session?.candidateEmail,
-          jobTitle: jobDescription?.title,
-          questions:
-            approvedQuestions.map((q) => ({
-              id: q._id,
-              order: q.order,
-              question: q.question_text || q.question,
-            })) ?? [],
-          messages: messagesRef.current,
-          endedAt: new Date().toISOString(),
-        };
+      const transcriptUrl = await uploadTranscript();
 
-        const blob = new Blob([JSON.stringify(payload, null, 2)], {
-          type: "application/json",
-        });
-
-        const fileName = `interviews/${String(sessionId)}-${Date.now()}.json`;
-        const file = new File([blob], fileName, { type: "application/json" });
-        const upload = await uploadFileToS3(file);
-
-        if (upload.success && upload.url) {
-          transcriptUrl = upload.url;
-        } else {
-          console.error("Failed to upload interview transcript:", upload.error);
-        }
-      } catch (e) {
-        console.error("Transcript upload error:", e);
+      // Save transcript URL (status will be updated after analysis completes)
+      if (transcriptUrl) {
+        await sendSessionForReview({ id: sessionId, transcriptUrl });
       }
-
-      // Send this interview session for review
-      await sendSessionForReview({ id: sessionId, transcriptUrl });
       toast.success(t("interview.elevenlabs.completed"));
+
+      // Get conversation_id from session
+      const conversationId = session?.elevenlabsConversationId;
+
+      // Trigger analysis asynchronously (fire and forget)
+      // Status will be updated to "in_review" after successful analysis
+      if (conversationId && approvedQuestions.length > 0) {
+        toast.info(t("interview.analysis.starting") || "Starting analysis...");
+        // Don't await - let it run in background
+        analyzeInterview.mutate({
+          conversationId,
+          interviewSessionId: sessionId,
+          questions: approvedQuestions,
+        });
+      }
 
       await navigate({ to: router.routesByPath["/dashboard"].fullPath });
     } catch (error) {
@@ -282,20 +312,18 @@ Let's begin with the first question.`,
   }, [
     conversation,
     sessionId,
+    session,
     sendSessionForReview,
     navigate,
     router,
     t,
     approvedQuestions,
-    jobDescription?.title,
-    session?.candidateEmail,
+    uploadTranscript,
+    analyzeInterview,
   ]);
 
-  useEffect(() => {
-    if (session && session.status === "scheduled") {
-      void startSession({ id: sessionId });
-    }
-  }, [session, sessionId, startSession]);
+  // Note: Session status update is now handled in startConversation callback
+  // This effect is kept for backward compatibility but session start is triggered by user action
 
   // Redirect to results if interview is completed or in review
   useEffect(() => {
