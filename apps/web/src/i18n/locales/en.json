@@ -218,6 +218,21 @@
           "vector": "Vector (Semantic)",
           "keyword": "Keyword (BM25)"
         }
+      },
+      "candidatesEvaluation": {
+        "title": "Candidates Evaluation Summary",
+        "description": "Overview of all candidates' performance across resume evaluation and interview stages",
+        "loading": "Loading candidates evaluation...",
+        "noCandidates": "No completed interviews yet for this job description.",
+        "candidate": "Candidate",
+        "resumeScore": "Resume Score",
+        "interviewScore": "Interview Score",
+        "contentScore": "Content Score",
+        "confidenceScore": "Confidence Score",
+        "integratedScore": "Integrated Score",
+        "category": "Category",
+        "questions": "Questions",
+        "actions": "Actions"
       }
     },
     "candidate": {

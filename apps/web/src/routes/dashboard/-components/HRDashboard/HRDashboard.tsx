@@ -13,6 +13,7 @@ import { JobDescriptionList } from "./components/JobDescriptionList/JobDescripti
 import { useGenerateInterviewQuestionsMutation } from "./hooks/useGenerateInterviewQuestionsMutation";
 import { useInterviewQuestionsQuery } from "./hooks/useInterviewQuestionsQuery";
 import { ResumeMatchSearch } from "./components/ResumeMatchSearch/ResumeMatchSearch";
+import { CandidatesEvaluationTable } from "./components/CandidatesEvaluationTable/CandidatesEvaluationTable";
 
 import { useAuth } from "@/hooks/useAuth";
 
@@ -144,6 +145,13 @@ export function HRDashboard() {
           )}
         </div>
       </div>
+
+      {/* Candidates Evaluation Table */}
+      {selectedJobId && (
+        <div className="mt-6">
+          <CandidatesEvaluationTable jobDescriptionId={selectedJobId} />
+        </div>
+      )}
 
       {/* Resume Matching Section */}
       {selectedJobId && (

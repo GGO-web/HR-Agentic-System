@@ -14,6 +14,7 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as attachments from "../attachments.js";
+import type * as candidateEvaluations from "../candidateEvaluations.js";
 import type * as companies from "../companies.js";
 import type * as hooks_useCreateAttachmentsMutation from "../hooks/useCreateAttachmentsMutation.js";
 import type * as hooks_useGetAttachmentsQuery from "../hooks/useGetAttachmentsQuery.js";
@@ -35,6 +36,7 @@ import type * as users from "../users.js";
  */
 declare const fullApi: ApiFromModules<{
   attachments: typeof attachments;
+  candidateEvaluations: typeof candidateEvaluations;
   companies: typeof companies;
   "hooks/useCreateAttachmentsMutation": typeof hooks_useCreateAttachmentsMutation;
   "hooks/useGetAttachmentsQuery": typeof hooks_useGetAttachmentsQuery;
