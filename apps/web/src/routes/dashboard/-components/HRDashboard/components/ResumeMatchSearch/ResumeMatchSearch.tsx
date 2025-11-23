@@ -22,6 +22,7 @@ import {
   type CandidateMatchResult,
 } from "../../hooks/useFindMatchesMutation";
 import { useGetSanitizedResumeQuery } from "../../hooks/useGetSanitizedResumeQuery";
+import { useGetResumeEvaluationQuery } from "../../hooks/useGetResumeEvaluationQuery";
 
 interface ResumeMatchSearchProps {
   jobId: Id<"jobDescriptions">;
@@ -50,6 +51,16 @@ export function ResumeMatchSearch({
 
   const { mutateAsync: findMatches, isPending: isSearching } =
     useFindMatchesMutation();
+
+  // Check for cached evaluation results
+  const { data: cachedResults } = useGetResumeEvaluationQuery(jobId, query);
+
+  // Load cached results if available on mount or when query changes
+  useEffect(() => {
+    if (cachedResults && cachedResults.results && !results) {
+      setResults(cachedResults.results);
+    }
+  }, [cachedResults, query]);
 
   // Component for viewing sanitized resume
   const SanitizedResumeView = ({
@@ -102,9 +113,16 @@ export function ResumeMatchSearch({
       return;
     }
 
+    // Check for cached results first (already loaded via useGetResumeEvaluationQuery)
+    if (cachedResults && cachedResults.results) {
+      setResults(cachedResults.results);
+      return;
+    }
+
     try {
       const response = await findMatches({
         job_description: query,
+        jobDescriptionId: jobId,
         k: 10,
       });
       setResults(response.results);

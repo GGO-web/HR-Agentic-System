@@ -22,6 +22,7 @@ import type * as interviewQuestions from "../interviewQuestions.js";
 import type * as interviewResponses from "../interviewResponses.js";
 import type * as interviewSessions from "../interviewSessions.js";
 import type * as jobDescriptions from "../jobDescriptions.js";
+import type * as resumeEvaluations from "../resumeEvaluations.js";
 import type * as users from "../users.js";
 
 /**
@@ -42,6 +43,7 @@ declare const fullApi: ApiFromModules<{
   interviewResponses: typeof interviewResponses;
   interviewSessions: typeof interviewSessions;
   jobDescriptions: typeof jobDescriptions;
+  resumeEvaluations: typeof resumeEvaluations;
   users: typeof users;
 }>;
 export declare const api: FilterApi<

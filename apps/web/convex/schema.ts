@@ -149,4 +149,36 @@ export default defineSchema({
     .index("by_candidate_email", ["candidateEmail"])
     .index("by_invitation_token", ["invitationToken"])
     .index("by_status", ["status"]),
+
+  // Resume evaluation results table
+  resumeEvaluations: defineTable({
+    jobDescriptionId: v.id("jobDescriptions"),
+    jobDescriptionHash: v.string(), // Hash of job description text for quick lookup
+    jobDescriptionText: v.string(), // Full job description text
+    results: v.array(
+      v.object({
+        candidate_id: v.string(),
+        scores: v.object({
+          vector_score: v.number(),
+          bm25_score: v.number(),
+          hybrid_score: v.number(),
+        }),
+        report: v.optional(
+          v.object({
+            fit_category: v.string(),
+            overall_score: v.number(),
+            missing_skills: v.array(v.string()),
+            explanation: v.string(),
+            strengths: v.array(v.string()),
+            weaknesses: v.array(v.string()),
+          }),
+        ),
+      }),
+    ),
+    totalCandidates: v.number(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_job_description", ["jobDescriptionId"])
+    .index("by_job_description_hash", ["jobDescriptionId", "jobDescriptionHash"]),
 });

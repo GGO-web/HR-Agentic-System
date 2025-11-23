@@ -19,6 +19,8 @@ class JobDescriptionRequest(BaseModel):
                    description="Number of results to return")
     search_type: str = Field(
         default="hybrid", description="Search type: hybrid, vector, or keyword")
+    job_description_id: Optional[str] = Field(
+        default=None, description="Optional Convex job description ID to save results")
 
 
 class CandidateMatchResponse(BaseModel):
@@ -344,6 +346,8 @@ async def find_matching_candidates(request: JobDescriptionRequest):
     Find matching candidates for a job description using AI-powered evaluation.
     Returns one result per candidate with three evaluation scores.
 
+    If job_description_id is provided, results will be saved to Convex.
+
     Args:
         request: Job description search request
 
@@ -355,6 +359,48 @@ async def find_matching_candidates(request: JobDescriptionRequest):
             job_description=request.job_description,
             k=request.k
         )
+
+        # Save results to Convex if job_description_id is provided
+        if request.job_description_id:
+            try:
+                from services.convex_client import ConvexClient
+                convex_client = ConvexClient()
+
+                # Convert results to dict format for Convex
+                results_dict = [
+                    {
+                        "candidate_id": r.candidate_id,
+                        "scores": {
+                            "vector_score": r.scores.vector_score,
+                            "bm25_score": r.scores.bm25_score,
+                            "hybrid_score": r.scores.hybrid_score,
+                        },
+                        "report": {
+                            "fit_category": r.report.fit_category,
+                            "overall_score": r.report.overall_score,
+                            "missing_skills": r.report.missing_skills,
+                            "explanation": r.report.explanation,
+                            "strengths": r.report.strengths,
+                            "weaknesses": r.report.weaknesses,
+                        } if r.report else None
+                    }
+                    for r in results
+                ]
+
+                await convex_client.save_resume_evaluation(
+                    job_description_id=request.job_description_id,
+                    job_description_text=request.job_description,
+                    results=results_dict,
+                    total_candidates=len(results)
+                )
+            except Exception as save_error:
+                # Log error but don't fail the request
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.warning(
+                    f"Failed to save resume evaluation to Convex: {save_error}. "
+                    "Results are still returned, but not persisted."
+                )
 
         return CandidateMatchResponse(
             results=results,
